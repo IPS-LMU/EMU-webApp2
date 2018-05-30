@@ -1,0 +1,67 @@
+/*
+ * Import required theme for Material2
+ */
+/*@import "~@angular/material/prebuilt-themes/indigo-pink.css";*/
+
+/*
+ * Actual Sticky Footer Styles
+ */
+.all-wrap {
+  min-height: 100vh;
+}
+
+.page-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+}
+
+
+/*
+ * Make the Component injected by Router Outlet full height:
+ */
+main {
+  height: 100%;
+  display: flex;
+  flex-basis: auto;
+  flex-direction: column;
+/*> *:not(router-outlet) {
+  flex: 1;
+  display: block;
+}*/
+}
+
+.fill-remaining-space {
+  /* This fills the remaining space, by using flexbox.
+     Every toolbar row uses a flexbox row layout. */
+  flex: 1 1 auto;
+}
+
+.bundle-list-side-bar{
+  border-right: black solid 1px;
+}
+
+.signals-resize-container{
+  flex: 1;
+  //min-height: 64px;
+  background: red;
+  resize: vertical;
+  overflow: auto;
+}
+
+.levels-container{
+  flex: 1;
+  background: pink;
+  //overflow-y: scroll;
+}
+
+.bottom-menu-bar{
+  //flex: 1;
+  //min-height: 64px;
+  //background: yellow;
+  overflow-x: hidden;
+}

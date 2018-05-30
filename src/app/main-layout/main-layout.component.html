@@ -1,0 +1,178 @@
+<mat-sidenav-container class="all-wrap" fullscreen>
+  <mat-sidenav #sidenav mode="side" opened="true" class="bundle-list-side-bar">
+    <app-bundle-list-side-bar></app-bundle-list-side-bar>
+  </mat-sidenav>
+
+  <div class="page-wrap">
+    <header role="banner">
+      <mat-toolbar color="primary">
+        <button
+          mat-icon-button
+          (click)="sidenav.toggle()"
+          title="Toggle sidenav">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <button mat-raised-button
+          color="primary"
+                *ngIf="false">
+          add level (SEG.)
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          add level (EVENT)
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          rename sel. level
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          download TextGrid
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          download annotJSON
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          OSCI/SPEC settings
+        </button>
+        <!--start: demo menu-->
+        <button mat-raised-button
+                color="primary"
+                button [matMenuTriggerFor]="menu">
+          open demo
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item>ae</button>
+          <button mat-menu-item>ema</button>
+          <button mat-menu-item>epg</button>
+        </mat-menu>
+
+        <!--end: demo menu-->
+
+        <button mat-raised-button
+                color="primary"
+                *ngIf="true">
+          connect
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          show hierarchy
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          edit config
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          search
+        </button>
+        <button mat-raised-button
+                color="primary"
+                *ngIf="false">
+          clear
+        </button>
+        <span class="fill-remaining-space"></span>
+        <mat-icon svgIcon="EMUwebAppEmu"></mat-icon>
+        <!--<button><img src="assets/EMU-webAppEmu.svg" class="_35px" /></button>-->
+      </mat-toolbar>
+    </header>
+
+    <main class="content">
+      <!--start: signals-->
+      <div class="signals-resize-container">
+
+        <div class="signals-container" style="display: flex; flex-direction: column; height: 100%">
+          <app-osci style="flex-grow: 1"></app-osci>
+          <app-osci style="flex-grow: 1"></app-osci>
+        </div>
+
+        <!--<div style="display: flex; flex-direction: column; height: 100%">-->
+          <!--<div style="flex-grow: 1; background: red"></div>-->
+          <!--<div style="flex-grow: 1; background: green"></div>-->
+        <!--</div>-->
+
+      </div>
+      <!--end: signals-->
+
+      <!--start: levels with time-->
+      <div class="levels-container">
+        <!--dataServ.getLevelOrder(cps.vals.perspectives[vs.curPerspectiveIdx].levelCanvases.order)-->
+        <app-level *ngFor="let level_name of config_provider_service.vals.perspectives[view_state_service.curPerspectiveIdx].levelCanvases.order">
+
+        </app-level>
+
+      </div>
+      <!--end: levels with time-->
+
+      <!--start: 2D canvas-->
+      <!--<div class="2d-canvas">-->
+        <!--&lt;!&ndash;Include a header DIV with the same name as the draggable DIV, followed by "header":&ndash;&gt;-->
+        <!--<div class="2d-canvas-header">Click here to move</div>-->
+        <!--<p>Move</p>-->
+        <!--<p>this</p>-->
+        <!--<p>DIV</p>-->
+      <!--</div>-->
+      <!--start: 2D canvas-->
+
+      <div class="bottom-menu-bar">
+        <mat-toolbar color="primary">
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        all
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        in
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        out
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        left
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        right
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        selection
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        play in view
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        play selected
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="true">
+        play entire file
+        </button>
+        </mat-toolbar>
+      </div>
+    </main>
+  </div>
+</mat-sidenav-container>

@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AACA,aAAc;EACZ,MAAM,EAAE,IAAI;EACZ,KAAK,EAAE,IAAI;EACX,UAAU,EAAE,IAAI;EAChB,UAAU,EAAE,eAAe",
+"sources": ["osci.component.scss"],
+"names": [],
+"file": "osci.component.css"
+}
