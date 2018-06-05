@@ -50,6 +50,7 @@ export class WebsocketHandlerService {
       // resolve promise with data only
       if (messageObj.status.type === 'SUCCESS') {
         this.callbacks[messageObj.callbackID].cb.next(messageObj.data);
+
       } else {
         // show protocol error and disconnect from server
         this.closeConnect();

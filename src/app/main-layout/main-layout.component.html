@@ -82,19 +82,34 @@
           clear
         </button>
         <span class="fill-remaining-space"></span>
-        <mat-icon svgIcon="EMUwebAppEmu"></mat-icon>
-        <!--<button><img src="assets/EMU-webAppEmu.svg" class="_35px" /></button>-->
+
+        <button
+          mat-icon-button
+          title="open about/help">
+          <mat-icon>info</mat-icon>
+          <!--<mat-icon svgIcon="EMUwebAppEmu"></mat-icon>-->
+          <!--<button><img src="assets/EMU-webAppEmu.svg" class="_35px" /></button>-->
+        </button>
+
       </mat-toolbar>
     </header>
 
     <main class="content">
+      <div class="all-canvas-container">
       <!--start: signals-->
       <div class="signals-resize-container">
 
-        <div class="signals-container" style="display: flex; flex-direction: column; height: 100%">
-          <app-osci style="flex-grow: 1"></app-osci>
-          <app-osci style="flex-grow: 1"></app-osci>
+        <!--<div class="signals-container" style="display: flex; flex-direction: column; height: 100%">-->
+        <div class="signal-container" *ngFor="let canvas_name of config_provider_service.vals.perspectives[view_state_service.curPerspectiveIdx].signalCanvases.order">
+          <!--{{canvas_name}}-->
+          <app-osci style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name === 'OSCI'"
+                    [audio_buffer] = "sound_handler_service.audioBuffer"
+                    [viewport_sample_start] = "view_state_service.curViewPort.sS"
+                    [viewport_sample_end] = "view_state_service.curViewPort.eS"></app-osci>
         </div>
+          <!--<app-osci style="flex-grow: 1"></app-osci>-->
+          <!--<app-osci style="flex-grow: 1"></app-osci>-->
+        <!--</div>-->
 
         <!--<div style="display: flex; flex-direction: column; height: 100%">-->
           <!--<div style="flex-grow: 1; background: red"></div>-->
@@ -107,13 +122,19 @@
       <!--start: levels with time-->
       <div class="levels-container">
         <!--dataServ.getLevelOrder(cps.vals.perspectives[vs.curPerspectiveIdx].levelCanvases.order)-->
-        <app-level *ngFor="let level_name of config_provider_service.vals.perspectives[view_state_service.curPerspectiveIdx].levelCanvases.order">
+        <app-level
+          *ngFor="let level_name of config_provider_service.vals.perspectives[view_state_service.curPerspectiveIdx].levelCanvases.order"
+          [viewport_sample_start] = "view_state_service.curViewPort.sS"
+          [viewport_sample_end] = "view_state_service.curViewPort.eS"
+          [level_annotation] = "data_service.getLevelDataByName(level_name)"
+          [attributeDefinition]="view_state_service.getCurAttrDef(level_name)"
+        >
 
         </app-level>
 
       </div>
       <!--end: levels with time-->
-
+      </div>
       <!--start: 2D canvas-->
       <!--<div class="2d-canvas">-->
         <!--&lt;!&ndash;Include a header DIV with the same name as the draggable DIV, followed by "header":&ndash;&gt;-->
@@ -127,48 +148,53 @@
       <div class="bottom-menu-bar">
         <mat-toolbar color="primary">
         <button mat-raised-button
-        color="primary"
-        [disabled]="true">
+                color="primary"
+                (click)= "cmdZoomAll()"
+                [disabled]="!view_state_service.getPermission('zoom')">
         all
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="true">
+                color="primary"
+                (click)= "cmdZoomIn()"
+                [disabled]="!view_state_service.getPermission('zoom')">
         in
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="true">
+                color="primary"
+                (click)= "cmdZoomOut()"
+                [disabled]="!view_state_service.getPermission('zoom')">
         out
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="true">
+                color="primary"
+                (click)= "cmdZoomLeft()"
+                [disabled]="!view_state_service.getPermission('zoom')">
         left
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="true">
+                color="primary"
+                (click)= "cmdZoomRight()"
+                [disabled]="!view_state_service.getPermission('zoom')">
         right
         </button>
         <button mat-raised-button
         color="primary"
-        [disabled]="true">
+        [disabled]="!view_state_service.getPermission('zoom')">
         selection
         </button>
         <button mat-raised-button
         color="primary"
-        [disabled]="true">
+        [disabled]="!view_state_service.getPermission('playaudio')">
         play in view
         </button>
         <button mat-raised-button
         color="primary"
-        [disabled]="true">
+        [disabled]="!view_state_service.getPermission('playaudio')">
         play selected
         </button>
         <button mat-raised-button
         color="primary"
-        [disabled]="true">
+        [disabled]="!view_state_service.getPermission('playaudio')">
         play entire file
         </button>
         </mat-toolbar>

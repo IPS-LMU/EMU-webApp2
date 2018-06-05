@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 
+import { SoundHandlerService } from './sound-handler.service';
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class ViewStateService {
 
-  constructor() {
+  constructor(private sound_handler_service: SoundHandlerService) {
     this.initialize();
   }
 
@@ -78,6 +81,10 @@ export class ViewStateService {
   curClickItems;
   curMousePosSample;
   curMouseX;
+  curMouseisFirst;
+  curMouseisLast;
+  curMouseItem;
+  curMouseNeighbours;
   curMouseTrackName;
   curMouseLevelName;
   curMouseLevelType;
@@ -409,10 +416,10 @@ export class ViewStateService {
   /**
    * function to ask permission in current labeler state
    */
-  // sServObj.getPermission = function (actionName) {
-  //   return (sServObj.curState.permittedActions.indexOf(actionName) > -1);
-  // };
-  //
+getPermission(actionName) {
+  return (this.curState.permittedActions.indexOf(actionName) > -1);
+}
+
   // /**
   //  *
   //  */
@@ -720,25 +727,25 @@ setState(nameOrObj) {
   //   this.curViewPort.dragBarHeight = b;
   // };
   //
-  //
-  // /**
-  //  * get pixel position in current viewport given the canvas width
-  //  * @param w is width of canvas
-  //  * @param s is current sample to convert to pixel value
-  //  */
-  // sServObj.getPos = function (w, s) {
-  //   return (w * (s - this.curViewPort.sS) / (this.curViewPort.eS - this.curViewPort.sS + 1)); // + 1 because of view (displays all samples in view)
-  // };
-  //
-  // /**
-  //  * calculate the pixel distance between two samples
-  //  * @param w is width of canvas
-  //  */
-  // sServObj.getSampleDist = function (w) {
-  //   return this.getPos(w, this.curViewPort.sS + 1) - this.getPos(w, this.curViewPort.sS);
-  // };
-  //
-  //
+
+  /**
+   * get pixel position in current viewport given the canvas width
+   * @param w is width of canvas
+   * @param s is current sample to convert to pixel value
+   */
+  public getPos(w, s) {
+    return (w * (s - this.curViewPort.sS) / (this.curViewPort.eS - this.curViewPort.sS + 1)); // + 1 because of view (displays all samples in view)
+  };
+
+  /**
+   * calculate the pixel distance between two samples
+   * @param w is width of canvas
+   */
+  public getSampleDist(w) {
+    return this.getPos(w, this.curViewPort.sS + 1) - this.getPos(w, this.curViewPort.sS);
+  }
+
+
   // /**
   //  * toggle boolean if left submenu is open
   //  */
@@ -875,70 +882,70 @@ setState(nameOrObj) {
   // sServObj.setcurMouseLevelName = function (name) {
   //   this.curMouseLevelName = name;
   // };
-  //
-  // /**
-  //  * gets the current (mousemove) Level Name
-  //  */
-  // sServObj.getcurMouseLevelName = function () {
-  //   return this.curMouseLevelName;
-  // };
-  //
-  //
-  // /**
-  //  * sets the current (mousemove) Level Name
-  //  * @param name is name of level
-  //  */
-  // sServObj.setcurMouseLevelType = function (name) {
-  //   this.curMouseLevelType = name;
-  // };
-  //
-  // /**
-  //  * gets the current (mousemove) Level Name
-  //  */
-  // sServObj.getcurMouseLevelType = function () {
-  //   return this.curMouseLevelType;
-  // };
-  //
-  // /**
-  //  * sets the current (mousemove) Item
-  //  * @param item Object representing the current mouse item
-  //  * @param neighbour Objects of left and right neighbours of the current mouse item
-  //  * @param x current horizontal mouse pointer position
-  //  * @param isFirst true if item is the first item on current level
-  //  * @param isLast true if item is last item on current level
-  //  */
-  // sServObj.setcurMouseItem = function (item, neighbour, x, isFirst, isLast) {
-  //   this.curMouseItem = item;
-  //   this.curMouseX = x;
-  //   this.curMouseNeighbours = neighbour;
-  //   this.curMouseisFirst = isFirst;
-  //   this.curMouseisLast = isLast;
-  // };
-  //
-  // /**
-  //  * Getter for current Mouse Item
-  //  * @return Object representing the current mouse item
-  //  */
-  // sServObj.getcurMouseItem = function () {
-  //   return this.curMouseItem;
-  // };
-  //
-  // /**
-  //  * Getter for isFirst
-  //  * @return true if item is first item on level
-  //  */
-  // sServObj.getcurMouseisFirst = function () {
-  //   return this.curMouseisFirst;
-  // };
-  //
-  // /**
-  //  * Getter for isLast
-  //  * @return true if item is last item on level
-  //  */
-  // sServObj.getcurMouseisLast = function () {
-  //   return this.curMouseisLast;
-  // };
-  //
+
+  /**
+   * gets the current (mousemove) Level Name
+   */
+  public getcurMouseLevelName = function () {
+    return this.curMouseLevelName;
+  }
+
+
+  /**
+   * sets the current (mousemove) Level Name
+   * @param name is name of level
+   */
+  setcurMouseLevelType(name) {
+    this.curMouseLevelType = name;
+  }
+
+  /**
+   * gets the current (mousemove) Level Name
+   */
+  getcurMouseLevelType() {
+    return this.curMouseLevelType;
+  }
+
+  /**
+   * sets the current (mousemove) Item
+   * @param item Object representing the current mouse item
+   * @param neighbour Objects of left and right neighbours of the current mouse item
+   * @param x current horizontal mouse pointer position
+   * @param isFirst true if item is the first item on current level
+   * @param isLast true if item is last item on current level
+   */
+  public setcurMouseItem(item, neighbour, x, isFirst, isLast) {
+    this.curMouseItem = item;
+    this.curMouseX = x;
+    this.curMouseNeighbours = neighbour;
+    this.curMouseisFirst = isFirst;
+    this.curMouseisLast = isLast;
+  };
+
+  /**
+   * Getter for current Mouse Item
+   * @return Object representing the current mouse item
+   */
+  public getcurMouseItem() {
+    return this.curMouseItem;
+  };
+
+  /**
+   * Getter for isFirst
+   * @return true if item is first item on level
+   */
+  public getcurMouseisFirst() {
+    return this.curMouseisFirst;
+  };
+
+  /**
+   * Getter for isLast
+   * @return true if item is last item on level
+   */
+  public getcurMouseisLast() {
+    return this.curMouseisLast;
+  }
+
   // /**
   //  * Getter for current Mouse Item Neighbours (left and right)
   //  * @return Object representing the current mouse item neighbours
@@ -1170,14 +1177,14 @@ setState(nameOrObj) {
   // sServObj.countSelected = function () {
   //   return this.curClickItems.length;
   // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getCurrentSample = function (perc) {
-  //   return this.curViewPort.sS + (this.curViewPort.eS - this.curViewPort.sS) * perc;
-  // };
-  //
+
+  /**
+   *
+   */
+  public getCurrentSample(perc) {
+    return this.curViewPort.sS + (this.curViewPort.eS - this.curViewPort.sS) * perc;
+  }
+
   // /**
   //  *
   //  */
@@ -1222,142 +1229,142 @@ setState(nameOrObj) {
   // sServObj.getSelectedEndTime = function () {
   //   return (this.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate) + 0.5 / Soundhandlerservice.audioBuffer.sampleRate;
   // };
-  //
-  // /**
-  //  * calcs sample time in seconds
-  //  */
-  // sServObj.calcSampleTime = function (sample) {
-  //   return (sample / Soundhandlerservice.audioBuffer.sampleRate) + 0.5 / Soundhandlerservice.audioBuffer.sampleRate;
-  // };
-  //
-  //
-  // /**
-  //  * set view port to start and end sample
-  //  * (with several out-of-bounds like checks)
-  //  *
-  //  * @param sSample start sample of view
-  //  * @param eSample end sample of view
-  //  */
-  // sServObj.setViewPort = function (sSample, eSample) {
-  //   var oldStart = this.curViewPort.sS;
-  //   var oldEnd = this.curViewPort.eS;
-  //   if (sSample !== undefined) {
-  //     this.curViewPort.sS = Math.round(sSample);
-  //   }
-  //   if (eSample !== undefined) {
-  //     this.curViewPort.eS = Math.round(eSample);
-  //   }
-  //
-  //   // check if moving left or right is not out of bounds -> prevent zooming on edge when moving left/right
-  //   if (oldStart > this.curViewPort.sS && oldEnd > this.curViewPort.eS) {
-  //     //moved left
-  //     if (this.curViewPort.sS < 0) {
-  //       this.curViewPort.sS = 0;
-  //       this.curViewPort.eS = oldEnd + Math.abs(this.curViewPort.sS);
-  //     }
-  //   }
-  //   if (oldStart < this.curViewPort.sS && oldEnd < this.curViewPort.eS) {
-  //     //moved right
-  //     if (this.curViewPort.eS > Soundhandlerservice.audioBuffer.length) {
-  //       this.curViewPort.sS = oldStart;
-  //       this.curViewPort.eS = Soundhandlerservice.audioBuffer.length;
-  //     }
-  //   }
-  //
-  //   // check if in range
-  //   if (this.curViewPort.sS < 0) {
-  //     this.curViewPort.sS = 0;
-  //   }
-  //   if (this.curViewPort.eS > Soundhandlerservice.audioBuffer.length) {
-  //     this.curViewPort.eS = Soundhandlerservice.audioBuffer.length;
-  //   }
-  //   // check if at least 4 samples are showing (fixed max zoom size)
-  //   if (this.curViewPort.eS - this.curViewPort.sS < 4) {
-  //     this.curViewPort.sS = oldStart;
-  //     this.curViewPort.eS = oldEnd;
-  //   }
-  //
-  // };
-  //
-  //
-  // /**
-  //  * set view port to start and end sample
-  //  * (with several out-of-bounds like checks)
-  //  *
-  //  * @param zoomIn bool to specify zooming direction
-  //  * if set to true -> zoom in
-  //  * if set to false -> zoom out
-  //  * @param LevelService pass in LevelService to avoid circular dependencies
-  //  */
-  // sServObj.zoomViewPort = function (zoomIn, LevelService) {
-  //   var newStartS, newEndS, curMouseMoveItemStart;
-  //   var seg = this.getcurMouseItem();
-  //   var d = this.curViewPort.eS - this.curViewPort.sS;
-  //
-  //   var isLastSeg = false;
-  //
-  //   if (seg !== undefined) {
-  //     if (this.getcurMouseisFirst()) { // before first element
-  //       seg = LevelService.getItemDetails(sServObj.getcurMouseLevelName(), 0);
-  //     } else if (this.getcurMouseisLast()) {
-  //       seg = LevelService.getLastItem(sServObj.getcurMouseLevelName());
-  //       isLastSeg = true;
-  //     }
-  //     if (this.getcurMouseLevelType() === 'SEGMENT') {
-  //       if (isLastSeg) {
-  //         curMouseMoveItemStart = seg.sampleStart + seg.sampleDur;
-  //       } else {
-  //         curMouseMoveItemStart = seg.sampleStart;
-  //       }
-  //     } else {
-  //       curMouseMoveItemStart = seg.samplePoint;
-  //     }
-  //     var d1 = curMouseMoveItemStart - this.curViewPort.sS;
-  //     var d2 = this.curViewPort.eS - curMouseMoveItemStart;
-  //
-  //     if (zoomIn) {
-  //       newStartS = this.curViewPort.sS + d1 * 0.5;
-  //       newEndS = this.curViewPort.eS - d2 * 0.5;
-  //     } else {
-  //       newStartS = this.curViewPort.sS - d1 * 0.5;
-  //       newEndS = this.curViewPort.eS + d2 * 0.5;
-  //     }
-  //   } else {
-  //     if (zoomIn) {
-  //       newStartS = this.curViewPort.sS + ~~(d / 4);
-  //       newEndS = this.curViewPort.eS - ~~(d / 4);
-  //     } else {
-  //       newStartS = this.curViewPort.sS - ~~(d / 4);
-  //       newEndS = this.curViewPort.eS + ~~(d / 4);
-  //
-  //     }
-  //
-  //   }
-  //   this.setViewPort(newStartS, newEndS);
-  // };
-  //
-  // /**
-  //  * moves view port to the right or to the left
-  //  * without changing the zoom
-  //  *
-  //  * @param shiftRight bool to specify direction
-  //  * if set to true -> shift right
-  //  * if set to false -> shift left
-  //  */
-  // sServObj.shiftViewPort = function (shiftRight) {
-  //   // my.removeLabelDoubleClick();
-  //   var newStartS, newEndS;
-  //   if (shiftRight) {
-  //     newStartS = this.curViewPort.sS + ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
-  //     newEndS = this.curViewPort.eS + ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
-  //   } else {
-  //     newStartS = this.curViewPort.sS - ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
-  //     newEndS = this.curViewPort.eS - ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
-  //   }
-  //
-  //   this.setViewPort(newStartS, newEndS);
-  // };
-  //
+
+  /**
+   * calcs sample time in seconds
+   */
+  calcSampleTime(sample) {
+    return (sample / this.sound_handler_service.audioBuffer.sampleRate) + 0.5 / this.sound_handler_service.audioBuffer.sampleRate;
+  }
+
+
+  /**
+   * set view port to start and end sample
+   * (with several out-of-bounds like checks)
+   *
+   * @param sSample start sample of view
+   * @param eSample end sample of view
+   */
+  public setViewPort(sSample, eSample) {
+    let oldStart = this.curViewPort.sS;
+    let oldEnd = this.curViewPort.eS;
+    if (sSample !== undefined) {
+      this.curViewPort.sS = Math.round(sSample);
+    }
+    if (eSample !== undefined) {
+      this.curViewPort.eS = Math.round(eSample);
+    }
+
+    // check if moving left or right is not out of bounds -> prevent zooming on edge when moving left/right
+    if (oldStart > this.curViewPort.sS && oldEnd > this.curViewPort.eS) {
+      //moved left
+      if (this.curViewPort.sS < 0) {
+        this.curViewPort.sS = 0;
+        this.curViewPort.eS = oldEnd + Math.abs(this.curViewPort.sS);
+      }
+    }
+    if (oldStart < this.curViewPort.sS && oldEnd < this.curViewPort.eS) {
+      //moved right
+      if (this.curViewPort.eS > this.sound_handler_service.audioBuffer.length) {
+        this.curViewPort.sS = oldStart;
+        this.curViewPort.eS = this.sound_handler_service.audioBuffer.length;
+      }
+    }
+
+    // check if in range
+    if (this.curViewPort.sS < 0) {
+      this.curViewPort.sS = 0;
+    }
+    if (this.curViewPort.eS > this.sound_handler_service.audioBuffer.length) {
+      this.curViewPort.eS = this.sound_handler_service.audioBuffer.length;
+    }
+    // check if at least 4 samples are showing (fixed max zoom size)
+    if (this.curViewPort.eS - this.curViewPort.sS < 4) {
+      this.curViewPort.sS = oldStart;
+      this.curViewPort.eS = oldEnd;
+    }
+
+  };
+
+
+  /**
+   * set view port to start and end sample
+   * (with several out-of-bounds like checks)
+   *
+   * @param zoomIn bool to specify zooming direction
+   * if set to true -> zoom in
+   * if set to false -> zoom out
+   * @param LevelService pass in LevelService to avoid circular dependencies
+   */
+  zoomViewPort(zoomIn, LevelService) {
+    let newStartS, newEndS, curMouseMoveItemStart;
+    let seg = this.getcurMouseItem();
+    let d = this.curViewPort.eS - this.curViewPort.sS;
+
+    let isLastSeg = false;
+
+    if (seg !== undefined) {
+      if (this.getcurMouseisFirst()) { // before first element
+        seg = LevelService.getItemDetails(this.getcurMouseLevelName(), 0);
+      } else if (this.getcurMouseisLast()) {
+        seg = LevelService.getLastItem(this.getcurMouseLevelName());
+        isLastSeg = true;
+      }
+      if (this.getcurMouseLevelType() === 'SEGMENT') {
+        if (isLastSeg) {
+          curMouseMoveItemStart = seg.sampleStart + seg.sampleDur;
+        } else {
+          curMouseMoveItemStart = seg.sampleStart;
+        }
+      } else {
+        curMouseMoveItemStart = seg.samplePoint;
+      }
+      let d1 = curMouseMoveItemStart - this.curViewPort.sS;
+      let d2 = this.curViewPort.eS - curMouseMoveItemStart;
+
+      if (zoomIn) {
+        newStartS = this.curViewPort.sS + d1 * 0.5;
+        newEndS = this.curViewPort.eS - d2 * 0.5;
+      } else {
+        newStartS = this.curViewPort.sS - d1 * 0.5;
+        newEndS = this.curViewPort.eS + d2 * 0.5;
+      }
+    } else {
+      if (zoomIn) {
+        newStartS = this.curViewPort.sS + ~~(d / 4);
+        newEndS = this.curViewPort.eS - ~~(d / 4);
+      } else {
+        newStartS = this.curViewPort.sS - ~~(d / 4);
+        newEndS = this.curViewPort.eS + ~~(d / 4);
+
+      }
+
+    }
+    this.setViewPort(newStartS, newEndS);
+  };
+
+  /**
+   * moves view port to the right or to the left
+   * without changing the zoom
+   *
+   * @param shiftRight bool to specify direction
+   * if set to true -> shift right
+   * if set to false -> shift left
+   */
+  public shiftViewPort(shiftRight) {
+    // my.removeLabelDoubleClick();
+    let newStartS, newEndS;
+    if (shiftRight) {
+      newStartS = this.curViewPort.sS + ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
+      newEndS = this.curViewPort.eS + ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
+    } else {
+      newStartS = this.curViewPort.sS - ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
+      newEndS = this.curViewPort.eS - ~~((this.curViewPort.eS - this.curViewPort.sS) / 4);
+    }
+
+    this.setViewPort(newStartS, newEndS);
+  }
+
 
   /**
    * sets all the curLevelAttrDefs array

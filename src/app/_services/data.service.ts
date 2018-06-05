@@ -59,6 +59,20 @@ export class DataService {
   }
 
   /**
+   * returns a specific level with a given name
+   * @param name of the level in the level array
+   */
+  public getLevelDataByName(name) {
+    let found_level;
+    this.data.levels.forEach((level) => {
+      if(level.name === name){
+        found_level = level;
+      }
+    });
+    return found_level;
+  }
+
+  /**
    * inserts a single level into level data at a given position
    * @param position of the level in the level array
    * @param newLevel the new level to insert

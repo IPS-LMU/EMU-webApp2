@@ -29,6 +29,7 @@ main {
   display: flex;
   flex-basis: auto;
   flex-direction: column;
+  //justify-content: space-between;
 /*> *:not(router-outlet) {
   flex: 1;
   display: block;
@@ -45,13 +46,33 @@ main {
   border-right: black solid 1px;
 }
 
+.all-canvas-container{
+  display: flex;
+  flex-direction: column;
+  flex-basis: auto;
+  flex-grow: 1;
+  //height: 100%;
+}
+
 .signals-resize-container{
-  flex: 1;
-  //min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  min-height: 128px;
   background: red;
   resize: vertical;
   overflow: auto;
 }
+.signal-container{
+  display: flex;
+  flex-direction: column;
+  background: brown;
+  flex-grow: 1;
+  height: 100%;
+  //min-height: 64px;
+  border: 1px solid black;
+  margin: 5px;
+}
+
 
 .levels-container{
   flex: 1;
