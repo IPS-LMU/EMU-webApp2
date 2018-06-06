@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 
 import { ConfigProviderService } from '../_services/config-provider.service';
+import { FontScaleService } from '../_services/font-scale.service';
+import { ViewStateService } from '../_services/view-state.service';
 
 @Component({
   selector: 'app-level',
@@ -40,7 +42,9 @@ export class LevelComponent implements OnInit {
   @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
 
 
-  constructor(private config_provider_service: ConfigProviderService) { }
+  constructor(private config_provider_service: ConfigProviderService,
+              private font_scale_service: FontScaleService,
+              private view_state_service: ViewStateService) { }
 
   ngOnInit() {
   }
@@ -200,21 +204,21 @@ export class LevelComponent implements OnInit {
    * draw level details
    */
   drawLevelDetails() {
-    // let labelFontFamily; // font family used for labels only
-    // let fontFamily = this.config_provider_service.design.font.small.family; // font family used for everything else
-    // if(typeof scope.cps.vals.perspectives[scope.vs.curPerspectiveIdx].levelCanvases.labelFontFamily === 'undefined'){
-    //   labelFontFamily = scope.cps.design.font.small.family;
-    // }else{
-    //   labelFontFamily = scope.cps.vals.perspectives[scope.vs.curPerspectiveIdx].levelCanvases.labelFontFamily;
-    // }
-    //
-    // var labelFontSize; // font family used for labels only
-    // var fontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1; // font size used for everything else
-    // if(typeof scope.cps.vals.perspectives[scope.vs.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
-    //   labelFontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-    // }else{
-    //   labelFontSize = scope.cps.vals.perspectives[scope.vs.curPerspectiveIdx].levelCanvases.labelFontPxSize;
-    // }
+    let labelFontFamily; // font family used for labels only
+    let fontFamily = 'HelveticaNeue'; //this.config_provider_service.design.font.small.family; // font family used for everything else
+    if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily === 'undefined'){
+      labelFontFamily = 'HelveticaNeue';//this.config_provider_service.design.font.small.family;
+    }else{
+      labelFontFamily = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
+    }
+
+    let labelFontSize; // font family used for labels only
+    let fontSize = 12; //ConfigProviderService.design.font.small.size.slice(0, -2) * 1; // font size used for everything else
+    if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
+      labelFontSize = 12;//ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
+    }else{
+      labelFontSize = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontPxSize;
+    }
 
 
     // let curAttrDef = this.vs.getCurAttrDef(scope.level.name);
@@ -236,8 +240,7 @@ export class LevelComponent implements OnInit {
     // if(scope.drawHierarchy){
     //   scope.drawHierarchyDetails();
     // }
-    //
-    //
+
     let ctx = this.levelCanvas.nativeElement.getContext('2d');
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -246,12 +249,12 @@ export class LevelComponent implements OnInit {
 
     sDist = this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start + 1) - this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start); // used to be scope.vs.getSampleDist(ctx.canvas.width);
 
-    // // draw name of level and type
-    // var scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
-    //
-    // if (scope.level.name === curAttrDef) {
+    // draw name of level and type
+    let scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
+
+    if (this._level_annotation.name === this._attributeDefinition) {
     //   if (isOpen) {
-    //     fontScaleService.drawUndistortedTextTwoLines(ctx, scope.level.name, '(' + scope.level.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, ConfigProviderService.design.color.black, true);
+        this.font_scale_service.drawUndistortedTextTwoLines(ctx, this._level_annotation.name, '(' + this._level_annotation.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, 'black', true);
     //   }
     //   else {
     //     fontSize -= 2;
@@ -259,17 +262,17 @@ export class LevelComponent implements OnInit {
     //   }
     // } else {
     //   fontScaleService.drawUndistortedTextTwoLines(ctx, scope.level.name + ':' + curAttrDef, '(' + scope.level.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, ConfigProviderService.design.color.black, true);
-    // }
-    //
+    }
+
     let curID = -1;
-    //
-    // // calculate generic max with of single char (m char used)
-    // //var mTxtImg = fontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, ConfigProviderService.design.color.black);
-    // var mTxtImgWidth = ctx.measureText('m').width * fontScaleService.scaleX;
-    //
-    // // calculate generic max with of single digit (0 digit used)
-    // //var zeroTxtImg = fontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, ConfigProviderService.design.color.black);
-    // var zeroTxtImgWidth = ctx.measureText('0').width * fontScaleService.scaleX;
+
+    // calculate generic max with of single char (m char used)
+    //var mTxtImg = fontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, ConfigProviderService.design.color.black);
+    let mTxtImgWidth = ctx.measureText('m').width * this.font_scale_service.scaleX;
+
+    // calculate generic max with of single digit (0 digit used)
+    //var zeroTxtImg = fontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, ConfigProviderService.design.color.black);
+    let zeroTxtImgWidth = ctx.measureText('0').width * this.font_scale_service.scaleX;
     if (this._level_annotation.type === 'SEGMENT') {
       ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
         // draw segments
@@ -302,18 +305,18 @@ export class LevelComponent implements OnInit {
             //draw segment end
             ctx.fillStyle = 'grey'; //ConfigProviderService.design.color.grey;
             ctx.fillRect(posE, ctx.canvas.height / 2, 2, ctx.canvas.height);
-      //
-      //       ctx.font = (fontSize - 2 + 'px' + ' ' + labelFontFamily);
-      //
-      //       //check for enough space to stroke text
-      //       if ((curLabVal !== undefined) && posE - posS > (mTxtImgWidth * curLabVal.length)) {
+
+            ctx.font = (fontSize - 2 + 'px' + ' ' + labelFontFamily);
+
+            //check for enough space to stroke text
+            if ((curLabVal !== undefined) && posE - posS > (mTxtImgWidth * curLabVal.length)) {
       //         if (isOpen) {
-      //           fontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - (fontSize - 2) + 2, ConfigProviderService.design.color.black, false);
+                this.font_scale_service.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
       //         } else {
       //           fontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - fontSize + 2, ConfigProviderService.design.color.black, false);
       //         }
-      //       }
-      //
+            }
+
             //draw helper lines
             if (true && curLabVal !== undefined && curLabVal.length !== 0) { // only draw if label is not empty; NOTE true used to be scope.open
               let labelCenter = posS + (posE - posS) / 2;
@@ -338,18 +341,18 @@ export class LevelComponent implements OnInit {
             }
       //
       //       if (scope.open){
-      //         // draw sampleStart numbers
-      //         //check for enough space to stroke text
-      //         if (posE - posS > zeroTxtImgWidth * item.sampleStart.toString().length && isOpen) {
-      //           fontScaleService.drawUndistortedText(ctx, item.sampleStart, fontSize - 2, fontFamily, posS + 3, 0, ConfigProviderService.design.color.grey, true);
-      //         }
-      //
-      //         // draw sampleDur numbers.
-      //         var durtext = 'dur: ' + item.sampleDur + ' ';
-      //         //check for enough space to stroke text
-      //         if (posE - posS > zeroTxtImgWidth * durtext.length && isOpen) {
-      //           fontScaleService.drawUndistortedText(ctx, durtext, fontSize - 2, fontFamily, posE - (ctx.measureText(durtext).width * fontScaleService.scaleX), ctx.canvas.height / 4 * 3, ConfigProviderService.design.color.grey, true);
-      //         }
+              // draw sampleStart numbers
+              //check for enough space to stroke text
+              if (posE - posS > zeroTxtImgWidth * item.sampleStart.toString().length) {
+                this.font_scale_service.drawUndistortedText(ctx, item.sampleStart, fontSize - 2, fontFamily, posS + 3, 0, 'grey', true);
+              }
+
+              // draw sampleDur numbers.
+              let durtext = 'dur: ' + item.sampleDur + ' ';
+              //check for enough space to stroke text
+              if (posE - posS > zeroTxtImgWidth * durtext.length) {
+                this.font_scale_service.drawUndistortedText(ctx, durtext, fontSize - 2, fontFamily, posE - (ctx.measureText(durtext).width * this.font_scale_service.scaleX), ctx.canvas.height / 4 * 3, 'grey', true);
+              }
       //       }
           }
         });
@@ -374,9 +377,9 @@ export class LevelComponent implements OnInit {
           ctx.fillRect(perc, 0, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
           ctx.fillRect(perc, ctx.canvas.height / 2 + ctx.canvas.height / 5, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
 
-    //       fontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, perc, (ctx.canvas.height / 2) - (fontSize - 2) + 2, ConfigProviderService.design.color.black, false);
+          this.font_scale_service.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, perc, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
     //       if (isOpen) {
-    //         fontScaleService.drawUndistortedText(ctx, item.samplePoint, fontSize - 2, labelFontFamily, perc + 5, 0, ConfigProviderService.design.color.grey, true);
+            this.font_scale_service.drawUndistortedText(ctx, item.samplePoint, fontSize - 2, labelFontFamily, perc + 5, 0, 'grey', true);
     //       }
         }
       });

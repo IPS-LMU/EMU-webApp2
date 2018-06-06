@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 
-import { ViewStateService } from './view-state.service'
-import { SoundHandlerService } from './sound-handler.service'
+import { ViewStateService } from './view-state.service';
+import { SoundHandlerService } from './sound-handler.service';
+import { ConfigProviderService } from './config-provider.service';
+import { MathHelperService } from './math-helper.service';
+import { FontScaleService } from './font-scale.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +12,10 @@ import { SoundHandlerService } from './sound-handler.service'
 export class DrawHelperService {
 
   constructor(private view_state_service: ViewStateService,
-              private sound_handler_service: SoundHandlerService) { }
+              private sound_handler_service: SoundHandlerService,
+              private config_provider_service: ConfigProviderService,
+              private math_helper_service: MathHelperService,
+              private font_scale_service: FontScaleService) { }
 
   osciPeaks: any = {};
 
@@ -301,9 +307,7 @@ export class DrawHelperService {
   /**
    *
    */
-
   public freshRedrawDrawOsciOnCanvas(canvas, sS, eS, forceToCalcOsciPeaks) {
-    console.log("here!!!!");
     // clear canvas
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -506,98 +510,98 @@ export class DrawHelperService {
    * drawing method to drawMovingBoundaryLine
    */
 
-  // public drawMovingBoundaryLine(ctx) {
-  //
-  //   let xOffset, sDist;
-  //   sDist = this.view_state_service.getSampleDist(ctx.canvas.width);
-  //
-  //   // calc. offset dependant on type of level of mousemove  -> default is sample exact
-  //   if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
-  //     xOffset = 0;
-  //   } else {
-  //     xOffset = (sDist / 2);
-  //   }
-  //
-  //   if (this.view_state_service.movingBoundary) {
-  //     ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
-  //     let p = Math.round(this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.movingBoundarySample));
-  //     if (this.view_state_service.getcurMouseisLast()) {
-  //       ctx.fillRect(p + sDist, 0, 1, ctx.canvas.height);
-  //     } else {
-  //       ctx.fillRect(p + xOffset, 0, 1, ctx.canvas.height);
-  //     }
-  //   }
-  //
-  // }
+  public drawMovingBoundaryLine(ctx) {
+
+    let xOffset, sDist;
+    sDist = this.view_state_service.getSampleDist(ctx.canvas.width);
+
+    // calc. offset dependant on type of level of mousemove  -> default is sample exact
+    if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+      xOffset = 0;
+    } else {
+      xOffset = (sDist / 2);
+    }
+
+    if (this.view_state_service.movingBoundary) {
+      ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
+      let p = Math.round(this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.movingBoundarySample));
+      if (this.view_state_service.getcurMouseisLast()) {
+        ctx.fillRect(p + sDist, 0, 1, ctx.canvas.height);
+      } else {
+        ctx.fillRect(p + xOffset, 0, 1, ctx.canvas.height);
+      }
+    }
+
+  }
 
 
-  // /**
-  //  * drawing method to drawCurViewPortSelected
-  //  */
-  //
-  // sServObj.drawCurViewPortSelected = function (ctx, drawTimeAndSamples) {
-  //
-  //   var fontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-  //   var xOffset, sDist, space, scaleX;
-  //   sDist = viewState.getSampleDist(ctx.canvas.width);
-  //
-  //   // calc. offset dependant on type of level of mousemove  -> default is sample exact
-  //   if (viewState.getcurMouseLevelType() === 'seg') {
-  //     xOffset = 0;
-  //   } else {
-  //     xOffset = (sDist / 2);
-  //   }
-  //
-  //   var posS = viewState.getPos(ctx.canvas.width, viewState.curViewPort.selectS);
-  //   var posE = viewState.getPos(ctx.canvas.width, viewState.curViewPort.selectE);
-  //
-  //   if (posS === posE) {
-  //
-  //     ctx.fillStyle = ConfigProviderService.design.color.transparent.black;
-  //     ctx.fillRect(posS + xOffset, 0, 2, ctx.canvas.height);
-  //
-  //     if (drawTimeAndSamples) {
-  //       if (viewState.curViewPort.sS !== viewState.curViewPort.selectS && viewState.curViewPort.selectS !== -1) {
-  //         scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-  //         space = getScaleWidth(ctx, viewState.curViewPort.selectS, mathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), scaleX);
-  //         fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectS, mathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
-  //       }
-  //     }
-  //   } else {
-  //     ctx.fillStyle = ConfigProviderService.design.color.transparent.grey;
-  //     ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
-  //     ctx.strokeStyle = ConfigProviderService.design.color.transparent.black;
-  //     ctx.beginPath();
-  //     ctx.moveTo(posS, 0);
-  //     ctx.lineTo(posS, ctx.canvas.height);
-  //     ctx.moveTo(posE, 0);
-  //     ctx.lineTo(posE, ctx.canvas.height);
-  //     ctx.closePath();
-  //     ctx.stroke();
-  //
-  //     if (drawTimeAndSamples) {
-  //       // start values
-  //       scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-  //       space = getScaleWidth(ctx, viewState.curViewPort.selectS, mathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), scaleX);
-  //       fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectS, mathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
-  //
-  //       // end values
-  //       fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectE, mathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
-  //       // dur values
-  //       // check if space
-  //       space = getScale(ctx, mathHelperService.roundToNdigitsAfterDecPoint((viewState.curViewPort.selectE - viewState.curViewPort.selectS) / Soundhandlerservice.audioBuffer.sampleRate, 6), scaleX);
-  //
-  //       if (posE - posS > space) {
-  //         var str1 = viewState.curViewPort.selectE - viewState.curViewPort.selectS - 1;
-  //         var str2 = mathHelperService.roundToNdigitsAfterDecPoint(((viewState.curViewPort.selectE - viewState.curViewPort.selectS) / Soundhandlerservice.audioBuffer.sampleRate), 6);
-  //         space = getScaleWidth(ctx, str1, str2, scaleX);
-  //         fontScaleService.drawUndistortedTextTwoLines(ctx, str1, str2, fontSize, ConfigProviderService.design.font.small.family, posS + (posE - posS) / 2 - space / 2, 0, ConfigProviderService.design.color.black, false);
-  //       }
-  //     }
-  //
-  //   }
-  //
-  // };
+  /**
+   * drawing method to drawCurViewPortSelected
+   */
+
+  public drawCurViewPortSelected(ctx, drawTimeAndSamples) {
+
+    let fontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
+    let xOffset, sDist, space, scaleX;
+    sDist = this.view_state_service.getSampleDist(ctx.canvas.width);
+
+    // calc. offset dependant on type of level of mousemove  -> default is sample exact
+    if (this.view_state_service.getcurMouseLevelType() === 'seg') {
+      xOffset = 0;
+    } else {
+      xOffset = (sDist / 2);
+    }
+
+    let posS = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectS);
+    let posE = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectE);
+
+    if (posS === posE) {
+
+      ctx.fillStyle = 'black';//ConfigProviderService.design.color.transparent.black;
+      ctx.fillRect(posS + xOffset, 0, 2, ctx.canvas.height);
+
+      if (drawTimeAndSamples) {
+        if (this.view_state_service.curViewPort.sS !== this.view_state_service.curViewPort.selectS && this.view_state_service.curViewPort.selectS !== -1) {
+          scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
+          space = this.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / this.sound_handler_service.audioBuffer.sampleRate, 6), scaleX);
+          // fontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
+        }
+      }
+    } else {
+      ctx.fillStyle = 'grey';//ConfigProviderService.design.color.transparent.grey;
+      ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
+      ctx.strokeStyle = 'black'; //ConfigProviderService.design.color.transparent.black;
+      ctx.beginPath();
+      ctx.moveTo(posS, 0);
+      ctx.lineTo(posS, ctx.canvas.height);
+      ctx.moveTo(posE, 0);
+      ctx.lineTo(posE, ctx.canvas.height);
+      ctx.closePath();
+      ctx.stroke();
+
+      if (drawTimeAndSamples) {
+        // start values
+        scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
+        space = this.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / this.sound_handler_service.audioBuffer.sampleRate, 6), scaleX);
+        // fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
+
+        // end values
+        // fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectE, this.math_helper_service.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
+        // dur values
+        // check if space
+        space = this.getScale(ctx, this.math_helper_service.roundToNdigitsAfterDecPoint((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / this.sound_handler_service.audioBuffer.sampleRate, 6), scaleX);
+
+        if (posE - posS > space) {
+          let str1 = this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS - 1;
+          let str2 = this.math_helper_service.roundToNdigitsAfterDecPoint(((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / this.sound_handler_service.audioBuffer.sampleRate), 6);
+          space = this.getScaleWidth(ctx, str1, str2, scaleX);
+          // fontScaleService.drawUndistortedTextTwoLines(ctx, str1, str2, fontSize, ConfigProviderService.design.font.small.family, posS + (posE - posS) / 2 - space / 2, 0, ConfigProviderService.design.color.black, false);
+        }
+      }
+
+    }
+
+  };
 
 
   /**
@@ -620,7 +624,7 @@ export class DrawHelperService {
   //  */
   //
   // sServObj.drawCrossHairs = function (ctx, mouseEvt, min, max, unit, trackname) {
-  //   // console.log(mathHelperService.roundToNdigitsAfterDecPoint(min, round))
+  //   // console.log(this.math_helper_service.roundToNdigitsAfterDecPoint(min, round))
   //   if (ConfigProviderService.vals.restrictions.drawCrossHairs) {
   //
   //     var fontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
@@ -643,11 +647,11 @@ export class DrawHelperService {
   //
   //     // draw frequency / sample / time
   //     ctx.font = (ConfigProviderService.design.font.small.size + 'px ' + ConfigProviderService.design.font.small.family);
-  //     var mouseFreq = mathHelperService.roundToNdigitsAfterDecPoint(max - mouseY / ctx.canvas.height * max, 2); // SIC only uses max
+  //     var mouseFreq = this.math_helper_service.roundToNdigitsAfterDecPoint(max - mouseY / ctx.canvas.height * max, 2); // SIC only uses max
   //     var tW = ctx.measureText(mouseFreq + unit).width * fontScaleService.scaleX;
   //     var tH = fontSize * fontScaleService.scaleY;
   //     var s1 = Math.round(viewState.curViewPort.sS + mouseX / ctx.canvas.width * (viewState.curViewPort.eS - viewState.curViewPort.sS));
-  //     var s2 = mathHelperService.roundToNdigitsAfterDecPoint(viewState.getViewPortStartTime() + mouseX / ctx.canvas.width * (viewState.getViewPortEndTime() - viewState.getViewPortStartTime()), 6);
+  //     var s2 = this.math_helper_service.roundToNdigitsAfterDecPoint(viewState.getViewPortStartTime() + mouseX / ctx.canvas.width * (viewState.getViewPortEndTime() - viewState.getViewPortStartTime()), 6);
   //
   //     var y;
   //     if(mouseY + tH < ctx.canvas.height){
@@ -686,7 +690,7 @@ export class DrawHelperService {
   //         var tr = ConfigProviderService.getSsffTrackConfig(trackname);
   //         var col = Ssffdataservice.getColumnOfTrack(tr.name, tr.columnName);
   //         mouseFreq = col._maxVal - (mouseY / ctx.canvas.height * (col._maxVal - col._minVal));
-  //         mouseFreq = mathHelperService.roundToNdigitsAfterDecPoint(mouseFreq, 2); // crop
+  //         mouseFreq = this.math_helper_service.roundToNdigitsAfterDecPoint(mouseFreq, 2); // crop
   //         fontScaleService.drawUndistortedText(ctx, mouseFreq, fontSize, ConfigProviderService.design.font.small.family, 5, y, ConfigProviderService.design.color.transparent.red, true);
   //         fontScaleService.drawUndistortedText(ctx, mouseFreq, fontSize, ConfigProviderService.design.font.small.family, ctx.canvas.width - 5 - tW, y, ConfigProviderService.design.color.transparent.red, true);
   //         ctx.beginPath();
@@ -718,37 +722,37 @@ export class DrawHelperService {
     ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.fillStyle = 'black';// ConfigProviderService.design.color.black;
 
-    // var fontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-    //
+    let fontSize = 12;//ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
+
     // // var scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-    // var scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
-    //
-    // var smallFontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 3 / 4;
-    // var th = smallFontSize * scaleY;
-    //
-    // // draw corner pointers
-    // ctx.beginPath();
-    // ctx.moveTo(0, 0);
-    // ctx.lineTo(5, 5);
-    // ctx.moveTo(0, ctx.canvas.height);
-    // ctx.lineTo(5, ctx.canvas.height - 5);
-    // ctx.stroke();
-    // ctx.closePath();
-    //
-    // // draw trackName
-    // if (trackName !== '') {
-    //   fontScaleService.drawUndistortedText(ctx, trackName, fontSize, ConfigProviderService.design.font.small.family, 0, ctx.canvas.height / 2 - fontSize * scaleY / 2, ConfigProviderService.design.color.black, true);
-    // }
-    //
-    // // draw min/max vals
-    // if (max !== undefined) {
-    //   fontScaleService.drawUndistortedText(ctx, 'max: ' + mathHelperService.roundToNdigitsAfterDecPoint(max, round), smallFontSize, ConfigProviderService.design.font.small.family, 5, 5, ConfigProviderService.design.color.grey, true);
-    // }
-    // // draw min/max vals
-    // if (min !== undefined) {
-    //   fontScaleService.drawUndistortedText(ctx, 'min: ' + mathHelperService.roundToNdigitsAfterDecPoint(min, round), smallFontSize, ConfigProviderService.design.font.small.family, 5, ctx.canvas.height - th - 5, ConfigProviderService.design.color.grey, true);
-    // }
-  };
+    let scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
+
+    let smallFontSize = 12 * 3 / 4; //ConfigProviderService.design.font.small.size.slice(0, -2) * 3 / 4;
+    var th = smallFontSize * scaleY;
+
+    // draw corner pointers
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(5, 5);
+    ctx.moveTo(0, ctx.canvas.height);
+    ctx.lineTo(5, ctx.canvas.height - 5);
+    ctx.stroke();
+    ctx.closePath();
+
+    // draw trackName
+    if (trackName !== '') {
+      this.font_scale_service.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2 - fontSize * scaleY / 2, 'HelveticaNeue', true);
+    }
+
+    // draw min/max vals
+    if (max !== undefined) {
+      this.font_scale_service.drawUndistortedText(ctx, 'max: ' + this.math_helper_service.roundToNdigitsAfterDecPoint(max, round), smallFontSize, 'HelveticaNeue', 5, 5, 'grey', true);
+    }
+    // draw min/max vals
+    if (min !== undefined) {
+      this.font_scale_service.drawUndistortedText(ctx, 'min: ' + this.math_helper_service.roundToNdigitsAfterDecPoint(min, round), smallFontSize, 'HelveticaNeue', 5, ctx.canvas.height - th - 5, 'grey', true);
+    }
+  }
 
   /**
    *
@@ -756,9 +760,9 @@ export class DrawHelperService {
   drawViewPortTimes(ctx) {
     ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
-    // ctx.font = (ConfigProviderService.design.font.small.size + ' ' + ConfigProviderService.design.font.small.family);
+    ctx.font = 'HelveticaNeue';//(ConfigProviderService.design.font.small.size + ' ' + ConfigProviderService.design.font.small.family);
 
-    // var fontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
+    let fontSize = 12;//ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
 
     // lines to corners
     ctx.beginPath();
@@ -774,11 +778,11 @@ export class DrawHelperService {
     let space;
     if (this.view_state_service.curViewPort) {
       //draw time and sample nr
-      // sTime = mathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.sS / Soundhandlerservice.audioBuffer.sampleRate, 6);
-      // eTime = mathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.eS / Soundhandlerservice.audioBuffer.sampleRate, 6);
-      // fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.sS, sTime, fontSize, ConfigProviderService.design.font.small.family, 5, 0, ConfigProviderService.design.color.black, true);
-      // space = getScaleWidth(ctx, viewState.curViewPort.eS, eTime, scaleX);
-      // fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.eS, eTime, fontSize, ConfigProviderService.design.font.small.family, ctx.canvas.width - space - 5, 0, ConfigProviderService.design.color.black, false);
+      sTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.sS / this.sound_handler_service.audioBuffer.sampleRate, 6);
+      eTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.eS / this.sound_handler_service.audioBuffer.sampleRate, 6);
+      this.font_scale_service.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.sS, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
+      space = this.getScaleWidth(ctx, this.view_state_service.curViewPort.eS, eTime, scaleX);
+      this.font_scale_service.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.eS, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
     }
   };
 

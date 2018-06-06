@@ -30,6 +30,10 @@ import {
 import { BundleListSideBarComponent } from './bundle-list-side-bar/bundle-list-side-bar.component';
 import { LevelComponent } from './level/level.component';
 import { OsciComponent } from './osci/osci.component';
+import { SpectroComponent } from './spectro/spectro.component';
+import { SsffTrackComponent } from './ssff-track/ssff-track.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -37,7 +41,9 @@ import { OsciComponent } from './osci/osci.component';
     MainlayoutComponent,
     BundleListSideBarComponent,
     LevelComponent,
-    OsciComponent
+    OsciComponent,
+    SpectroComponent,
+    SsffTrackComponent
   ],
   imports: [
     BrowserModule,
@@ -60,6 +66,7 @@ import { OsciComponent } from './osci/osci.component';
     MatSnackBarModule,
     MatTableModule,
     MatRadioModule,
+    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
   ],
   providers: [
     MatIconRegistry

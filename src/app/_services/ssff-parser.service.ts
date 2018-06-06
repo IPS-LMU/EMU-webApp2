@@ -217,6 +217,7 @@ export class SsffParserService {
      * @returns ssff javascript object
      */
     selfAny.ssff2jso = function (buf, name) {
+
       selfAny.ssffData.fileExtension = name;
       selfAny.ssffData.Columns = [];
       // console.log('SSFF loaded');
@@ -314,7 +315,7 @@ export class SsffParserService {
       let curBinIdx = newLsep.slice(0, newLsep.length).join('').length; // i + 1 exchanged for newLsep.length
 
       let curBufferView, curBuffer, curLen, curMin, curMax;
-
+      console.log('in ssff2jso curBinIdx:', curBinIdx, '; uIntBuffView.length: ', uIntBuffView.length);
       while (curBinIdx < uIntBuffView.length) {
 
         for (let i = 0; i < selfAny.ssffData.Columns.length; i++) {
@@ -406,7 +407,7 @@ export class SsffParserService {
               }
             });
           }
-
+        console.log(curBuffer);
         } //for
       } //while
 
@@ -504,7 +505,6 @@ export class SsffParserService {
      * loop over ssff files in ssffArr and create a ssffJsoArr
      */
     selfAny.parseArr = function (ssffArr) {
-      console.log("parseArr");
       let noError = true;
       let resArr = [];
       let ssffJso;

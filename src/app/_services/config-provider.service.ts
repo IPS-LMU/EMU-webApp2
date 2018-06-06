@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 
+import { ViewStateService } from './view-state.service';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigProviderService {
 
-  constructor() { }
+  constructor(private view_state_service: ViewStateService) { }
 
   // shared service object
   vals;
@@ -83,65 +85,65 @@ export class ConfigProviderService {
   //   });
   //   return ret;
   // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getSsffTrackConfig = function (name) {
-  //   var res;
-  //   if (sServObj.curDbConfig.ssffTrackDefinitions !== undefined) {
-  //     angular.forEach(sServObj.curDbConfig.ssffTrackDefinitions, function (tr) {
-  //       if (tr.name === name) {
-  //         res = tr;
-  //       }
-  //     });
-  //   }
-  //   return res;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getValueLimsOfTrack = function (trackName) {
-  //   var res = {};
-  //   angular.forEach(sServObj.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.minMaxValLims, function (vL) {
-  //     if (vL.ssffTrackName === trackName) {
-  //       res = vL;
-  //     }
-  //   });
-  //
-  //   return res;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getContourLimsOfTrack = function (trackName) {
-  //   var res = {};
-  //   angular.forEach(sServObj.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourLims, function (cL) {
-  //     if (cL.ssffTrackName === trackName) {
-  //       res = cL;
-  //     }
-  //   });
-  //
-  //   return res;
-  // };
-  //
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getContourColorsOfTrack = function (trackName) {
-  //   var res;
-  //   angular.forEach(sServObj.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourColors, function (cC) {
-  //     if (cC.ssffTrackName === trackName) {
-  //       res = cC;
-  //     }
-  //   });
-  //
-  //   return res;
-  // };
-  //
+
+  /**
+   *
+   */
+  getSsffTrackConfig = function (name) {
+    let res;
+    if (this.curDbConfig.ssffTrackDefinitions !== undefined) {
+      this.curDbConfig.ssffTrackDefinitions.forEach((tr) => {
+        if (tr.name === name) {
+          res = tr;
+        }
+      });
+    }
+    return res;
+  }
+
+  /**
+   *
+   */
+  getValueLimsOfTrack(trackName) {
+    let res = {};
+    this.vals.perspectives[this.view_state_service.curPerspectiveIdx].signalCanvases.minMaxValLims.forEach((vL) => {
+      if (vL.ssffTrackName === trackName) {
+        res = vL;
+      }
+    });
+
+    return res;
+  }
+
+  /**
+   *
+   */
+  getContourLimsOfTrack(trackName) {
+    let res = {};
+    this.vals.perspectives[this.view_state_service.curPerspectiveIdx].signalCanvases.contourLims.forEach((cL) => {
+      if (cL.ssffTrackName === trackName) {
+        res = cL;
+      }
+    });
+
+    return res;
+  }
+
+
+  /**
+   *
+   */
+  getContourColorsOfTrack(trackName) {
+    let res;
+    this.vals.perspectives[this.view_state_service.curPerspectiveIdx].signalCanvases.contourColors.forEach((cC) => {
+      if (cC.ssffTrackName === trackName) {
+        res = cC;
+      }
+    });
+
+    return res;
+  }
+
   // /**
   //  *
   //  */

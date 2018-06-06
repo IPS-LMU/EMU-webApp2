@@ -106,6 +106,17 @@
                     [audio_buffer] = "sound_handler_service.audioBuffer"
                     [viewport_sample_start] = "view_state_service.curViewPort.sS"
                     [viewport_sample_end] = "view_state_service.curViewPort.eS"></app-osci>
+
+          <app-spectro style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name === 'SPEC'"
+                       [audio_buffer] = "sound_handler_service.audioBuffer"
+                       [viewport_sample_start] = "view_state_service.curViewPort.sS"
+                       [viewport_sample_end] = "view_state_service.curViewPort.eS"></app-spectro>
+
+          <app-ssff-track style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name !== 'OSCI' && canvas_name !== 'SPEC'"
+                          [name]="canvas_name"
+                          [viewport_sample_start] = "view_state_service.curViewPort.sS"
+                          [viewport_sample_end] = "view_state_service.curViewPort.eS"></app-ssff-track>
+
         </div>
           <!--<app-osci style="flex-grow: 1"></app-osci>-->
           <!--<app-osci style="flex-grow: 1"></app-osci>-->
@@ -120,7 +131,7 @@
       <!--end: signals-->
 
       <!--start: levels with time-->
-      <div class="levels-container">
+      <div class="levels-container" *ngIf="view_state_service.getPermission('labelAction')">
         <!--dataServ.getLevelOrder(cps.vals.perspectives[vs.curPerspectiveIdx].levelCanvases.order)-->
         <app-level
           *ngFor="let level_name of config_provider_service.vals.perspectives[view_state_service.curPerspectiveIdx].levelCanvases.order"
@@ -178,23 +189,27 @@
         right
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="!view_state_service.getPermission('zoom')">
+                color="primary"
+                (click)= "cmdZoomSel()"
+                [disabled]="!view_state_service.getPermission('zoom')">
         selection
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="!view_state_service.getPermission('playaudio')">
+                color="primary"
+                (click)= "cmdPlayView()"
+                [disabled]="!view_state_service.getPermission('playaudio')">
         play in view
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="!view_state_service.getPermission('playaudio')">
+                color="primary"
+                (click)= "cmdPlaySel()"
+                [disabled]="!view_state_service.getPermission('playaudio')">
         play selected
         </button>
         <button mat-raised-button
-        color="primary"
-        [disabled]="!view_state_service.getPermission('playaudio')">
+                color="primary"
+                (click)= "cmdPlayAll()"
+                [disabled]="!view_state_service.getPermission('playaudio')">
         play entire file
         </button>
         </mat-toolbar>

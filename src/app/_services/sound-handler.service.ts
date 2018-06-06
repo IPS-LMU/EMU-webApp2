@@ -21,7 +21,7 @@ export class SoundHandlerService {
 
   // public vars
   public audioBuffer: any = {};
-  public isPlaying = false;
+  public isPlaying: boolean = false;
 
   ///////////////////////////////////////////
   // private API
@@ -65,43 +65,6 @@ export class SoundHandlerService {
 
   }
 
-
-  // /**
-  //  * Creates new ArrayBuffer containing wav file that goes
-  //  * from sampleStart to endSample
-  //  *
-  //  * @param sampleStart number that represents start sample
-  //  * @paramn endSample number that represents end sample
-  //  * @returns ArrayBuffer containing wav file
-  //  * */
-  // // sServObj.extractRelPartOfWav = function (sampleStart, endSample) {
-  // // 	var bytePerSample = sServObj.wavJSO.BitsPerSample / 8;
-  // // 	var headerSize = 44;
-  // // 	if(sServObj.wavJSO.Subchunk1Size == 18){
-  // // 		headerSize = 46;
-  // // 	}
-  // //
-  // // 	var header = sServObj.wavJSO.origArrBuf.subarray(0, headerSize);
-  // // 	var data = sServObj.wavJSO.origArrBuf.subarray(headerSize, sServObj.wavJSO.Data.length * bytePerSample);
-  // //
-  // // 	var dv = new DataView(header);
-  // // 	var Subchunk2SizePos = 40;
-  // // 	if(sServObj.wavJSO.Subchunk1Size == 18){
-  // // 		Subchunk2SizePos = 42;
-  // // 	}
-  // // 	dv.setUint32(Subchunk2SizePos, (endSample - sampleStart) * bytePerSample, true);
-  // // 	// var Subchunk2Size = dv.getUint32(40, true);
-  // // 	// console.log(Subchunk2Size);
-  // //
-  // // 	var newData = data.subarray(sampleStart * bytePerSample, (endSample - sampleStart) * bytePerSample);
-  // //
-  // // 	var tmp = new Uint8Array(header.byteLength + newData.byteLength);
-  // // 	tmp.set(new Uint8Array(header), 0);
-  // // 	tmp.set(new Uint8Array(newData), header.byteLength);
-  // //
-  // // 	return (tmp.buffer);
-  // // };
-
   /**
    * play audio from to specified in samples
    *
@@ -109,8 +72,6 @@ export class SoundHandlerService {
    * @param endSample number that represents end sample
    * */
   playFromTo(sampleStart, endSample) {
-
-    //var cutWavBuff = this.extractRelPartOfWav(sampleStart, endSample);
 
     if (this.isPlaying) {
       this.isPlaying = false;

@@ -95,52 +95,62 @@ export class MainlayoutComponent implements OnInit {
     }
   };
 
-  // /**
-  //  *
-  //  */
-  // $scope.cmdZoomSel = function () {
-  //   if (viewState.getPermission('zoom')) {
-  //     LevelService.deleteEditArea();
-  //     viewState.setViewPort(viewState.curViewPort.selectS, viewState.curViewPort.selectE);
-  //   } else {
-  //     //console.log('action currently not allowed');
-  //   }
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // $scope.cmdPlayView = function () {
-  //   if (viewState.getPermission('playaudio')) {
-  //     Soundhandlerservice.playFromTo(viewState.curViewPort.sS, viewState.curViewPort.eS);
-  //     viewState.animatePlayHead(viewState.curViewPort.sS, viewState.curViewPort.eS);
-  //   } else {
-  //     //console.log('action currently not allowed');
-  //   }
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // $scope.cmdPlaySel = function () {
-  //   if (viewState.getPermission('playaudio')) {
-  //     Soundhandlerservice.playFromTo(viewState.curViewPort.selectS, viewState.curViewPort.selectE);
-  //     viewState.animatePlayHead(viewState.curViewPort.selectS, viewState.curViewPort.selectE);
-  //   } else {
-  //     //console.log('action currently not allowed');
-  //   }
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // $scope.cmdPlayAll = function () {
-  //   if (viewState.getPermission('playaudio')) {
-  //     Soundhandlerservice.playFromTo(0, Soundhandlerservice.audioBuffer.length);
-  //     viewState.animatePlayHead(0, Soundhandlerservice.audioBuffer.length);
-  //   } else {
-  //     //console.log('action currently not allowed');
-  //   }
-  // };
+  /**
+   *
+   */
+  cmdZoomSel() {
+    if (this.view_state_service.getPermission('zoom')) {
+      this.level_service.deleteEditArea();
+      this.view_state_service.setViewPort(this.view_state_service.curViewPort.selectS, this.view_state_service.curViewPort.selectE);
+    } else {
+      //console.log('action currently not allowed');
+    }
+  }
+
+  /**
+   *
+   */
+  cmdPlayView() {
+    if (this.view_state_service.getPermission('playaudio')) {
+      this.sound_handler_service.playFromTo(this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS);
+      this.view_state_service.animatePlayHead(
+        this.view_state_service.curViewPort.sS,
+        this.view_state_service.curViewPort.eS,
+        false);
+    } else {
+      //console.log('action currently not allowed');
+    }
+  }
+
+  /**
+   *
+   */
+  cmdPlaySel() {
+    if (this.view_state_service.getPermission('playaudio')) {
+      this.sound_handler_service.playFromTo(this.view_state_service.curViewPort.selectS, this.view_state_service.curViewPort.selectE);
+      this.view_state_service.animatePlayHead(
+        this.view_state_service.curViewPort.selectS,
+        this.view_state_service.curViewPort.selectE,
+        false
+      );
+    } else {
+      //console.log('action currently not allowed');
+    }
+  }
+
+  /**
+   *sou
+   */
+  cmdPlayAll() {
+    if (this.view_state_service.getPermission('playaudio')) {
+      this.sound_handler_service.playFromTo(0, this.sound_handler_service.audioBuffer.length);
+      this.view_state_service.animatePlayHead(
+        0,
+        this.sound_handler_service.audioBuffer.length,
+        false);
+    } else {
+      //console.log('action currently not allowed');
+    }
+  }
 
 }

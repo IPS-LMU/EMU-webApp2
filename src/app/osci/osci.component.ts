@@ -16,13 +16,6 @@ export class OsciComponent implements OnInit {
   @Input() set audio_buffer(value: any){
     this._audio_buffer = value;
     console.log(value);
-    if(!(Object.keys(value).length === 0 && value.constructor === Object)){
-    // this.draw_helper_service.freshRedrawDrawOsciOnCanvas(
-    //   this.mainCanvas.nativeElement,
-    //   this._viewport_sample_start,
-    //   this._viewport_sample_end,
-    //   false);
-    }
   }
 
   @Input() set viewport_sample_start(value: number){

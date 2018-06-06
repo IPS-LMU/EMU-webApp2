@@ -144,6 +144,7 @@ export class ViewStateService {
       dynamicRange: -1,
       window: -1,
       drawHeatMapColors: -1,
+      heatMapColorAnchors: -1,
       preEmphasisFilterFactor: -1
     };
 
@@ -439,56 +440,56 @@ setState(nameOrObj) {
     }
   }
 
-  // /**
-  //  *
-  //  */
-  // sServObj.updatePlayHead = function (timestamp) {
-  //   // at first push animation !!!
-  //   if (Soundhandlerservice.isPlaying) {
-  //     $window.requestAnimationFrame(sServObj.updatePlayHead);
-  //   }
-  //
-  //   // do work in this animation round now
-  //   if (sServObj.start === null) {
-  //     sServObj.start = timestamp;
-  //   }
-  //
-  //   var samplesPassed = (Math.floor(timestamp - sServObj.start) / 1000) * Soundhandlerservice.audioBuffer.sampleRate;
-  //   sServObj.playHeadAnimationInfos.curS = Math.floor(sServObj.playHeadAnimationInfos.sS + samplesPassed);
-  //
-  //   if (Soundhandlerservice.isPlaying && sServObj.playHeadAnimationInfos.curS <= sServObj.playHeadAnimationInfos.eS) {
-  //     if (sServObj.playHeadAnimationInfos.curS !== -1) {
-  //       sServObj.curMousePosSample = sServObj.playHeadAnimationInfos.curS;
-  //     }
-  //     if (sServObj.playHeadAnimationInfos.autoscroll && sServObj.playHeadAnimationInfos.curS >= sServObj.curViewPort.eS) {
-  //       sServObj.setViewPort(sServObj.curViewPort.eS, sServObj.curViewPort.eS + (sServObj.curViewPort.eS - sServObj.curViewPort.sS));
-  //     }
-  //   } else {
-  //     sServObj.curMousePosSample = sServObj.playHeadAnimationInfos.endFreezeSample;
-  //     sServObj.playHeadAnimationInfos.sS = -1;
-  //     sServObj.playHeadAnimationInfos.eS = -1;
-  //     sServObj.playHeadAnimationInfos.curS = 0;
-  //     sServObj.start = null;
-  //   }
-  //
-  //   $rootScope.$apply();
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.animatePlayHead = function (startS, endS, autoscroll) {
-  //   sServObj.playHeadAnimationInfos.sS = startS;
-  //   sServObj.playHeadAnimationInfos.eS = endS;
-  //   sServObj.playHeadAnimationInfos.endFreezeSample = endS;
-  //   sServObj.playHeadAnimationInfos.curS = startS;
-  //   if(autoscroll !== undefined){
-  //     sServObj.playHeadAnimationInfos.autoscroll = autoscroll;
-  //   }
-  //   $window.requestAnimationFrame(sServObj.updatePlayHead);
-  // };
-  //
-  //
+  /**
+   *
+   */
+  public updatePlayHead(timestamp) {
+    // at first push animation !!!
+    if (this.sound_handler_service.isPlaying) {
+      window.requestAnimationFrame(this.updatePlayHead);
+    }
+
+    // do work in this animation round now
+    if (this.start === null) {
+      this.start = timestamp;
+    }
+
+    let samplesPassed = (Math.floor(timestamp - this.start) / 1000) * this.sound_handler_service.audioBuffer.sampleRate;
+    this.playHeadAnimationInfos.curS = Math.floor(this.playHeadAnimationInfos.sS + samplesPassed);
+
+    if (this.sound_handler_service.isPlaying && this.playHeadAnimationInfos.curS <= this.playHeadAnimationInfos.eS) {
+      if (this.playHeadAnimationInfos.curS !== -1) {
+        this.curMousePosSample = this.playHeadAnimationInfos.curS;
+      }
+      if (this.playHeadAnimationInfos.autoscroll && this.playHeadAnimationInfos.curS >= this.curViewPort.eS) {
+        this.setViewPort(this.curViewPort.eS, this.curViewPort.eS + (this.curViewPort.eS - this.curViewPort.sS));
+      }
+    } else {
+      this.curMousePosSample = this.playHeadAnimationInfos.endFreezeSample;
+      this.playHeadAnimationInfos.sS = -1;
+      this.playHeadAnimationInfos.eS = -1;
+      this.playHeadAnimationInfos.curS = 0;
+      this.start = null;
+    }
+
+    // $rootScope.$apply();
+  }
+
+  /**
+   *
+   */
+  public animatePlayHead(startS, endS, autoscroll) {
+    this.playHeadAnimationInfos.sS = startS;
+    this.playHeadAnimationInfos.eS = endS;
+    this.playHeadAnimationInfos.endFreezeSample = endS;
+    this.playHeadAnimationInfos.curS = startS;
+    if(autoscroll !== undefined){
+      this.playHeadAnimationInfos.autoscroll = autoscroll;
+    }
+    window.requestAnimationFrame(this.updatePlayHead);
+  }
+
+
   // /**
   //  * set selected Area
   //  * @param start of selected Area
@@ -1191,31 +1192,31 @@ setState(nameOrObj) {
   // sServObj.getCurrentPercent = function (sample) {
   //   return (sample * (100 / (this.curViewPort.eS - this.curViewPort.sS) / 100));
   // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getSamplesPerPixelVal = function (event) {
-  //   var start = parseFloat(this.curViewPort.sS);
-  //   var end = parseFloat(this.curViewPort.eS);
-  //   return (end - start) / event.originalEvent.target.width;
-  // };
-  //
-  //
-  // /**
-  //  * calcs and returns start in secs
-  //  */
-  // sServObj.getViewPortStartTime = function () {
-  //   return (this.curViewPort.sS / Soundhandlerservice.audioBuffer.sampleRate) - 0.5 / Soundhandlerservice.audioBuffer.sampleRate;
-  // };
-  //
-  // /**
-  //  * calcs and returns end time in secs
-  //  */
-  // sServObj.getViewPortEndTime = function () {
-  //   return (this.curViewPort.eS / Soundhandlerservice.audioBuffer.sampleRate) + 0.5 / Soundhandlerservice.audioBuffer.sampleRate;
-  // };
-  //
+
+  /**
+   *
+   */
+  public getSamplesPerPixelVal(event) {
+    let start = parseFloat(this.curViewPort.sS);
+    let end = parseFloat(this.curViewPort.eS);
+    return (end - start) / event.originalEvent.target.width;
+  }
+
+
+  /**
+   * calcs and returns start in secs
+   */
+  public getViewPortStartTime() {
+    return (this.curViewPort.sS / this.sound_handler_service.audioBuffer.sampleRate) - 0.5 / this.sound_handler_service.audioBuffer.sampleRate;
+  }
+
+  /**
+   * calcs and returns end time in secs
+   */
+  public getViewPortEndTime() {
+    return (this.curViewPort.eS / this.sound_handler_service.audioBuffer.sampleRate) + 0.5 / this.sound_handler_service.audioBuffer.sampleRate;
+  }
+
   // /**
   //  * calcs and returns start in secs
   //  */
