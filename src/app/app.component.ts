@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-// import { ActivatedRoute  } from '@angular/router';
+import { ActivatedRoute  } from '@angular/router';
 
 import { ValidationService } from './_services/validation.service';
 import { IohandlerService } from './_services/iohandler.service';
@@ -16,16 +16,24 @@ import { DbObjLoadSaveService } from './_services/db-obj-load-save.service';
 })
 export class AppComponent implements OnInit {
   title = 'app';
+  autoConnect: string;
 
   constructor(private validationservice: ValidationService,
               private iohs: IohandlerService,
-              private cps: ConfigProviderService,
+              private config_provider_service: ConfigProviderService,
               private wsh: WebsocketHandlerService,
-              private viewstateservice: ViewStateService,
+              private view_state_service: ViewStateService,
               private loaded_meta_data_service: LoadedMetaDataService,
               private db_obj_load_save_service: DbObjLoadSaveService,
-              // private route: ActivatedRoute
-  ){}
+              private activated_route: ActivatedRoute
+  ){
+
+    this.activated_route.queryParams.subscribe(params => {
+      this.autoConnect = params['autoConnect'];
+      console.log(this.autoConnect);
+    });
+
+  }
 
   ngOnInit(){
     this.loadDefaultConfig();
@@ -33,8 +41,8 @@ export class AppComponent implements OnInit {
 
 
   private loadDefaultConfig() {
-  //   viewState.somethingInProgress = true;
-  //   viewState.somethingInProgressTxt = 'Loading schema files';
+    this.view_state_service.somethingInProgress = true;
+    this.view_state_service.somethingInProgressTxt = 'Loading schema files';
     // load schemas first
     this.validationservice.loadSchemas().subscribe(schemas => {
       console.log(schemas);
@@ -47,7 +55,7 @@ export class AppComponent implements OnInit {
         // var validRes = Validationservice.validateJSO('emuwebappConfigSchema', response.data);
         //         var validRes = Validationservice.validateJSO('emuwebappConfigSchema', response.data);
         //         if (validRes === true) {
-        this.cps.setVals(response);
+        this.config_provider_service.setVals(response);
         this.handleDefaultConfigLoaded();
 
       });
@@ -103,11 +111,11 @@ export class AppComponent implements OnInit {
     // check if either autoConnect is set in DBconfig or as get parameter
   // console.log(this.route.snapshot.params);
   //   if (ConfigProviderService.vals.main.autoConnect || searchObject.autoConnect === 'true') {
-      if (!this.cps.vals.main.autoConnect) {
+      if (this.config_provider_service.vals.main.autoConnect || this.autoConnect === 'true') {
   //     if (typeof searchObject.serverUrl !== 'undefined') { // overwrite serverUrl if set as GET parameter
   //       ConfigProviderService.vals.main.serverUrl = searchObject.serverUrl;
   //     }
-      this.wsh.initConnect(this.cps.vals.main.serverUrl).subscribe(
+      this.wsh.initConnect(this.config_provider_service.vals.main.serverUrl).subscribe(
         (message) => {
           console.log('observerA: ' + message);
 
@@ -126,19 +134,7 @@ export class AppComponent implements OnInit {
   //     });
       );
     }
-  //
-  //   // init loading of files for testing
-  //   viewState.setspectroSettings(ConfigProviderService.vals.spectrogramSettings.windowSizeInSecs,
-  //     ConfigProviderService.vals.spectrogramSettings.rangeFrom,
-  //     ConfigProviderService.vals.spectrogramSettings.rangeTo,
-  //     ConfigProviderService.vals.spectrogramSettings.dynamicRange,
-  //     ConfigProviderService.vals.spectrogramSettings.window,
-  //     ConfigProviderService.vals.spectrogramSettings.drawHeatMapColors,
-  //     ConfigProviderService.vals.spectrogramSettings.preEmphasisFilterFactor,
-  //     ConfigProviderService.vals.spectrogramSettings.heatMapColorAnchors);
-  //
-  //   // setting transition values
-  //   viewState.setTransitionTime(ConfigProviderService.design.animation.period);
+
   }
 
 
@@ -153,8 +149,8 @@ export class AppComponent implements OnInit {
   let session = data.session;
   let reload = data.reload;
 //   viewState.showDropZone = false;
-  this.cps.vals.main.comMode = 'WS';
-  this.cps.vals.activeButtons.openDemoDB = false;
+  this.config_provider_service.vals.main.comMode = 'WS';
+  this.config_provider_service.vals.activeButtons.openDemoDB = false;
   // viewState.somethingInProgress = true;
 //   viewState.somethingInProgressTxt = 'Checking protocol...';
   // Check if server speaks the same protocol
@@ -194,32 +190,45 @@ export class AppComponent implements OnInit {
 innerHandleConnectedToWSserver(data) {
   let session = data.session;
   let reload = data.reload;
-  this.viewstateservice.somethingInProgressTxt = 'Loading DB config...';
+  this.view_state_service.somethingInProgressTxt = 'Loading DB config...';
   // then get the DBconfigFile
   // this.iohs.httpGetDefaultDesign().then(function onSuccess(response) {
   //   ConfigProviderService.setDesign(response.data);
 
     this.iohs.getDBconfigFile('').subscribe((data) => {
       // first element of perspectives is default perspective
-      this.viewstateservice.curPerspectiveIdx = 0;
-      this.cps.setVals(data.EMUwebAppConfig);
+      this.view_state_service.curPerspectiveIdx = 0;
+      this.config_provider_service.setVals(data.EMUwebAppConfig);
       // FOR DEVELOPMENT
 //       //$scope.showEditDBconfigBtnClick();
 
 
-      let validRes = this.validationservice.validateJSO('emuwebappConfigSchema', this.cps.vals);
+      let validRes = this.validationservice.validateJSO('emuwebappConfigSchema', this.config_provider_service.vals);
       if (validRes === true) {
-        this.cps.curDbConfig = data;
-        this.viewstateservice.setCurLevelAttrDefs(this.cps.curDbConfig.levelDefinitions);
+        this.config_provider_service.curDbConfig = data;
+        this.view_state_service.setCurLevelAttrDefs(this.config_provider_service.curDbConfig.levelDefinitions);
         validRes = this.validationservice.validateJSO('DBconfigFileSchema', data);
         if (validRes === true) {
 //           // then get the DBconfigFile
 //           this.viewstateservice.somethingInProgressTxt = 'Loading bundle list...';
+
+          // init loading of files for testing
+          this.view_state_service.setspectroSettings(this.config_provider_service.vals.spectrogramSettings.windowSizeInSecs,
+            this.config_provider_service.vals.spectrogramSettings.rangeFrom,
+            this.config_provider_service.vals.spectrogramSettings.rangeTo,
+            this.config_provider_service.vals.spectrogramSettings.dynamicRange,
+            this.config_provider_service.vals.spectrogramSettings.window,
+            this.config_provider_service.vals.spectrogramSettings.drawHeatMapColors,
+            this.config_provider_service.vals.spectrogramSettings.preEmphasisFilterFactor,
+            this.config_provider_service.vals.spectrogramSettings.heatMapColorAnchors);
+
+          // setting transition values
+          // this.view_state_service.setTransitionTime(this.config_provider_service.design.animation.period);
           this.iohs.getBundleList().subscribe((bdata) => {
             let validRes = this.loaded_meta_data_service.setBundleList(bdata);
             // show standard buttons
-            this.cps.vals.activeButtons.clear = true;
-            this.cps.vals.activeButtons.specSettings = true;
+            this.config_provider_service.vals.activeButtons.clear = true;
+            this.config_provider_service.vals.activeButtons.specSettings = true;
 
             if (validRes === true) {
               // then load first bundle in list

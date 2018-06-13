@@ -3,6 +3,9 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { FontScaleService } from '../_services/font-scale.service';
 import { ViewStateService } from '../_services/view-state.service';
+import { LevelService } from '../_services/level.service';
+import { HistoryService } from '../_services/history.service';
+import {DrawHelperService} from '../_services/draw-helper.service';
 
 @Component({
   selector: 'app-level',
@@ -12,31 +15,53 @@ import { ViewStateService } from '../_services/view-state.service';
 export class LevelComponent implements OnInit {
 
   private _level_annotation: any;
+  private _attributeDefinition: string;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
-  private _attributeDefinition: string;
+  private _external_cursor_sample_position: number;
+  private _audio_sample_length: number;
+
+
+  // mouse handeling lets
+  lastEventClick: any;
+  lastEventMove: any;
+  lastNeighboursMove: any;
+  lastPCM: any;
+  curMouseSampleNrInView: any;
+  // order = attr.trackMouseInLevel;
 
   @Input() set level_annotation(value: string){
     this._level_annotation = value;
     // console.log(value);
-    this.redraw();
+    // this.redraw();
+  }
+  @Input() set attributeDefinition(value: any){
+    this._attributeDefinition = value;
+    // console.log("setting _attributeDefinition");
+    // this.redraw();
   }
   @Input() set viewport_sample_start(value: number){
     this._viewport_sample_start = value;
     // console.log("setting _viewport_sample_start");
-    this.redraw();
+    // this.redraw();
   }
   @Input() set viewport_sample_end(value: number){
     this._viewport_sample_end = value;
     // console.log("setting _viewport_sample_end");
     this.redraw();
   }
-
-  @Input() set attributeDefinition(value: any){
-    this._attributeDefinition = value;
-    // console.log("setting _attributeDefinition");
-    this.redraw();
+  @Input() set external_cursor_sample_position(value: number){
+    this._external_cursor_sample_position = value;
+    // console.log("setting _viewport_sample_end");
+    this.drawLevelMarkup();
   }
+  @Input() set audio_sample_length(value: number){
+    this._audio_sample_length = value;
+    // console.log("setting _viewport_sample_end");
+    // this.drawLevelMarkup();
+  }
+
+
 
   @ViewChild('levelCanvas') levelCanvas: ElementRef;
   @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
@@ -44,93 +69,97 @@ export class LevelComponent implements OnInit {
 
   constructor(private config_provider_service: ConfigProviderService,
               private font_scale_service: FontScaleService,
-              private view_state_service: ViewStateService) { }
+              private view_state_service: ViewStateService,
+              private level_service: LevelService,
+              private history_service: HistoryService,
+              private draw_helper_service: DrawHelperService,
+              private element_ref: ElementRef) { }
 
   ngOnInit() {
   }
 
 //   // select the needed DOM items from the template
-//   var canvas = element.find('canvas');
-//   scope.open = true; // attr.open; // not using attr.open any more because minification changes open="true" to open
-//   scope.vs = viewState;
-//   scope.hists = HistoryService;
-//   scope.cps = ConfigProviderService;
-//   scope.modal = modalService;
-//   scope.lmds = loadedMetaDataService;
-//   scope.hls = HierarchyLayoutService;
-//   scope.ds = DataService;
-//   scope.ls = LevelService;
+//   let canvas = element.find('canvas');
+//   this.open = true; // attr.open; // not using attr.open any more because minification changes open="true" to open
+//   this.vs = this.view_state_service;
+//   this.hists = HistoryService;
+//   this.cps = ConfigProviderService;
+//   this.modal = modalService;
+//   this.lmds = loadedMetaDataService;
+//   this.hls = HierarchyLayoutService;
+//   this.ds = DataService;
+//   this.ls = this.level_service;
 //
-//   var levelCanvasContainer = element.find('div');
-//   scope.levelDef = ConfigProviderService.getLevelDefinition(scope.level.name);
-//   scope.backgroundCanvas = {
+//   let levelCanvasContainer = element.find('div');
+//   this.levelDef = ConfigProviderService.getLevelDefinition(this.level.name);
+//   this.backgroundCanvas = {
 //     'background': ConfigProviderService.design.color.lightGrey
 //   };
 //
-//   scope.drawHierarchy = false; //
+//   this.drawHierarchy = false; //
 //
 //   ///////////////
 //   // watches
 //
-//   scope.$watch('vs.lastUpdate', function (newValue, oldValue) {
+//   this.$watch('vs.lastUpdate', function (newValue, oldValue) {
 //     if (newValue !== oldValue) {
-//       scope.redraw();
+//       this.redraw();
 //     }
 //   });
 //
 //   //
-//   scope.$watch('vs.curViewPort', function (newValue, oldValue) {
+//   this.$watch('vs.curViewPort', function (newValue, oldValue) {
 //     if (oldValue.sS !== newValue.sS || oldValue.eS !== newValue.eS || oldValue.windowWidth !== newValue.windowWidth) {
-//       scope.drawLevelDetails();
-//       scope.drawLevelMarkup();
+//       this.drawLevelDetails();
+//       this.drawLevelMarkup();
 //     } else {
-//       scope.drawLevelMarkup();
+//       this.drawLevelMarkup();
 //     }
 //   }, true);
 //
 //   //
-//   scope.$watch('vs.curMouseX', function () {
-//     scope.drawLevelMarkup();
+//   this.$watch('vs.curMouseX', function () {
+//     this.drawLevelMarkup();
 //   }, true);
 //
 //   //
-//   scope.$watch('vs.curClickLevelName', function (newValue) {
+//   this.$watch('vs.curClickLevelName', function (newValue) {
 //     if (newValue !== undefined) {
-//       scope.drawLevelMarkup();
+//       this.drawLevelMarkup();
 //     }
 //   }, true);
 //
 //   //
-//   scope.$watch('vs.movingBoundarySample', function () {
-//     if (scope.level.name === scope.vs.curMouseLevelName) {
-//       scope.drawLevelDetails();
+//   this.$watch('vs.movingBoundarySample', function () {
+//     if (this.level.name === this.vs.curMouseLevelName) {
+//       this.drawLevelDetails();
 //     }
-//     scope.drawLevelMarkup();
+//     this.drawLevelMarkup();
 //   }, true);
 //
 //   //
-//   scope.$watch('vs.movingBoundary', function () {
-//     scope.drawLevelMarkup();
+//   this.$watch('vs.movingBoundary', function () {
+//     this.drawLevelMarkup();
 //   }, true);
 //
 //   //
-//   scope.$watch('hists.movesAwayFromLastSave', function () {
-//     scope.drawLevelDetails();
-//     scope.drawLevelMarkup();
+//   this.$watch('hists.movesAwayFromLastSave', function () {
+//     this.drawLevelDetails();
+//     this.drawLevelMarkup();
 //
 //   }, true);
 //
 //   //
-//   scope.$watch('vs.curPerspectiveIdx', function () {
-//     scope.drawLevelDetails();
-//     scope.drawLevelMarkup();
+//   this.$watch('vs.curPerspectiveIdx', function () {
+//     this.drawLevelDetails();
+//     this.drawLevelMarkup();
 //   }, true);
 //
 //   //
-//   scope.$watch('lmds.getCurBndl()', function (newValue, oldValue) {
+//   this.$watch('lmds.getCurBndl()', function (newValue, oldValue) {
 //     if (newValue.name !== oldValue.name || newValue.session !== oldValue.session) {
-//       scope.drawLevelDetails();
-//       scope.drawLevelMarkup();
+//       this.drawLevelDetails();
+//       this.drawLevelMarkup();
 //     }
 //   }, true);
 //
@@ -146,20 +175,20 @@ export class LevelComponent implements OnInit {
 //   /**
 //    *
 //    */
-//   scope.changeCurAttrDef = function (attrDefName, index) {
-//     var curAttrDef = scope.vs.getCurAttrDef(scope.level.name);
+//   this.changeCurAttrDef = function (attrDefName, index) {
+//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
 //     if (curAttrDef !== attrDefName) {
 //       // curAttrDef = attrDefName;
-//       scope.vs.setCurAttrDef(scope.level.name, attrDefName, index);
+//       this.vs.setCurAttrDef(this.level.name, attrDefName, index);
 //
 //       if (!element.hasClass('emuwebapp-level-animation')) {
-//         scope.vs.setEditing(false);
-//         LevelService.deleteEditArea();
+//         this.vs.setEditing(false);
+//         this.level_service.deleteEditArea();
 //         $animate.addClass(levelCanvasContainer, 'emuwebapp-level-animation').then(function () {
 //           $animate.removeClass(levelCanvasContainer, 'emuwebapp-level-animation');
 //           // redraw
-//           scope.drawLevelDetails();
-//           scope.drawLevelMarkup();
+//           this.drawLevelDetails();
+//           this.drawLevelMarkup();
 //         });
 //       }
 //     }
@@ -168,9 +197,9 @@ export class LevelComponent implements OnInit {
 //   /**
 //    *
 //    */
-//   scope.getAttrDefBtnColor = function (attrDefName) {
-//     var curColor;
-//     var curAttrDef = scope.vs.getCurAttrDef(scope.level.name);
+//   this.getAttrDefBtnColor = function (attrDefName) {
+//     let curColor;
+//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
 //     if (attrDefName === curAttrDef) {
 //       curColor = {
 //         'background': '-webkit-radial-gradient(50% 50%, closest-corner, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 60%)'
@@ -183,22 +212,296 @@ export class LevelComponent implements OnInit {
 //     return curColor;
 //   };
 //
-//   scope.updateView = function () {
-//     if ($.isEmptyObject(scope.cps)) {
+//   this.updateView = function () {
+//     if ($.isEmptyObject(this.cps)) {
 //       return;
 //     }
-//     scope.drawLevelDetails();
+//     this.drawLevelDetails();
 //   };
 //
 //
 //   ///////////////
 //   // bindings
 //
-//   // on mouse leave reset viewState.
+//   // on mouse leave reset this.view_state_service.
 //   element.bind('mouseleave', function () {
-//     scope.vs.setcurMouseItem(undefined, undefined, undefined);
-//     scope.drawLevelMarkup();
+//     this.vs.setcurMouseItem(undefined, undefined, undefined);
+//     this.drawLevelMarkup();
 //   });
+
+  /////////////////////
+  // handle mouse events
+
+  mouseclick(event){
+    event.preventDefault();
+    this.setLastMove(event, true);
+    this.setLastClick(event);
+  }
+
+  mousedblclick(){
+    this.setLastMove(event, true);
+    if (this.config_provider_service.vals.restrictions.editItemName) {
+      this.setLastDblClick(event);
+    } else {
+      this.setLastClick(event);
+    }
+  }
+
+  mousemove(event){
+    // console.log(event);
+    let moveLine, moveBy;
+    if (this.view_state_service.focusOnEmuWebApp) {
+      if (!this.view_state_service.getdragBarActive()) {
+        moveLine = true;
+        let samplesPerPixel = this.view_state_service.getSamplesPerPixelVal(event);
+        this.curMouseSampleNrInView = this.view_state_service.getX(event) * samplesPerPixel;
+        moveBy = (this.curMouseSampleNrInView - this.lastPCM);
+        if (samplesPerPixel <= 1) {
+          let zoomEventMove = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+          // absolute movement in pcm below 1 pcm per pixel
+          if (this._level_annotation.type === 'SEGMENT') {
+            if (zoomEventMove.isFirst === true && zoomEventMove.isLast === false) { // before first elem
+              moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemDetails(this._level_annotation.name, 0).sampleStart);
+            } else if (zoomEventMove.isFirst === false && zoomEventMove.isLast === true) { // after last elem
+              let lastItem = this.level_service.getLastItem(this._level_annotation.name);
+              moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - lastItem.sampleStart - lastItem.sampleDur);
+            } else {
+              moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemFromLevelById(this._level_annotation.name, zoomEventMove.nearest.id).sampleStart);
+            }
+          } else {
+            moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemFromLevelById(this._level_annotation.name, zoomEventMove.nearest.id).samplePoint - 0.5); // 0.5 to break between samples not on
+          }
+        } else {
+          // relative movement in pcm above 1 pcm per pixel
+          moveBy = Math.round(this.curMouseSampleNrInView - this.lastPCM);
+        }
+      }
+
+      let mbutton = 0;
+      if (event.buttons === undefined) {
+        mbutton = event.which;
+      } else {
+        mbutton = event.buttons;
+      }
+      switch (mbutton) {
+        case 1:
+          //console.log('Left mouse button pressed');
+          break;
+        case 2:
+          //console.log('Middle mouse button pressed');
+          break;
+        case 3:
+          //console.log('Right mouse button pressed');
+          break;
+        default:
+          if (!this.view_state_service.getdragBarActive()) {
+            let curMouseItem = this.view_state_service.getcurMouseItem();
+            let seg;
+            if (this.config_provider_service.vals.restrictions.editItemSize && event.shiftKey) {
+              this.level_service.deleteEditArea();
+              if (curMouseItem !== undefined) {
+                this.view_state_service.movingBoundary = true;
+                if (this._level_annotation.type === 'SEGMENT') {
+                  if (this.view_state_service.getcurMouseisFirst() || this.view_state_service.getcurMouseisLast()) {
+                    // before first segment
+                    if (this.view_state_service.getcurMouseisFirst()) {
+                      seg = this.level_service.getItemDetails(this._level_annotation.name, 0);
+                      this.view_state_service.movingBoundarySample = seg.sampleStart + moveBy;
+                    } else if (this.view_state_service.getcurMouseisLast()) {
+                      seg = this.level_service.getLastItem(this._level_annotation.name);
+                      this.view_state_service.movingBoundarySample = seg.sampleStart + seg.sampleDur + moveBy;
+                    }
+                  } else {
+                    this.view_state_service.movingBoundarySample = curMouseItem.sampleStart + moveBy;
+                    seg = curMouseItem;
+                  }
+                  this.level_service.moveBoundary(
+                    this._level_annotation.name,
+                    seg.id,
+                    moveBy,
+                    this.view_state_service.getcurMouseisFirst(),
+                    this.view_state_service.getcurMouseisLast()
+                  );
+                  this.history_service.updateCurChangeObj({
+                    'type': 'ANNOT',
+                    'action': 'MOVEBOUNDARY',
+                    'name': this._level_annotation.name,
+                    'id': seg.id,
+                    'movedBy': moveBy,
+                    'isFirst': this.view_state_service.getcurMouseisFirst(),
+                    'isLast': this.view_state_service.getcurMouseisLast()
+                  });
+
+                } else {
+                  seg = curMouseItem;
+                  this.view_state_service.movingBoundarySample = curMouseItem.samplePoint + moveBy;
+                  this.level_service.moveEvent(this._level_annotation.name, seg.id, moveBy);
+                  this.history_service.updateCurChangeObj({
+                    'type': 'ANNOT',
+                    'action': 'MOVEEVENT',
+                    'name': this._level_annotation.name,
+                    'id': seg.id,
+                    'movedBy': moveBy
+                  });
+                }
+                this.lastPCM = this.curMouseSampleNrInView;
+                this.view_state_service.setLastPcm(this.lastPCM);
+                this.view_state_service.selectBoundary();
+                moveLine = false;
+              }
+            } else if (this.config_provider_service.vals.restrictions.editItemSize && event.altKey) {
+              this.level_service.deleteEditArea();
+              if (this._level_annotation.type === 'SEGMENT') {
+                seg = this.view_state_service.getcurClickItems();
+                if (seg[0] !== undefined) {
+                  this.level_service.moveSegment(this._level_annotation.name, seg[0].id, seg.length, moveBy);
+                  this.history_service.updateCurChangeObj({
+                    'type': 'ANNOT',
+                    'action': 'MOVESEGMENT',
+                    'name': this._level_annotation.name,
+                    'id': seg[0].id,
+                    'length': seg.length,
+                    'movedBy': moveBy
+                  });
+                }
+                this.lastPCM = this.curMouseSampleNrInView;
+                this.view_state_service.setLastPcm(this.lastPCM);
+                this.view_state_service.selectBoundary();
+              }
+              else if (this._level_annotation.type === 'EVENT') {
+                seg = this.view_state_service.getcurClickItems();
+                if (seg[0] !== undefined) {
+                  seg.forEach((s) => {
+                    this.level_service.moveEvent(this._level_annotation.name, s.id, moveBy);
+                    this.history_service.updateCurChangeObj({
+                      'type': 'ANNOT',
+                      'action': 'MOVEEVENT',
+                      'name': this._level_annotation.name,
+                      'id': s.id,
+                      'movedBy': moveBy
+                    });
+                  });
+                }
+                this.lastPCM = this.curMouseSampleNrInView;
+                this.view_state_service.setLastPcm(this.lastPCM);
+                this.view_state_service.selectBoundary();
+              }
+            } else {
+              this.view_state_service.movingBoundary = false;
+            }
+          }
+          break;
+      }
+      if (!this.view_state_service.getdragBarActive()) {
+        this.setLastMove(event, moveLine);
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  setLastClick (x) {
+    this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
+    this.level_service.deleteEditArea();
+    this.view_state_service.setEditing(false);
+    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+    if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
+      this.level_service.setlasteditArea('_' + this.lastEventClick.current.id);
+      this.level_service.setlasteditAreaElem(this.element_ref.nativeElement.parentElement);
+      this.view_state_service.setcurClickItem(this.lastEventClick.current);
+      this.view_state_service.selectBoundary();
+    }
+    this.lastPCM = this.curMouseSampleNrInView;
+    this.view_state_service.setLastPcm(this.lastPCM);
+  }
+
+  /**
+   *
+   */
+  setLastRightClick (x) {
+    if (this.view_state_service.getcurClickLevelName() !== this._level_annotation) {
+      this.setLastClick(x);
+    }
+    this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
+    this.level_service.deleteEditArea();
+    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
+      let next = this.level_service.getItemInTime(this.view_state_service.getcurClickLevelName(), this.lastEventClick.current.id, true);
+      let prev = this.level_service.getItemInTime(this.view_state_service.getcurClickLevelName(), this.lastEventClick.current.id, false);
+      this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+      this.view_state_service.setcurClickItemMultiple(this.lastEventClick.current, next); // also used to pass in  prev
+      this.view_state_service.selectBoundary();
+    }
+    this.lastPCM = this.curMouseSampleNrInView;
+    this.view_state_service.setLastPcm(this.lastPCM);
+    // this.$apply();
+  };
+
+  /**
+   *
+   */
+  setLastDblClick (x) {
+    this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
+    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    // let isOpen = this.element_ref.nativeElement.parentElement.css('height') === '25px' ? false : true;
+    // expand to full size on dbl click if level is in small size
+    // if (!isOpen) {
+    //   this.element_ref.nativeElement.parentElement.find('div')[3].click();
+    // }
+    if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined && this.view_state_service.getPermission('labelAction')) {
+      if (this._level_annotation.type === 'SEGMENT') {
+        if (this.lastEventClick.current.sampleStart >= this.view_state_service.curViewPort.sS) {
+          if ((this.lastEventClick.current.sampleStart + this.lastEventClick.current.sampleDur) <= this.view_state_service.curViewPort.eS) {
+            this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+            this.view_state_service.setcurClickItem(this.lastEventClick.current);
+            this.level_service.setlasteditArea('_' + this.lastEventClick.current.id);
+            this.level_service.setlasteditAreaElem(this.element_ref.nativeElement.parentElement);
+            this.view_state_service.setEditing(true);
+            this.level_service.openEditArea(this.lastEventClick.current, this.element_ref.nativeElement.parentElement, this._level_annotation.name);
+          } else {
+            //console.log('Editing out of right bound !');
+          }
+        } else {
+          //console.log('Editing out of left bound !');
+        }
+      } else {
+        this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+        this.view_state_service.setcurClickItem(this.lastEventClick.current);
+        this.level_service.setlasteditArea('_' + this.lastEventClick.current.id);
+        this.level_service.setlasteditAreaElem(this.element_ref.nativeElement.parentElement);
+        this.view_state_service.setEditing(true);
+        this.level_service.openEditArea(this.lastEventClick.current, this.element_ref.nativeElement.parentElement, this._level_annotation.name);
+        this.view_state_service.setEditing(true);
+      }
+    }
+    this.lastPCM = this.curMouseSampleNrInView;
+    this.view_state_service.setLastPcm(this.lastPCM);
+  };
+
+  /**
+   *
+   */
+  setLastMove (x, doChange) {
+    this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
+    this.lastEventMove = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    if (doChange) {
+      if (this.lastEventMove.current !== undefined && this.lastEventMove.nearest !== undefined) {
+        this.lastNeighboursMove = this.level_service.getItemNeighboursFromLevel(this._level_annotation.name, this.lastEventMove.nearest.id, this.lastEventMove.nearest.id);
+        this.view_state_service.setcurMouseItem(this.lastEventMove.nearest, this.lastNeighboursMove, this.view_state_service.getX(x), this.lastEventMove.isFirst, this.lastEventMove.isLast);
+      }
+    }
+    this.view_state_service.setcurMouseLevelName(this._level_annotation.name);
+    this.view_state_service.setcurMouseLevelType(this._level_annotation.type);
+    this.lastPCM = this.curMouseSampleNrInView;
+    this.view_state_service.setLastPcm(this.lastPCM);
+  }
+
+
+  // end mouse handeling
+  /////////////////
+
 
   /**
    * draw level details
@@ -213,41 +516,41 @@ export class LevelComponent implements OnInit {
     }
 
     let labelFontSize; // font family used for labels only
-    let fontSize = 12; //ConfigProviderService.design.font.small.size.slice(0, -2) * 1; // font size used for everything else
+    let fontSize = 12; //this.config_provider_service.design.font.small.size.slice(0, -2) * 1; // font size used for everything else
     if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
-      labelFontSize = 12;//ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
+      labelFontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
     }else{
       labelFontSize = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontPxSize;
     }
 
 
-    // let curAttrDef = this.vs.getCurAttrDef(scope.level.name);
-    // var isOpen = element.parent().css('height') !== '25px';// ? false : true;
-    // if ($.isEmptyObject(scope.level)) {
+    // let curAttrDef = this.vs.getCurAttrDef(this.level.name);
+    // let isOpen = element.parent().css('height') !== '25px';// ? false : true;
+    // if ($.isEmptyObject(this.level)) {
     //   //console.log('undef levelDetails');
     //   return;
     // }
-    // if ($.isEmptyObject(scope.vs)) {
-    //   //console.log('undef viewState');
+    // if ($.isEmptyObject(this.vs)) {
+    //   //console.log('undef this.view_state_service');
     //   return;
     // }
-    // if ($.isEmptyObject(scope.cps)) {
+    // if ($.isEmptyObject(this.cps)) {
     //   //console.log('undef config');
     //   return;
     // }
     //
     // // draw hierarchy if canvas is displayed
-    // if(scope.drawHierarchy){
-    //   scope.drawHierarchyDetails();
+    // if(this.drawHierarchy){
+    //   this.drawHierarchyDetails();
     // }
 
     let ctx = this.levelCanvas.nativeElement.getContext('2d');
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // predef vars
+    // predef lets
     let sDist, posS, posE;
 
-    sDist = this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start + 1) - this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start); // used to be scope.vs.getSampleDist(ctx.canvas.width);
+    sDist = this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start + 1) - this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start); // used to be this.vs.getSampleDist(ctx.canvas.width);
 
     // draw name of level and type
     let scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
@@ -258,23 +561,23 @@ export class LevelComponent implements OnInit {
     //   }
     //   else {
     //     fontSize -= 2;
-    //     fontScaleService.drawUndistortedText(ctx, scope.level.name, fontSize, fontFamily, 4, ctx.canvas.height / 2 - (fontSize * scaleY / 2), ConfigProviderService.design.color.black, true);
+    //     fontScaleService.drawUndistortedText(ctx, this.level.name, fontSize, fontFamily, 4, ctx.canvas.height / 2 - (fontSize * scaleY / 2), this.config_provider_service.design.color.black, true);
     //   }
     // } else {
-    //   fontScaleService.drawUndistortedTextTwoLines(ctx, scope.level.name + ':' + curAttrDef, '(' + scope.level.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, ConfigProviderService.design.color.black, true);
+    //   fontScaleService.drawUndistortedTextTwoLines(ctx, this.level.name + ':' + curAttrDef, '(' + this.level.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, this.config_provider_service.design.color.black, true);
     }
 
     let curID = -1;
 
     // calculate generic max with of single char (m char used)
-    //var mTxtImg = fontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, ConfigProviderService.design.color.black);
+    //let mTxtImg = fontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, this.config_provider_service.design.color.black);
     let mTxtImgWidth = ctx.measureText('m').width * this.font_scale_service.scaleX;
 
     // calculate generic max with of single digit (0 digit used)
-    //var zeroTxtImg = fontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, ConfigProviderService.design.color.black);
+    //let zeroTxtImg = fontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, this.config_provider_service.design.color.black);
     let zeroTxtImgWidth = ctx.measureText('0').width * this.font_scale_service.scaleX;
     if (this._level_annotation.type === 'SEGMENT') {
-      ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
+      ctx.fillStyle = 'black';//this.config_provider_service.design.color.black;
         // draw segments
 
         this._level_annotation.items.forEach((item) => {
@@ -299,11 +602,11 @@ export class LevelComponent implements OnInit {
             posS = this.getPixelPosition(ctx.canvas.width, item.sampleStart);
             posE = this.getPixelPosition(ctx.canvas.width, item.sampleStart + item.sampleDur + 1);
 
-            ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
+            ctx.fillStyle = 'black';//this.config_provider_service.design.color.black;
             ctx.fillRect(posS, 0, 2, ctx.canvas.height / 2);
 
             //draw segment end
-            ctx.fillStyle = 'grey'; //ConfigProviderService.design.color.grey;
+            ctx.fillStyle = 'grey'; //this.config_provider_service.design.color.grey;
             ctx.fillRect(posE, ctx.canvas.height / 2, 2, ctx.canvas.height);
 
             ctx.font = (fontSize - 2 + 'px' + ' ' + labelFontFamily);
@@ -313,17 +616,17 @@ export class LevelComponent implements OnInit {
       //         if (isOpen) {
                 this.font_scale_service.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
       //         } else {
-      //           fontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - fontSize + 2, ConfigProviderService.design.color.black, false);
+      //           fontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - fontSize + 2, this.config_provider_service.design.color.black, false);
       //         }
             }
 
             //draw helper lines
-            if (true && curLabVal !== undefined && curLabVal.length !== 0) { // only draw if label is not empty; NOTE true used to be scope.open
+            if (true && curLabVal !== undefined && curLabVal.length !== 0) { // only draw if label is not empty; NOTE true used to be this.open
               let labelCenter = posS + (posE - posS) / 2;
 
               let hlY = ctx.canvas.height / 4;
               // start helper line
-              ctx.strokeStyle = 'black'; // ConfigProviderService.design.color.black;
+              ctx.strokeStyle = 'black'; // this.config_provider_service.design.color.black;
               ctx.beginPath();
               ctx.moveTo(posS, hlY);
               ctx.lineTo(labelCenter, hlY);
@@ -332,7 +635,7 @@ export class LevelComponent implements OnInit {
 
               hlY = ctx.canvas.height / 4 * 3;
               // end helper line
-              ctx.strokeStyle = 'grey'; //ConfigProviderService.design.color.grey;
+              ctx.strokeStyle = 'grey'; //this.config_provider_service.design.color.grey;
               ctx.beginPath();
               ctx.moveTo(posE, hlY);
               ctx.lineTo(labelCenter, hlY);
@@ -340,7 +643,7 @@ export class LevelComponent implements OnInit {
               ctx.stroke();
             }
       //
-      //       if (scope.open){
+      //       if (this.open){
               // draw sampleStart numbers
               //check for enough space to stroke text
               if (posE - posS > zeroTxtImgWidth * item.sampleStart.toString().length) {
@@ -358,8 +661,8 @@ export class LevelComponent implements OnInit {
         });
 
     }else if (this._level_annotation.type === 'EVENT') {
-      ctx.fillStyle = 'black'; //ConfigProviderService.design.color.black;
-      // predef. vars
+      ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
+      // predef. lets
       let perc;
 
       this._level_annotation.items.forEach((item) => {
@@ -373,7 +676,7 @@ export class LevelComponent implements OnInit {
             }
           });
 
-          ctx.fillStyle = 'black'; //ConfigProviderService.design.color.black;
+          ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
           ctx.fillRect(perc, 0, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
           ctx.fillRect(perc, ctx.canvas.height / 2 + ctx.canvas.height / 5, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
 
@@ -384,125 +687,127 @@ export class LevelComponent implements OnInit {
         }
       });
     }
-  };
+  }
 
   /**
    *
    */
   drawLevelMarkup() {
-    // var ctx = canvas[1].getContext('2d');
-    // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    // if (scope.level.name === scope.vs.getcurClickLevelName()) {
-    //   ctx.fillStyle = ConfigProviderService.design.color.transparent.grey;
-    //   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    // }
-    //
-    // // draw moving boundary line if moving
-    // Drawhelperservice.drawMovingBoundaryLine(ctx);
-    //
-    // // draw current viewport selected
-    // Drawhelperservice.drawCurViewPortSelected(ctx);
-    //
-    //
-    // var posS, posE, sDist, xOffset, item;
-    // posS = scope.vs.getPos(ctx.canvas.width, scope.vs.curViewPort.selectS);
-    // posE = scope.vs.getPos(ctx.canvas.width, scope.vs.curViewPort.selectE);
-    // sDist = scope.vs.getSampleDist(ctx.canvas.width);
-    //
-    //
-    // var segMId = scope.vs.getcurMouseItem();
-    // var isFirst = scope.vs.getcurMouseisFirst();
-    // var isLast = scope.vs.getcurMouseisLast();
-    // var clickedSegs = scope.vs.getcurClickItems();
-    // var levelId = scope.vs.getcurClickLevelName();
-    // if (clickedSegs !== undefined) {
-    //   // draw clicked on selected areas
-    //   if (scope.level.name === levelId && clickedSegs.length > 0) {
-    //     clickedSegs.forEach(function (cs) {
-    //       if (cs !== undefined) {
-    //         // check if segment or event level
-    //         if (cs.sampleStart !== undefined) {
-    //           posS = Math.round(scope.vs.getPos(ctx.canvas.width, cs.sampleStart));
-    //           posE = Math.round(scope.vs.getPos(ctx.canvas.width, cs.sampleStart + cs.sampleDur + 1));
-    //         } else {
-    //           posS = Math.round(scope.vs.getPos(ctx.canvas.width, cs.samplePoint) + sDist / 2);
-    //           posS = posS - 5;
-    //           posE = posS + 10;
-    //         }
-    //         ctx.fillStyle = ConfigProviderService.design.color.transparent.yellow;
-    //         ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
-    //         ctx.fillStyle = ConfigProviderService.design.color.black;
-    //       }
-    //     });
-    //   }
-    // }
-    //
-    //
-    // // draw preselected boundary
-    // item = scope.vs.getcurMouseItem();
-    // if (scope.level.items.length > 0 && item !== undefined && segMId !== undefined && scope.level.name === scope.vs.getcurMouseLevelName()) {
-    //   ctx.fillStyle = ConfigProviderService.design.color.blue;
-    //   if (isFirst === true) { // before first segment
-    //     if (scope.vs.getcurMouseLevelType() === 'SEGMENT') {
-    //       item = scope.level.items[0];
-    //       posS = Math.round(scope.vs.getPos(ctx.canvas.width, item.sampleStart));
-    //       ctx.fillRect(posS, 0, 3, ctx.canvas.height);
-    //     }
-    //   } else if (isLast === true) { // after last segment
-    //     if (scope.vs.getcurMouseLevelType() === 'SEGMENT') {
-    //       item = scope.level.items[scope.level.items.length - 1];
-    //       posS = Math.round(scope.vs.getPos(ctx.canvas.width, (item.sampleStart + item.sampleDur + 1))); // +1 because boundaries are drawn on sampleStart
-    //       ctx.fillRect(posS, 0, 3, ctx.canvas.height);
-    //     }
-    //   } else { // in the middle
-    //     if (scope.vs.getcurMouseLevelType() === 'SEGMENT') {
-    //       posS = Math.round(scope.vs.getPos(ctx.canvas.width, item.sampleStart));
-    //       ctx.fillRect(posS, 0, 3, ctx.canvas.height);
-    //     } else {
-    //       posS = Math.round(scope.vs.getPos(ctx.canvas.width, item.samplePoint));
-    //       xOffset = (sDist / 2);
-    //       ctx.fillRect(posS + xOffset, 0, 3, ctx.canvas.height);
-    //
-    //     }
-    //   }
-    //   ctx.fillStyle = ConfigProviderService.design.color.black;
-    //
-    // }
-    //
-    // // draw cursor
-    // Drawhelperservice.drawCrossHairX(ctx, viewState.curMouseX);
+    // console.log()
+    let ctx = this.levelMarkupCanvas.nativeElement.getContext('2d');
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if (this._level_annotation.name === this.view_state_service.getcurClickLevelName()) {
+      ctx.fillStyle = 'rgba(22, 22, 22, 0.1)'; //this.config_provider_service.design.color.transparent.grey;
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
+    // draw moving boundary line if moving
+    this.draw_helper_service.drawMovingBoundaryLine(ctx);
+
+    // draw current viewport selected
+    this.draw_helper_service.drawCurViewPortSelected(ctx, false);
+
+
+    let posS, posE, sDist, xOffset, item;
+    posS = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectS);
+    posE = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectE);
+    sDist = this.view_state_service.getSampleDist(ctx.canvas.width);
+
+
+    let segMId = this.view_state_service.getcurMouseItem();
+    let isFirst = this.view_state_service.getcurMouseisFirst();
+    let isLast = this.view_state_service.getcurMouseisLast();
+    let clickedSegs = this.view_state_service.getcurClickItems();
+    let levelId = this.view_state_service.getcurClickLevelName();
+
+    if (clickedSegs !== undefined) {
+      // draw clicked on selected areas
+      if (this._level_annotation.name === levelId && clickedSegs.length > 0) {
+        clickedSegs.forEach((cs) => {
+          if (cs !== undefined) {
+            // check if segment or event level
+            if (cs.sampleStart !== undefined) {
+              posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, cs.sampleStart));
+              posE = Math.round(this.view_state_service.getPos(ctx.canvas.width, cs.sampleStart + cs.sampleDur + 1));
+            } else {
+              posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, cs.samplePoint) + sDist / 2);
+              posS = posS - 5;
+              posE = posS + 10;
+            }
+            ctx.fillStyle = 'rgba(255, 255, 22, 0.35)';//this.config_provider_service.design.color.transparent.yellow;
+            ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
+            ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
+          }
+        });
+      }
+    }
+
+
+    // draw preselected boundary
+    item = this.view_state_service.getcurMouseItem();
+    if (this._level_annotation.items.length > 0 && item !== undefined && segMId !== undefined && this._level_annotation.name === this.view_state_service.getcurMouseLevelName()) {
+      ctx.fillStyle = '#4fc3f7'; //this.config_provider_service.design.color.blue;
+      if (isFirst === true) { // before first segment
+        if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+          item = this._level_annotation.items[0];
+          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, item.sampleStart));
+          ctx.fillRect(posS, 0, 3, ctx.canvas.height);
+        }
+      } else if (isLast === true) { // after last segment
+        if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+          item = this._level_annotation.items[this._level_annotation.items.length - 1];
+          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, (item.sampleStart + item.sampleDur + 1))); // +1 because boundaries are drawn on sampleStart
+          ctx.fillRect(posS, 0, 3, ctx.canvas.height);
+        }
+      } else { // in the middle
+        if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, item.sampleStart));
+          ctx.fillRect(posS, 0, 3, ctx.canvas.height);
+        } else {
+          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, item.samplePoint));
+          xOffset = (sDist / 2);
+          ctx.fillRect(posS + xOffset, 0, 3, ctx.canvas.height);
+
+        }
+      }
+      ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
+
+    }
+
+    // draw cursor
+    this.draw_helper_service.drawCrossHairX(ctx, this.view_state_service.curMouseX);
   }
-//
+
 //   /**
 //    * draw level hierarchy
 //    */
-//   scope.drawHierarchyDetails = function () {
-//     var fontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-//     var paths = scope.hls.findPaths(scope.level.name);
-//     var curPath = paths[1];
+//   this.drawHierarchyDetails = function () {
+//     let fontSize = this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
+//     let paths = this.hls.findPaths(this.level.name);
+//     let curPath = paths[1];
 //
-//     var ctx = canvas[0].getContext('2d');
+//     let ctx = canvas[0].getContext('2d');
 //     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 //
-//     //var mTxtImgWidth = ctx.measureText('m').width * fontScaleService.scaleX;
+//     //let mTxtImgWidth = ctx.measureText('m').width * fontScaleService.scaleX;
 //
-//     ctx.strokeStyle = ConfigProviderService.design.color.black;
+//     ctx.strokeStyle = this.config_provider_service.design.color.black;
 //
 //     // find parents for every parent for every items hence building the annotation graph
-//     scope.hls.findParents(curPath);
+//     this.hls.findParents(curPath);
 //
 //     // draw ghost level
-//     for(var i = 0; i < curPath.length; i++){
-//       var curLevel = scope.ls.getLevelDetails(curPath[i]);
-//       var levelHeight = ctx.canvas.height / curPath.length;
-//       var curStartY = ctx.canvas.height - (i + 1) * levelHeight;
-//       for(var itemIdx = 0; itemIdx < curLevel.items.length; itemIdx++){
-//         var posS = Math.round(scope.vs.getPos(ctx.canvas.width, curLevel.items[itemIdx]._derivedSampleStart));
-//         var posE = Math.round(scope.vs.getPos(ctx.canvas.width, curLevel.items[itemIdx]._derivedSampleEnd));
+//     for(let i = 0; i < curPath.length; i++){
+//       let curLevel = this.ls.getLevelDetails(curPath[i]);
+//       let levelHeight = ctx.canvas.height / curPath.length;
+//       let curStartY = ctx.canvas.height - (i + 1) * levelHeight;
+//       for(let itemIdx = 0; itemIdx < curLevel.items.length; itemIdx++){
+//         let posS = Math.round(this.vs.getPos(ctx.canvas.width, curLevel.items[itemIdx]._derivedSampleStart));
+//         let posE = Math.round(this.vs.getPos(ctx.canvas.width, curLevel.items[itemIdx]._derivedSampleEnd));
 //         ctx.strokeRect(posS, curStartY , posE - posS, curStartY + levelHeight);
 //
 //         // draw label
-//         fontScaleService.drawUndistortedText(ctx, curLevel.items[itemIdx].labels[0].value, fontSize - 2, ConfigProviderService.design.font.small.family, posS + (posE - posS) / 2 - ctx.measureText(curLevel.items[itemIdx].labels[0].value).width / 2 - 2, curStartY + levelHeight / 2, ConfigProviderService.design.color.black, true);
+//         fontScaleService.drawUndistortedText(ctx, curLevel.items[itemIdx].labels[0].value, fontSize - 2, this.config_provider_service.design.font.small.family, posS + (posE - posS) / 2 - ctx.measureText(curLevel.items[itemIdx].labels[0].value).width / 2 - 2, curStartY + levelHeight / 2, this.config_provider_service.design.color.black, true);
 //       }
 //     }
 //

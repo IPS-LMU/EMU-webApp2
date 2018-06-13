@@ -256,10 +256,10 @@ export class SsffTrackComponent implements OnInit {
 
         // console.log(contourNr);
 
-        if ((minMaxValLims && (Object.keys(minMaxValLims).length === 0)) || (contourNr >= minMaxContourLims.minContourIdx && contourNr <= minMaxContourLims.maxContourIdx)) {
+        if ((minMaxContourLims && (Object.keys(minMaxContourLims).length === 0)) || (contourNr >= minMaxContourLims.minContourIdx && contourNr <= minMaxContourLims.maxContourIdx)) {
 
           // set color
-          if (minMaxValLims && (Object.keys(minMaxValLims).length === 0)) {
+          if (minMaxContourLims && (Object.keys(minMaxContourLims).length === 0)) {
             this._main_context.strokeStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
             this._main_context.fillStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
           } else {

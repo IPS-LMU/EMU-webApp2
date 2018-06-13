@@ -209,12 +209,12 @@ export class WebsocketHandlerService {
   // }
 
 
- isConnected() {
+  public isConnected() {
     return this.connected;
   }
 
   // close connection with ws
-  private closeConnect() {
+  public closeConnect() {
     if (this.isConnected()) {
       this.ws.onclose = function () {};
       this.ws.close();

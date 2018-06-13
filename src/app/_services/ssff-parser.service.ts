@@ -38,19 +38,19 @@ export class SsffParserService {
     selfAny.ssffData.origFreq = -1;
     selfAny.ssffData.Columns = [];
 
-    /*
-    * duplicate of function in array-buffer-helper
-    */
-
-    selfAny.subarray = function(ab, offset, length){
-      let sub = new ArrayBuffer(length);
-      let subView = new Int8Array(sub);
-      let thisView = new Int8Array(ab);
-      for (let i = 0; i < length; i++) {
-        subView[i] = thisView[offset + i];
-      }
-      return sub;
-    };
+    // /*
+    // * duplicate of function in array-buffer-helper
+    // */
+    //
+    // selfAny.subarray = function(ab, offset, length){
+    //   let sub = new ArrayBuffer(length);
+    //   let subView = new Int8Array(sub);
+    //   let thisView = new Int8Array(ab);
+    //   for (let i = 0; i < length; i++) {
+    //     subView[i] = thisView[offset + i];
+    //   }
+    //   return sub;
+    // };
 
     // /**
     //  * Mock for atob btoa for web kit based browsers that don't support these in webworkers
@@ -290,12 +290,13 @@ export class SsffParserService {
         });
       }
 
-
+      let headerLineSize;
       for (let i = 4; i < newLsep.length; i++) {
         if (newLsep[i].split(/[ ,]+/)[0] === 'Original_Freq') {
           selfAny.ssffData.origFreq = parseFloat(newLsep[i].split(/[ ,]+/)[2].replace(/(\r\n|\n|\r)/gm, ''));
         }
         if (newLsep[i] === selfAny.sepString) {
+          headerLineSize = i;
           break;
         }
         let lSpl = newLsep[i].split(/[ ]+/);
@@ -312,18 +313,19 @@ export class SsffParserService {
         }
       }
 
-      let curBinIdx = newLsep.slice(0, newLsep.length).join('').length; // i + 1 exchanged for newLsep.length
+      // console.log(newLsep.slice(0, headerLineSize + 1).join(''));
+      let curBinIdx = newLsep.slice(0, headerLineSize + 1).join('').length; // i + 1 exchanged for headerLineSize + 1
 
       let curBufferView, curBuffer, curLen, curMin, curMax;
-      console.log('in ssff2jso curBinIdx:', curBinIdx, '; uIntBuffView.length: ', uIntBuffView.length);
+      // console.log('in ssff2jso curBinIdx:', curBinIdx, '; uIntBuffView.length: ', uIntBuffView.length);
       while (curBinIdx < uIntBuffView.length) {
-
+        // console.log("curBinIdx", curBinIdx);
         for (let i = 0; i < selfAny.ssffData.Columns.length; i++) {
 
-          //console.log(ssffData.Columns[i].length);
+          // console.log("coltype", selfAny.ssffData.Columns[i].ssffdatatype);
           if (selfAny.ssffData.Columns[i].ssffdatatype === 'DOUBLE') {
             curLen = 8 * selfAny.ssffData.Columns[i].length;
-            curBuffer = selfAny.subarray(buf, curBinIdx, curLen);
+            curBuffer = buf.slice(curBinIdx, curBinIdx + curLen);
             // ugly hack in order to support PhantomJS < 2.0 testing
             // if (typeof Float64Array === 'undefined') {
             //   Float64Array = Float32Array;
@@ -344,7 +346,7 @@ export class SsffParserService {
 
           } else if (selfAny.ssffData.Columns[i].ssffdatatype === 'FLOAT') {
             curLen = 4 * selfAny.ssffData.Columns[i].length;
-            curBuffer = selfAny.subarray(buf, curBinIdx, curLen);
+            curBuffer =  buf.slice(curBinIdx, curBinIdx + curLen);
             curBufferView = new Float32Array(curBuffer);
             selfAny.ssffData.Columns[i].values.push(Array.prototype.slice.call(curBufferView));
             curBinIdx += curLen;
@@ -361,7 +363,7 @@ export class SsffParserService {
 
           } else if (selfAny.ssffData.Columns[i].ssffdatatype === 'SHORT') {
             curLen = 2 * selfAny.ssffData.Columns[i].length;
-            curBuffer = selfAny.subarray(buf, curBinIdx, curLen);
+            curBuffer = buf.slice(curBinIdx, curBinIdx + curLen);
             curBufferView = new Int16Array(curBuffer);
             selfAny.ssffData.Columns[i].values.push(Array.prototype.slice.call(curBufferView));
             curBinIdx += curLen;
@@ -377,7 +379,8 @@ export class SsffParserService {
             }
           } else if (selfAny.ssffData.Columns[i].ssffdatatype === 'LONG') {
             curLen = 4 * selfAny.ssffData.Columns[i].length;
-            curBuffer = selfAny.subarray(buf, curBinIdx, curLen);
+            curBuffer = buf.slice(curBinIdx, curBinIdx + curLen);
+
             curBufferView = new Int32Array(curBuffer);
             selfAny.ssffData.Columns[i].values.push(Array.prototype.slice.call(curBufferView));
             curBinIdx += curLen;
@@ -394,7 +397,7 @@ export class SsffParserService {
 
           } else if (selfAny.ssffData.Columns[i].ssffdatatype === 'BYTE') {
             curLen = 1 * selfAny.ssffData.Columns[i].length;
-            curBuffer = selfAny.subarray(buf, curBinIdx, curLen);
+            curBuffer = buf.slice(curBinIdx, curBinIdx + curLen);
             curBufferView = new Uint8Array(curBuffer);
             selfAny.ssffData.Columns[i].values.push(Array.prototype.slice.call(curBufferView));
             curBinIdx += curLen;
@@ -407,7 +410,7 @@ export class SsffParserService {
               }
             });
           }
-        console.log(curBuffer);
+        // console.log(curBuffer);
         } //for
       } //while
 

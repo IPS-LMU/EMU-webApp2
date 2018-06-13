@@ -39,12 +39,14 @@
         </button>
         <button mat-raised-button
                 color="primary"
-                *ngIf="false">
+                *ngIf="false"
+                [disabled]="true">
           OSCI/SPEC settings
         </button>
         <!--start: demo menu-->
         <button mat-raised-button
                 color="primary"
+                [disabled]="!view_state_service.getPermission('openDemoBtnDBclick')"
                 button [matMenuTriggerFor]="menu">
           open demo
         </button>
@@ -53,12 +55,14 @@
           <button mat-menu-item>ema</button>
           <button mat-menu-item>epg</button>
         </mat-menu>
-
         <!--end: demo menu-->
 
         <button mat-raised-button
                 color="primary"
-                *ngIf="true">
+                *ngIf="true"
+                [disabled]="!view_state_service.getPermission('connectBtnClick')"
+                (click)="connectBtnClick()"
+        >
           connect
         </button>
         <button mat-raised-button
@@ -78,7 +82,8 @@
         </button>
         <button mat-raised-button
                 color="primary"
-                *ngIf="false">
+                [disabled]="!view_state_service.getPermission('clearBtnClick')"
+                (click)="clearBtnClick()">
           clear
         </button>
         <span class="fill-remaining-space"></span>
@@ -99,9 +104,7 @@
       <!--start: signals-->
       <div class="signals-resize-container">
 
-        <!--<div class="signals-container" style="display: flex; flex-direction: column; height: 100%">-->
-        <div class="signal-container" *ngFor="let canvas_name of config_provider_service.vals.perspectives[view_state_service.curPerspectiveIdx].signalCanvases.order">
-          <!--{{canvas_name}}-->
+        <div class="signal-container" *ngFor="let canvas_name of config_provider_service.vals?.perspectives[view_state_service.curPerspectiveIdx]?.signalCanvases.order">
           <app-osci style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name === 'OSCI'"
                     [audio_buffer] = "sound_handler_service.audioBuffer"
                     [viewport_sample_start] = "view_state_service.curViewPort.sS"
@@ -135,10 +138,12 @@
         <!--dataServ.getLevelOrder(cps.vals.perspectives[vs.curPerspectiveIdx].levelCanvases.order)-->
         <app-level
           *ngFor="let level_name of config_provider_service.vals.perspectives[view_state_service.curPerspectiveIdx].levelCanvases.order"
-          [viewport_sample_start] = "view_state_service.curViewPort.sS"
-          [viewport_sample_end] = "view_state_service.curViewPort.eS"
           [level_annotation] = "data_service.getLevelDataByName(level_name)"
           [attributeDefinition]="view_state_service.getCurAttrDef(level_name)"
+          [viewport_sample_start] = "view_state_service.curViewPort.sS"
+          [viewport_sample_end] = "view_state_service.curViewPort.eS"
+          [external_cursor_sample_position]="view_state_service.lastPcm"
+          [audio_sample_length]="sound_handler_service.audioBuffer.length"
         >
 
         </app-level>
@@ -153,7 +158,7 @@
         <!--<p>Move</p>-->
         <!--<p>this</p>-->
         <!--<p>DIV</p>-->
-      <!--</div>-->
+    <!--</div>-->
       <!--start: 2D canvas-->
 
       <div class="bottom-menu-bar">

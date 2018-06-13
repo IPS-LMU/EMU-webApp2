@@ -1,16 +1,16 @@
 <!--<div class="wrapper">-->
-  <div class="emuwebapp-level-container">
+  <div class="emuwebapp-level-container" (mousemove)="mousemove($event)" (click)="mouseclick($event)" (dblclick)="mousedblclick()">
     <canvas #levelCanvas class="emuwebapp-level-canvas" id="levelCanvas" width="2048" height="128"></canvas>
     <!--<canvas class="emuwebapp-level-markup" id="levelMarkupCanvas" width="2048" height="64" track-mouse-in-level="{{idx}}" level-name="level.name" level-type="level.type"></canvas>-->
     <canvas #levelMarkupCanvas class="emuwebapp-level-markup" id="levelMarkupCanvas" width="2048" height="128"></canvas>
   </div>
   <!--<div class="close-button-wrapper">-->
-    <!--<mat-icon>close</mat-icon>-->
-  <!--</div>-->
-  <!--<div class="resize-button-wrapper">-->
-    <!--<mat-icon>unfold_more</mat-icon>-->
-  <!--</div>-->
-  <!--<div class="save-button-wrapper">-->
-    <!--<mat-icon>save</mat-icon>-->
-  <!--</div>-->
+<!--<mat-icon>close</mat-icon>-->
+<!--</div>-->
+<!--<div class="resize-button-wrapper">-->
+<!--<mat-icon>unfold_more</mat-icon>-->
+<!--</div>-->
+<!--<div class="save-button-wrapper">-->
+<!--<mat-icon>save</mat-icon>-->
+<!--</div>-->
 <!--</div>-->

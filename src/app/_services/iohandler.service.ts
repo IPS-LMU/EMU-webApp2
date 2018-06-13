@@ -11,7 +11,7 @@ export class IohandlerService {
 
   constructor(private http: HttpClient,
               private cps: ConfigProviderService,
-              private wsh: WebsocketHandlerService) { }
+              public wsh: WebsocketHandlerService) { }
 
   // // $http.defaults.useXDomain = true;
   //

@@ -276,7 +276,6 @@ export class ValidationService {
   loadSchemas() {
     let obs = []; // array of observables
     let url: string;
-    console.log("yo fuck your mum!");
     this.names.forEach(n => {
       url = 'assets/schemaFiles/' + n + '.json';
       console.log(url);

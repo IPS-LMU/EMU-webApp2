@@ -10,21 +10,21 @@ export class ConfigProviderService {
   constructor(private view_state_service: ViewStateService) { }
 
   // shared service object
-  vals;
-  // sServObj.design = {};
-  curDbConfig;
-  // sServObj.initDbConfig = {};
+  vals: any;
+  // this.design = {};
+  curDbConfig: any;
+  // this.initDbConfig = {};
   //
   // // embedded values -> if these are set this overrides the normal config
-  // sServObj.embeddedVals = {
+  // this.embeddedVals = {
   //   audioGetUrl: '',
   //   labelGetUrl: '',
   //   labelType: '',
   //   fromUrlParams: false
   // };
   //
-  // sServObj.setDesign = function (data) {
-  //   angular.copy(data, sServObj.design);
+  // this.setDesign = function (data) {
+  //   angular.copy(data, this.design);
   // };
   //
   /**
@@ -56,15 +56,15 @@ export class ConfigProviderService {
     }
   }
 
-  // sServObj.getDelta = function (current) {
-  //   var defer = $q.defer();
-  //   var ret = sServObj.getDeltas(current, sServObj.initDbConfig);
+  // this.getDelta = function (current) {
+  //   let defer = $q.defer();
+  //   let ret = this.getDeltas(current, this.initDbConfig);
   //   defer.resolve(ret);
   //   return defer.promise;
   // };
   //
-  // sServObj.getDeltas = function (current, start) {
-  //   var ret = {};
+  // this.getDeltas = function (current, start) {
+  //   let ret = {};
   //   angular.forEach(current, function (value, key) {
   //     if (!angular.equals(value, start[key])) {
   //       if(Array.isArray(value)) {
@@ -73,7 +73,7 @@ export class ConfigProviderService {
   //       }
   //       else if(typeof value === 'object'){
   //         ret[key] = {};
-  //         ret[key] = sServObj.getDeltas(value, start[key]);
+  //         ret[key] = this.getDeltas(value, start[key]);
   //       }
   //       else {
   //         if(key !== 'clear' && key !== 'openDemoDB' && key !== 'specSettings') {
@@ -147,9 +147,9 @@ export class ConfigProviderService {
   // /**
   //  *
   //  */
-  // sServObj.getAssignment = function (signalName) {
-  //   var res = {};
-  //   angular.forEach(sServObj.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.assign, function (a) {
+  // this.getAssignment = function (signalName) {
+  //   let res = {};
+  //   angular.forEach(this.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.assign, function (a) {
   //     if (a.signalCanvasName === signalName) {
   //       res = a;
   //     }
@@ -157,27 +157,27 @@ export class ConfigProviderService {
   //
   //   return res;
   // };
-  //
+
+  /**
+   *
+   */
+  public getLevelDefinition (levelName): any {
+    let res = {};
+    this.curDbConfig.levelDefinitions.forEach((ld) => {
+      if (ld.name === levelName) {
+        res = ld;
+      }
+    });
+
+    return res;
+  }
+
   // /**
   //  *
   //  */
-  // sServObj.getLevelDefinition = function (levelName) {
-  //   var res = {};
-  //   angular.forEach(sServObj.curDbConfig.levelDefinitions, function (ld) {
-  //     if (ld.name === levelName) {
-  //       res = ld;
-  //     }
-  //   });
-  //
-  //   return res;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getAttrDefsNames = function (levelName) {
-  //   var res = [];
-  //   angular.forEach(sServObj.getLevelDefinition(levelName).attributeDefinitions, function (ad) {
+  // this.getAttrDefsNames = function (levelName) {
+  //   let res = [];
+  //   angular.forEach(this.getLevelDefinition(levelName).attributeDefinitions, function (ad) {
   //     res.push(ad.name);
   //   });
   //
@@ -188,12 +188,12 @@ export class ConfigProviderService {
   // /**
   //  *
   //  */
-  // sServObj.setPerspectivesOrder = function (curPerspective, levelName) {
-  //   if (sServObj.vals !== undefined) {
-  //     if (sServObj.vals.perspectives !== undefined) {
-  //       if (sServObj.vals.perspectives[curPerspective] !== undefined) {
-  //         if (sServObj.vals.perspectives[curPerspective].levelCanvases !== undefined) {
-  //           sServObj.vals.perspectives[curPerspective].levelCanvases.order = levelName;
+  // this.setPerspectivesOrder = function (curPerspective, levelName) {
+  //   if (this.vals !== undefined) {
+  //     if (this.vals.perspectives !== undefined) {
+  //       if (this.vals.perspectives[curPerspective] !== undefined) {
+  //         if (this.vals.perspectives[curPerspective].levelCanvases !== undefined) {
+  //           this.vals.perspectives[curPerspective].levelCanvases.order = levelName;
   //         }
   //       }
   //     }
@@ -203,8 +203,8 @@ export class ConfigProviderService {
   // /**
   //  *  replace ascii codes from config with strings
   //  */
-  // sServObj.getStrRep = function (code) {
-  //   var str;
+  // this.getStrRep = function (code) {
+  //   let str;
   //   switch (code) {
   //     case 8:
   //       str = 'BACKSPACE';

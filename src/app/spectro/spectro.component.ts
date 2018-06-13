@@ -6,6 +6,7 @@ import { ConfigProviderService } from '../_services/config-provider.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
+import { ArrayBufferHelperService } from '../_services/array-buffer-helper.service';
 
 @Component({
   selector: 'app-spectro',
@@ -54,7 +55,8 @@ export class SpectroComponent implements OnInit {
               private config_provider_service: ConfigProviderService,
               private draw_helper_service: DrawHelperService,
               private math_helper_service: MathHelperService,
-              private font_scale_service: FontScaleService) {
+              private font_scale_service: FontScaleService,
+              private array_buffer_helper_service: ArrayBufferHelperService) {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
     this.workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
@@ -568,7 +570,6 @@ export class SpectroComponent implements OnInit {
       for (let j = 0; j < windowSizeInSamples; j++) {
         real[j] = selfAny.audioBuffer[offset + j];
       }
-
       // apply window function and pre-emphasis to non zero padded real
       selfAny.myFFT.applyWindowFuncAndPreemph(selfAny.wFunction, selfAny.internalalpha, real, windowSizeInSamples);
 
@@ -576,12 +577,13 @@ export class SpectroComponent implements OnInit {
       selfAny.myFFT.fft(real, imag);
 
       // calculate magnitude for each spectral component
-      for (var low = 0; low <= selfAny.ceilingFreqFftIdx - selfAny.floorFreqFftIdx; low++) {
+      for (let low = 0; low <= selfAny.ceilingFreqFftIdx - selfAny.floorFreqFftIdx; low++) {
         result[low] = selfAny.magnitude(real[low + selfAny.floorFreqFftIdx], imag[low + selfAny.floorFreqFftIdx]);
         if (selfAny.totalMax < result[low]) {
           selfAny.totalMax = result[low];
         }
       }
+
       return result;
     };
 
@@ -637,7 +639,6 @@ export class SpectroComponent implements OnInit {
         for (let j = 0; j < selfAny.imgWidth; j++) {
           selfAny.drawVerticalLineOfSpectogram(j);
         }
-
         // post generated image block with settings back
         selfAny.postMessage({
           'window': selfAny.wFunction,
@@ -665,7 +666,7 @@ export class SpectroComponent implements OnInit {
 
 
     /**
-     * function to handle messages events if used ad web worker
+     * function to handle messages events
      * @param e message event
      */
     selfAny.onmessage = function (e) {
@@ -790,7 +791,7 @@ export class SpectroComponent implements OnInit {
           render = false;
         }
         if (data.audioBuffer !== undefined) {
-          selfAny.audioBuffer = data.audioBuffer;
+          selfAny.audioBuffer = new Float32Array(data.audioBuffer);
         } else {
           renderError = 'audioBuffer';
           render = false;
@@ -1078,32 +1079,30 @@ export class SpectroComponent implements OnInit {
       // this.worker = new SpectroDrawingWorker();
       this.worker = new Worker(this.workerFunctionURL);
 
-      let parseData = [];
+      let parseData: any = [];
       let fftN = this.math_helper_service.calcClosestPowerOf2Gt(this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs);
       // fftN must be greater than 512 (leads to better resolution of spectrogram)
       if (fftN < 512) {
         fftN = 512;
       }
       // extract relavant data
-      parseData = buffer.subarray(this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS);
+      parseData = buffer.slice(this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS);
 
-      let leftPadding = [];
-      let rightPadding = [];
+      let leftPadding: any = [];
+      let rightPadding: any = [];
 
       // check if any zero padding at LEFT edge is necessary
       let windowSizeInSamples = this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs;
       if (this.view_state_service.curViewPort.sS < windowSizeInSamples / 2) {
         //should do something here... currently always padding with zeros!
-      }
-      else {
-        leftPadding = buffer.subarray(this.view_state_service.curViewPort.sS - windowSizeInSamples / 2, this.view_state_service.curViewPort.sS);
+      } else {
+        leftPadding = buffer.slice(this.view_state_service.curViewPort.sS - windowSizeInSamples / 2, this.view_state_service.curViewPort.sS);
       }
       // check if zero padding at RIGHT edge is necessary
       if (this.view_state_service.curViewPort.eS + fftN / 2 - 1 >= this.sound_handler_service.audioBuffer.length) {
         //should do something here... currently always padding with zeros!
-      }
-      else {
-        rightPadding = buffer.subarray(this.view_state_service.curViewPort.eS, this.view_state_service.curViewPort.eS + fftN / 2 - 1);
+      } else {
+        rightPadding = buffer.slice(this.view_state_service.curViewPort.eS, this.view_state_service.curViewPort.eS + fftN / 2 - 1);
       }
       // add padding
       let paddedSamples = new Float32Array(leftPadding.length + parseData.length + rightPadding.length);
@@ -1111,14 +1110,15 @@ export class SpectroComponent implements OnInit {
       paddedSamples.set(parseData, leftPadding.length);
       paddedSamples.set(rightPadding, leftPadding.length + parseData.length);
 
-      if (this.view_state_service.curViewPort.sS >= fftN / 2) {
-        // pass in half a window extra at the front and a full window extra at the back so everything can be drawn/calculated this also fixes alignment issue
-        parseData = buffer.subarray(this.view_state_service.curViewPort.sS - fftN / 2, this.view_state_service.curViewPort.eS + fftN);
-      } else {
-        // tolerate window/2 alignment issue if at beginning of file
-        parseData = buffer.subarray(this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS + fftN);
-      }
+      // if (this.view_state_service.curViewPort.sS >= fftN / 2) {
+      //   // pass in half a window extra at the front and a full window extra at the back so everything can be drawn/calculated this also fixes alignment issue
+      //   parseData = this.array_buffer_helper_service.subarray(buffer,this.view_state_service.curViewPort.sS - fftN / 2, this.view_state_service.curViewPort.eS + fftN);
+      // } else {
+      //   // tolerate window/2 alignment issue if at beginning of file
+      //   parseData = this.array_buffer_helper_service.subarray(buffer, this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS + fftN);
+      // }
       this.setupEvent();
+      // console.log(paddedSamples.buffer);
       this.worker.postMessage({
         'windowSizeInSecs': this.view_state_service.spectroSettings.windowSizeInSecs,
         'fftN': fftN,
@@ -1133,7 +1133,7 @@ export class SpectroComponent implements OnInit {
         'pixelRatio': this.devicePixelRatio,
         'sampleRate': this.sound_handler_service.audioBuffer.sampleRate,
         'transparency': this.config_provider_service.vals.spectrogramSettings.transparency,
-        'audioBuffer': paddedSamples,
+        'audioBuffer': paddedSamples.buffer,
         'audioBufferChannels': this.sound_handler_service.audioBuffer.numberOfChannels,
         'drawHeatMapColors': this.view_state_service.spectroSettings.drawHeatMapColors,
         'preEmphasisFilterFactor': this.view_state_service.spectroSettings.preEmphasisFilterFactor,

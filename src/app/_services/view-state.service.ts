@@ -93,7 +93,6 @@ export class ViewStateService {
   lastPcm;
   curPreselColumnSample;
   curCorrectionToolNr;
-  curClickLevelIndex;
   start;
   TransitionTime;
   showDropZone;
@@ -354,7 +353,6 @@ export class ViewStateService {
     this.lastPcm = undefined;
     this.curPreselColumnSample = 2;
     this.curCorrectionToolNr = undefined;
-    this.curClickLevelIndex = undefined;
     this.start = null;
     this.TransitionTime = undefined;
     this.showDropZone = true;
@@ -483,7 +481,7 @@ setState(nameOrObj) {
     this.playHeadAnimationInfos.eS = endS;
     this.playHeadAnimationInfos.endFreezeSample = endS;
     this.playHeadAnimationInfos.curS = startS;
-    if(autoscroll !== undefined){
+    if(autoscroll){
       this.playHeadAnimationInfos.autoscroll = autoscroll;
     }
     window.requestAnimationFrame(this.updatePlayHead);
@@ -517,20 +515,20 @@ setState(nameOrObj) {
   //   return sServObj.curViewPort;
   // };
   //
-  // /**
-  //  * setspectroSettings
-  //  */
-  // sServObj.setspectroSettings = function (len, rfrom, rto, dyn, win, hm, preEmph, hmColorAnchors) {
-  //   sServObj.spectroSettings.windowSizeInSecs = len;
-  //   sServObj.spectroSettings.rangeFrom = parseInt(rfrom, 10);
-  //   sServObj.spectroSettings.rangeTo = parseInt(rto, 10);
-  //   sServObj.spectroSettings.dynamicRange = parseInt(dyn, 10);
-  //   sServObj.setWindowFunction(win);
-  //   sServObj.spectroSettings.drawHeatMapColors = hm;
-  //   sServObj.spectroSettings.preEmphasisFilterFactor = preEmph;
-  //   sServObj.spectroSettings.heatMapColorAnchors = hmColorAnchors;
-  // };
-  //
+  /**
+   * setspectroSettings
+   */
+  setspectroSettings(len, rfrom, rto, dyn, win, hm, preEmph, hmColorAnchors) {
+    this.spectroSettings.windowSizeInSecs = len;
+    this.spectroSettings.rangeFrom = parseInt(rfrom, 10);
+    this.spectroSettings.rangeTo = parseInt(rto, 10);
+    this.spectroSettings.dynamicRange = parseInt(dyn, 10);
+    this.setWindowFunction(win);
+    this.spectroSettings.drawHeatMapColors = hm;
+    this.spectroSettings.preEmphasisFilterFactor = preEmph;
+    this.spectroSettings.heatMapColorAnchors = hmColorAnchors;
+  }
+
   // /**
   //  * setOsciSettings
   //  */
@@ -574,14 +572,14 @@ setState(nameOrObj) {
         // viewState.setcurClickLevel(levelID, levelType, scope.$index, scope.this.level.items.length);
         curLev = Levelserv.getLevelDetails(order[0]);
         if(curLev !== null) {
-          this.setcurClickLevel(curLev.name, curLev.type, 0);
+          this.setcurClickLevel(curLev.name, curLev.type);
         }
         return;
       }
       else {
         // select last if none prev. defined (down)
         curLev = Levelserv.getLevelDetails(order[order.length - 1]);
-        this.setcurClickLevel(curLev.name, curLev.type, order.length - 1);
+        this.setcurClickLevel(curLev.name, curLev.type);
         return;
       }
     }
@@ -593,7 +591,7 @@ setState(nameOrObj) {
     });
     if (idxOfNow === undefined) {
       curLev = Levelserv.getLevelDetails(order[0]);
-      this.setcurClickLevel(curLev.name, curLev.type, 0);
+      this.setcurClickLevel(curLev.name, curLev.type);
       this.curClickItems = [];
       this.selectBoundary();
     }
@@ -602,7 +600,7 @@ setState(nameOrObj) {
         if (idxOfNow + 1 < order.length) {
           curLev = Levelserv.getLevelDetails(order[idxOfNow + 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow + 1]);
-          this.setcurClickLevel(curLev.name, curLev.type, order.idxOfNow + 1);
+          this.setcurClickLevel(curLev.name, curLev.type);
           this.curClickItems = [];
           this.selectBoundary();
           //sServObj.resetSelect();
@@ -611,57 +609,57 @@ setState(nameOrObj) {
         if (idxOfNow - 1 >= 0) {
           curLev = Levelserv.getLevelDetails(order[idxOfNow - 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow - 1]);
-          this.setcurClickLevel(curLev.name, curLev.type, order.idxOfNow - 1);
+          this.setcurClickLevel(curLev.name, curLev.type);
           this.curClickItems = [];
           this.selectBoundary();
           //sServObj.resetSelect();
         }
       }
     }
-  };
+  }
 
 
-  // /**
-  //  * set the window Function for the Spectrogram
-  //  * @param name of Window Function
-  //  */
-  // sServObj.setWindowFunction = function (name) {
-  //   switch (name) {
-  //     case 'BARTLETT':
-  //       sServObj.spectroSettings.window = myWindow.BARTLETT;
-  //       break;
-  //     case 'BARTLETTHANN':
-  //       sServObj.spectroSettings.window = myWindow.BARTLETTHANN;
-  //       break;
-  //     case 'BLACKMAN':
-  //       sServObj.spectroSettings.window = myWindow.BLACKMAN;
-  //       break;
-  //     case 'COSINE':
-  //       sServObj.spectroSettings.window = myWindow.COSINE;
-  //       break;
-  //     case 'GAUSS':
-  //       sServObj.spectroSettings.window = myWindow.GAUSS;
-  //       break;
-  //     case 'HAMMING':
-  //       sServObj.spectroSettings.window = myWindow.HAMMING;
-  //       break;
-  //     case 'HANN':
-  //       sServObj.spectroSettings.window = myWindow.HANN;
-  //       break;
-  //     case 'LANCZOS':
-  //       sServObj.spectroSettings.window = myWindow.LANCZOS;
-  //       break;
-  //     case 'RECTANGULAR':
-  //       sServObj.spectroSettings.window = myWindow.RECTANGULAR;
-  //       break;
-  //     case 'TRIANGULAR':
-  //       sServObj.spectroSettings.window = myWindow.TRIANGULAR;
-  //       break;
-  //     default:
-  //       sServObj.spectroSettings.window = myWindow.BARTLETTHANN;
-  //       break;
-  //   }
-  // };
+  /**
+   * set the window Function for the Spectrogram
+   * @param name of Window Function
+   */
+  setWindowFunction = function (name) {
+    switch (name) {
+      case 'BARTLETT':
+        this.spectroSettings.window = this.myWindow.BARTLETT;
+        break;
+      case 'BARTLETTHANN':
+        this.spectroSettings.window = this.myWindow.BARTLETTHANN;
+        break;
+      case 'BLACKMAN':
+        this.spectroSettings.window = this.myWindow.BLACKMAN;
+        break;
+      case 'COSINE':
+        this.spectroSettings.window = this.myWindow.COSINE;
+        break;
+      case 'GAUSS':
+        this.spectroSettings.window = this.myWindow.GAUSS;
+        break;
+      case 'HAMMING':
+        this.spectroSettings.window = this.myWindow.HAMMING;
+        break;
+      case 'HANN':
+        this.spectroSettings.window = this.myWindow.HANN;
+        break;
+      case 'LANCZOS':
+        this.spectroSettings.window = this.myWindow.LANCZOS;
+        break;
+      case 'RECTANGULAR':
+        this.spectroSettings.window = this.myWindow.RECTANGULAR;
+        break;
+      case 'TRIANGULAR':
+        this.spectroSettings.window = this.myWindow.TRIANGULAR;
+        break;
+      default:
+        this.spectroSettings.window = this.myWindow.BARTLETTHANN;
+        break;
+    }
+  }
   //
   // /**
   //  * @returns myWindow object
@@ -697,30 +695,30 @@ setState(nameOrObj) {
   // sServObj.getTwoDimTypes = function () {
   //   return myTwoDimType;
   // };
-  //
-  // /**
-  //  * set if user is dragging dragbar
-  //  */
-  // sServObj.getdragBarActive = function () {
-  //   return this.curViewPort.dragBarActive;
-  // };
-  //
-  //
-  // /**
-  //  * set if user is dragging dragbar
-  //  */
-  // sServObj.setdragBarActive = function (b) {
-  //   this.curViewPort.dragBarActive = b;
-  // };
-  //
-  // /**
-  //  * set if user is dragging dragbar
-  //  */
-  // sServObj.getdragBarHeight = function () {
-  //   return this.curViewPort.dragBarHeight;
-  // };
-  //
-  //
+
+  /**
+   * set if user is dragging dragbar
+   */
+  public getdragBarActive() {
+    return this.curViewPort.dragBarActive;
+  }
+
+
+  /**
+   * set if user is dragging dragbar
+   */
+  public setdragBarActive(b) {
+    this.curViewPort.dragBarActive = b;
+  }
+
+  /**
+   * set if user is dragging dragbar
+   */
+  public getdragBarHeight() {
+    return this.curViewPort.dragBarHeight;
+  }
+
+
   // /**
   //  * set if user is dragging dragbar
   //  */
@@ -821,8 +819,8 @@ setState(nameOrObj) {
   /**
    *
    */
-  setcurClickLevel(levelID, levelType, levelIndex) {
-    this.setcurClickLevelName(levelID, levelIndex);
+  setcurClickLevel(levelID, levelType) {
+    this.setcurClickLevelName(levelID);
     this.setcurClickLevelType(levelType);
   }
 
@@ -848,9 +846,8 @@ setState(nameOrObj) {
    * @param name is name of level
    * @param index index of level
    */
-  setcurClickLevelName(name, index) {
+  setcurClickLevelName(name) {
     this.curClickLevelName = name;
-    this.curClickLevelIndex = index;
   }
 
   /**
@@ -858,13 +855,6 @@ setState(nameOrObj) {
    */
   getcurClickLevelName() {
     return this.curClickLevelName;
-  }
-
-  /**
-   * gets the current (clicked) Level Name
-   */
-  getcurClickLevelIndex() {
-    return this.curClickLevelIndex;
   }
 
 
@@ -875,14 +865,14 @@ setState(nameOrObj) {
     // return this.curClickNeighbours;
   }
 
-  //
-  // /**
-  //  * sets the current (mousemove) Level Name
-  //  * @param name is name of level
-  //  */
-  // sServObj.setcurMouseLevelName = function (name) {
-  //   this.curMouseLevelName = name;
-  // };
+
+  /**
+   * sets the current (mousemove) Level Name
+   * @param name is name of level
+   */
+  setcurMouseLevelName (name) {
+    this.curMouseLevelName = name;
+  }
 
   /**
    * gets the current (mousemove) Level Name
@@ -1023,51 +1013,51 @@ setState(nameOrObj) {
     }
   }
 
-  // /**
-  //  * adds an item to the currently selected items if the left or right one of current selected items
-  //  * @param item representing the Object to be added to selection
-  //  * @param neighbour left or right neighbor to add to selection
-  //  */
-  // sServObj.setcurClickItemMultiple = function (item, neighbour) {
-  //
-  //   // if nothing is in curClickItems
-  //   if (sServObj.curClickItems.length === 0 || sServObj.curClickItems === undefined || sServObj.curClickItems === null) {
-  //     sServObj.curClickItems = [];
-  //     sServObj.curClickItems.push(item);
-  //   }
-  //   // if there is something in curClickItems
-  //   else {
-  //     // if item is not yet in curClickItems
-  //     if (sServObj.curClickItems.indexOf(item) === -1) {
-  //       if ( sServObj.curClickItems.indexOf(neighbour) < 0 ) {
-  //         sServObj.curClickItems = [];
-  //       }
-  //       sServObj.curClickItems.push(item);
-  //       sServObj.curClickItems.sort(sServObj.sortbystart);
-  //     }
-  //     // if item is in curClickItems reset and add
-  //     else {
-  //       sServObj.curClickItems = [];
-  //       sServObj.curClickItems.push(item);
-  //     }
-  //   }
-  // };
-  //
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.sortbystart = function (a, b) {
-  //   //Compare "a" and "b" in some fashion, and return -1, 0, or 1
-  //   if (a.sampleStart > b.sampleStart || a.samplePoint > b.samplePoint) {
-  //     return 1;
-  //   }
-  //   if (a.sampleStart < b.sampleStart || a.samplePoint < b.samplePoint) {
-  //     return -1;
-  //   }
-  //   return 0;
-  // };
-  //
+  /**
+   * adds an item to the currently selected items if the left or right one of current selected items
+   * @param item representing the Object to be added to selection
+   * @param neighbour left or right neighbor to add to selection
+   */
+  setcurClickItemMultiple (item, neighbour) {
+
+    // if nothing is in curClickItems
+    if (this.curClickItems.length === 0 || this.curClickItems === undefined || this.curClickItems === null) {
+      this.curClickItems = [];
+      this.curClickItems.push(item);
+    }
+    // if there is something in curClickItems
+    else {
+      // if item is not yet in curClickItems
+      if (this.curClickItems.indexOf(item) === -1) {
+        if ( this.curClickItems.indexOf(neighbour) < 0 ) {
+          this.curClickItems = [];
+        }
+        this.curClickItems.push(item);
+        this.curClickItems.sort(this.sortbystart);
+      }
+      // if item is in curClickItems reset and add
+      else {
+        this.curClickItems = [];
+        this.curClickItems.push(item);
+      }
+    }
+  };
+
+
+  /**
+   *
+   */
+  public sortbystart (a, b) {
+    //Compare "a" and "b" in some fashion, and return -1, 0, or 1
+    if (a.sampleStart > b.sampleStart || a.samplePoint > b.samplePoint) {
+      return 1;
+    }
+    if (a.sampleStart < b.sampleStart || a.samplePoint < b.samplePoint) {
+      return -1;
+    }
+    return 0;
+  }
+
   // /**
   //  * Getter for the current selected range in samples
   //  * if nothing is selected returns -1
@@ -1099,28 +1089,28 @@ setState(nameOrObj) {
   //     };
   //   }
   // };
-  //
-  // /**
-  //  * Getter for the currently (clicked) items
-  //  */
-  // sServObj.getcurClickItems = function () {
-  //   return this.curClickItems;
-  // };
-  //
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getselected = function () {
-  //   return this.curClickItems;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.isEditing = function () {
-  //   return this.editing;
-  // };
+
+  /**
+   * Getter for the currently (clicked) items
+   */
+  public getcurClickItems = function () {
+    return this.curClickItems;
+  }
+
+
+  /**
+   *
+   */
+  public getselected = function () {
+    return this.curClickItems;
+  }
+
+  /**
+   *
+   */
+  public isEditing = function () {
+    return this.editing;
+  }
 
   /**
    *
@@ -1129,55 +1119,55 @@ setState(nameOrObj) {
     this.editing = n;
   }
 
-  // /**
-  //  *
-  //  */
-  // sServObj.getLasPcm = function () {
-  //   return this.lastPcm;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.setLastPcm = function (n) {
-  //   this.lastPcm = n;
-  // };
-  //
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getcursorInTextField = function () {
-  //   return this.cursorInTextField;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.setcursorInTextField = function (n) {
-  //   this.cursorInTextField = n;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.isSavingAllowed = function () {
-  //   return this.saving;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.setSavingAllowed = function (n) {
-  //   this.saving = n;
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.countSelected = function () {
-  //   return this.curClickItems.length;
-  // };
+  /**
+   *
+   */
+  getLasPcm() {
+    return this.lastPcm;
+  };
+
+  /**
+   *
+   */
+  setLastPcm(n) {
+    this.lastPcm = n;
+  }
+
+
+  /**
+   *
+   */
+  public getcursorInTextField () {
+    return this.cursorInTextField;
+  }
+
+  /**
+   *
+   */
+  public setcursorInTextField (n) {
+    this.cursorInTextField = n;
+  }
+
+  /**
+   *
+   */
+  public isSavingAllowed () {
+    return this.saving;
+  }
+
+  /**
+   *
+   */
+  public setSavingAllowed (n) {
+    this.saving = n;
+  }
+
+  /**
+   *
+   */
+  public countSelected () {
+    return this.curClickItems.length;
+  }
 
   /**
    *
@@ -1199,7 +1189,7 @@ setState(nameOrObj) {
   public getSamplesPerPixelVal(event) {
     let start = parseFloat(this.curViewPort.sS);
     let end = parseFloat(this.curViewPort.eS);
-    return (end - start) / event.originalEvent.target.width;
+    return (end - start) / event.target.width;
   }
 
 
@@ -1442,27 +1432,27 @@ setState(nameOrObj) {
   //   this.lastKeyCode = e;
   // };
   //
-  // /**
-  //  *
-  //  */
-  // sServObj.getX = function (e) {
-  //   return (e.offsetX || e.originalEvent.layerX) * (e.originalEvent.target.width / e.originalEvent.target.clientWidth);
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.getY = function (e) {
-  //   return (e.offsetY || e.originalEvent.layerY) * (e.originalEvent.target.height / e.originalEvent.target.clientHeight);
-  // };
-  //
-  // /**
-  //  *
-  //  */
-  // sServObj.resetToInitState = function () {
-  //   sServObj.initialize();
-  // };
-  //
+  /**
+   *
+   */
+  getX(e) {
+    return (e.offsetX || e.layerX) * (e.target.width / e.target.clientWidth);
+  }
+
+  /**
+   *
+   */
+  getY = function (e) {
+    return (e.offsetY || e.layerY) * (e.target.height / e.target.clientHeight);
+  }
+
+  /**
+   *
+   */
+  resetToInitState = function () {
+    this.initialize();
+  }
+
   // /**
   //  *
   //  */

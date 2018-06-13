@@ -1,11 +1,34 @@
-<mat-list>
-  <mat-form-field class="example-form-field">
-    <button mat-button *ngIf="true" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
-      <mat-icon>search</mat-icon>
-    </button>
-    <input matInput type="text" placeholder="Bundle Filter"/>
-  </mat-form-field>
 
-  <mat-list-item> Foo</mat-list-item>
-  <mat-list-item> Bar</mat-list-item>
-</mat-list>
+<mat-form-field class="example-form-field">
+  <button mat-button *ngIf="true" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+    <mat-icon>search</mat-icon>
+  </button>
+  <input matInput type="text" placeholder="Bundle Filter"/>
+</mat-form-field>
+
+<mat-accordion>
+
+  <mat-expansion-panel *ngFor="let session of objectValues(loaded_meta_data_service.getRendOptBndlList())"
+                       (opened)="panelOpenState = true"
+                       (closed)="panelOpenState = false">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{session[0].session}}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <mat-list>
+      <mat-list-item class="bundle" *ngFor="let bundle of session" (click)="db_obj_load_save_service.loadBundle(bundle)">
+        {{bundle.name}}
+        <!--<form class="example-form">-->
+          <!--<mat-form-field class="example-full-width">-->
+            <!--<input matInput placeholder="Comment" value="{{bundle.comment}}">-->
+          <!--</mat-form-field>-->
+        <!--</form>-->
+
+        <mat-divider></mat-divider>
+
+      </mat-list-item>
+    </mat-list>
+  </mat-expansion-panel>
+</mat-accordion>
+

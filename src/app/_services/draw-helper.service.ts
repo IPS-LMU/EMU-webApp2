@@ -481,8 +481,8 @@ export class DrawHelperService {
     // if (ConfigProviderService.vals.restrictions.drawZeroLine) {
     if (true) {
       // draw zero line
-      ctx.strokeStyle = 'blue';//ConfigProviderService.design.color.blue;
-      ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
+      ctx.strokeStyle = '#4fc3f7';//ConfigProviderService.design.color.blue;
+      ctx.fillStyle = '#4fc3f7'; //ConfigProviderService.design.color.blue;
 
       let zeroLineY;
 

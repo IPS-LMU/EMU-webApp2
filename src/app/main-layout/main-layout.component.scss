@@ -58,7 +58,7 @@ main {
   display: flex;
   flex-direction: column;
   min-height: 128px;
-  background: red;
+  //background: red;
   resize: vertical;
   overflow: auto;
 }
@@ -76,7 +76,7 @@ main {
 
 .levels-container{
   flex: 1;
-  background: pink;
+  //background: pink;
   //overflow-y: scroll;
 }
 
