@@ -523,7 +523,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     // levelUp
     this.hotkey_up = this.hotkeys_service.add(new Hotkey('up', (event: KeyboardEvent): boolean => {
       if (this.view_state_service.getPermission('labelAction')) {
-        this.view_state_service.selectLevel(false, this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.order, LevelService); // pass in LevelService to prevent circular deps
+        this.view_state_service.selectLevel(false, this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.order, this.data_service); // pass in DataService to prevent circular deps
       }
 
       return false; // Prevent bubbling
@@ -532,7 +532,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     // levelDown
     this.hotkey_down = this.hotkeys_service.add(new Hotkey('down', (event: KeyboardEvent): boolean => {
       if (this.view_state_service.getPermission('labelAction')) {
-        this.view_state_service.selectLevel(true, this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.order, LevelService); // pass LevelService to prevent circular deps
+        this.view_state_service.selectLevel(true, this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.order, this.data_service); // pass DataService to prevent circular deps
       }
       return false; // Prevent bubbling
     }));

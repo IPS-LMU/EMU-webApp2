@@ -35,22 +35,6 @@ export class LevelService {
   }
 
   /**
-   * returns level details by passing in level name
-   * if the corresponding level exists
-   * otherwise returns 'null'
-   *    @param name
-   */
-  public getLevelDetails(name): ILevel {
-    let ret = null;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        ret = level;
-      }
-    });
-    return ret;
-  }
-
-  /**
    * returns all levels with details for a specific type
    *    @param types
    */
@@ -65,146 +49,95 @@ export class LevelService {
   }
 
   /**
-   * gets element position inside a level with 'name'
+   * gets element position inside a given level
    * by passing in the element id
-   *    @param name
+   *    @param level
    *    @param id
    */
-  public getOrderById(name, id) {
+  public getOrderById(level: ILevel, id) {
     let ret = null;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        level.items.forEach(function (e, num) {
-          if (e.id === id) {
-            ret = num;
-          }
-        });
+    level.items.forEach(function (e, num) {
+      if (e.id === id) {
+        ret = num;
       }
     });
     return ret;
   }
 
   /**
-   * gets element id inside a level with 'name' by
+   * gets element id inside a given level by
    * passing in the element position/order
-   *    @param name
+   *    @param level
    *    @param order
    */
-  public getIdByOrder(name, order) {
+  public getIdByOrder(level: ILevel, order) {
     let ret = null;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        level.items.forEach(function (element, num) {
-          if (num === order) {
-            ret = element.id;
-          }
-        });
+    level.items.forEach(function (element, num) {
+      if (num === order) {
+        ret = element.id;
       }
     });
     return ret;
-  }
-
-  /**
-   * gets item details by passing in 'name' of level
-   * and item position/order
-   *    @param name
-   *    @param order
-   */
-  public getItemDetails(name, order): IItem {
-    let ret = null;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        ret = level.items[order];
-      }
-    });
-    return ret;
-  }
-
-
-  /**
-   * returns the last element inside a level with 'name'
-   *    @param name
-   */
-  public getLastItem(name) {
-    let details = null;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        details = level.items[level.items.length - 1];
-      }
-    });
-    return details;
   }
 
   /**
    * get next element of element with id in order/position
-   * inside a level with 'name'
-   *    @param name
+   * inside a given level
+   *    @param level
    *    @param id
    */
-  getNextItem(name, id) {
+  getNextItem(level: ILevel, id) {
     let ret = null;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        level.items.forEach(function (element, num) {
-          if (element.id === id) {
-            ret = level.items[num + 1];
-          }
-        });
+    level.items.forEach(function (element, num) {
+      if (element.id === id) {
+        ret = level.items[num + 1];
       }
     });
     return ret;
   }
 
   /**
-   * get next or prev Element in time inside level with 'name'
+   * get next or prev Element in time inside a given level
    * after or bevore (boolean) an element with 'id'
-   *    @param name
+   *    @param level
    *    @param id
    *    @param after
    */
-  public getItemInTime(name, id, after) {
+  public getItemInTime(level: ILevel, id, after) {
     let ret = null;
     let timeDifference = Infinity;
-    let startItem = this.getItemFromLevelById(name, id);
+    let startItem = this.getItemFromLevelById(level, id);
     if (startItem !== null) {
       let myStart = startItem.sampleStart || startItem.samplePoint;
-      this.data_service.getLevelData().forEach((level) => {
-        if (level.name === name) {
-          level.items.forEach(function (element) {
-            let start = element.sampleStart || element.samplePoint;
-            if (after) {
-              if (start > myStart && start - myStart <= timeDifference) {
-                timeDifference = start - myStart;
-                ret = element;
-              }
+        level.items.forEach(function (element) {
+          let start = element.sampleStart || element.samplePoint;
+          if (after) {
+            if (start > myStart && start - myStart <= timeDifference) {
+              timeDifference = start - myStart;
+              ret = element;
             }
-            else {
-              if (start < myStart && myStart - start <= timeDifference) {
-                timeDifference = myStart - start;
-                ret = element;
-              }
+          }
+          else {
+            if (start < myStart && myStart - start <= timeDifference) {
+              timeDifference = myStart - start;
+              ret = element;
             }
-          });
-        }
-      });
+          }
+        });
     }
     return ret;
   }
 
   /**
-   * returns item from a level with 'name' by passing in the item 'id'
-   *    @param name
+   * returns item from a given level by passing in the item 'id'
+   *    @param level
    *    @param id
    */
-  public getItemFromLevelById(name, id): IItem {
+  public getItemFromLevelById(level: ILevel, id): IItem {
     let ret = null;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        level.items.forEach(function (element) {
-          if (element.id === id){
-            ret = element;
-          }
-        });
+    level.items.forEach(function (element) {
+      if (element.id === id){
+        ret = element;
       }
     });
     return ret;
@@ -214,12 +147,12 @@ export class LevelService {
   /**
    * get all labels (curAttr def applies) of a level and
    * return them as a flat array
-   * @param levelDetails containing labels
+   * @param level containing labels
    * @return array containing all labels (form==['x','y','z'])
    */
-  public getAllLabelsOfLevel(levelDetails, curAttrDef: string) {
+  public getAllLabelsOfLevel(level: ILevel, curAttrDef: string) {
     let labels = [];
-    levelDetails.items.forEach((item) => {
+    level.items.forEach((item) => {
       let pos = item.labels.map(function (e) {
         return e.name;
       }).indexOf(curAttrDef);
@@ -256,7 +189,7 @@ export class LevelService {
   public getLevelAndItem(nodeID) {
     let name = this.getLevelName(nodeID);
     if (name !== null) {
-      return {level: this.getLevelDetails(name), item: this.getItemByID(nodeID)};
+      return {level: this.data_service.getLevelDataByName(name), item: this.getItemByID(nodeID)};
     }
     else {
       return null;
@@ -282,18 +215,18 @@ export class LevelService {
   }
 
   /**
-   * returns multiple item(s) from a level with 'name' by passing in
+   * returns multiple item(s) from a given level by passing in
    * the start item 'id' and the length (how many objects to return)
-   *    @param name
+   *    @param level
    *    @param id
    *    @param length
    */
-  public getItemsFromLevelByIdAndLength(name, id, length) {
+  public getItemsFromLevelByIdAndLength(level: ILevel, id, length) {
     let ret = [];
     let lastID = id;
     for (let j = 0; j < length; j++) {
-      let segment = this.getItemFromLevelById(name, lastID);
-      lastID = this.getNextItem(name, segment.id);
+      let segment = this.getItemFromLevelById(level, lastID);
+      lastID = this.getNextItem(level, segment.id);
       ret.push(segment);
     }
     return ret;
@@ -490,144 +423,127 @@ export class LevelService {
   /**
    * insert a new Item with id labelname start and duration at position on level
    */
-  public insertItemDetails (id, levelname, position, labelname, start, duration, curAttrDef: string) {
-    let attrdefs = this.config_provider_service.getLevelDefinition(levelname).attributeDefinitions;
+  public insertItemDetails (id, level: ILevel, position, labelname, start, duration, curAttrDef: string) {
+    let attrdefs = this.config_provider_service.getLevelDefinition(level.name).attributeDefinitions;
     let newElement;
     if (attrdefs === undefined) { // ugly hack if attrdefs undefined
       attrdefs = [];
     }
-    this.data_service.getLevelData().forEach((level) => {
-      let i;
-      if (level.name === levelname) {
-        if (level.type === 'SEGMENT') {
-          newElement = {
-            id: id,
-            sampleStart: start,
-            sampleDur: duration,
-            labels: []
-          };
-          if (attrdefs.length > 0) {
-            for (i = 0; i < attrdefs.length; i++) {
-              if (attrdefs[i].name === curAttrDef) {
-                newElement.labels.push({
-                  name: attrdefs[i].name,
-                  value: labelname
-                });
-              } else {
-                newElement.labels.push({
-                  name: attrdefs[i].name,
-                  value: labelname
-                });
-              }
-            }
-          }
-          else {
+    if (level.type === 'SEGMENT') {
+      newElement = {
+        id: id,
+        sampleStart: start,
+        sampleDur: duration,
+        labels: []
+      };
+      if (attrdefs.length > 0) {
+        for (let i = 0; i < attrdefs.length; i++) {
+          if (attrdefs[i].name === curAttrDef) {
             newElement.labels.push({
-              name: levelname,
+              name: attrdefs[i].name,
               value: labelname
             });
-          }
-        } else if (level.type === 'EVENT') {
-          if (start !== undefined) {
-            newElement = {
-              id: id,
-              samplePoint: start,
-              labels: []
-            };
-          }
-          else {
-            newElement = {
-              id: id,
-              labels: []
-            };
-          }
-          if (attrdefs.length > 0) {
-            for (i = 0; i < attrdefs.length; i++) {
-              if (attrdefs[i].name === curAttrDef) {
-                newElement.labels.push({
-                  name: attrdefs[i].name,
-                  value: labelname
-                });
-              } else {
-                newElement.labels.push({
-                  name: attrdefs[i].name,
-                  value: labelname
-                });
-              }
-            }
-          }
-          else {
+          } else {
             newElement.labels.push({
-              name: levelname,
+              name: attrdefs[i].name,
               value: labelname
             });
           }
         }
-        level.items.splice(position, 0, newElement);
       }
-    });
-  };
-
-  /**
-   * sets element details by passing in levelName and elemtent id
-   */
-  public updateSegment = function (levelname, id, labelname, labelIdx, start, duration) {
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === levelname) {
-        level.items.forEach(function (element) {
-          if (element.id === id) {
-            if (start !== undefined) {
-              element.sampleStart = start;
-            }
-            if (duration !== undefined) {
-              element.sampleDur = duration;
-            }
-            if (labelname !== undefined) {
-              element.labels[labelIdx].value = labelname;
-            }
-          }
+      else {
+        newElement.labels.push({
+          name: level.name,
+          value: labelname
         });
       }
-    });
+    } else if (level.type === 'EVENT') {
+      if (start !== undefined) {
+        newElement = {
+          id: id,
+          samplePoint: start,
+          labels: []
+        };
+      }
+      else {
+        newElement = {
+          id: id,
+          labels: []
+        };
+      }
+      if (attrdefs.length > 0) {
+        for (let i = 0; i < attrdefs.length; i++) {
+          if (attrdefs[i].name === curAttrDef) {
+            newElement.labels.push({
+              name: attrdefs[i].name,
+              value: labelname
+            });
+          } else {
+            newElement.labels.push({
+              name: attrdefs[i].name,
+              value: labelname
+            });
+          }
+        }
+      }
+      else {
+        newElement.labels.push({
+          name: level.name,
+          value: labelname
+        });
+      }
+    }
+    level.items.splice(position, 0, newElement);
   };
 
   /**
-   * sets element details by passing in levelName and elemtent id
+   * sets element details by passing in level and elemtent id
    */
-  public updatePoint (levelname, id, labelname, labelIdx, start) {
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === levelname) {
-        level.items.forEach((element) => {
-          if (element.id === id) {
-            element.samplePoint = start;
-            if (labelIdx === undefined) {
-              element.labels[0].value = labelname;
-            }
-            else {
-              element.labels[labelIdx].value = labelname;
-            }
-          }
-        });
+  public updateSegment (level: ILevel, id, labelname, labelIdx, start, duration) {
+    level.items.forEach(function (element) {
+      if (element.id === id) {
+        if (start !== undefined) {
+          element.sampleStart = start;
+        }
+        if (duration !== undefined) {
+          element.sampleDur = duration;
+        }
+        if (labelname !== undefined) {
+          element.labels[labelIdx].value = labelname;
+        }
       }
     });
   };
 
   /**
-   * gets item details by passing in levelName and item id's
+   * sets element details by passing in level and elemtent id
    */
-  public getItemNeighboursFromLevel (levelName, firstid, lastid) {
+  public updatePoint (level: ILevel, id, labelname, labelIdx, start) {
+    level.items.forEach((element) => {
+      if (element.id === id) {
+        element.samplePoint = start;
+        if (labelIdx === undefined) {
+          element.labels[0].value = labelname;
+        }
+        else {
+          element.labels[labelIdx].value = labelname;
+        }
+      }
+    });
+  };
+
+  /**
+   * gets item details by passing in level and item id's
+   */
+  public getItemNeighboursFromLevel (level: ILevel, firstid, lastid) {
     let left;
     let right;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === levelName) {
-        level.items.forEach(function (itm, num) {
-          if (itm.id === firstid) {
-            left = level.items[num - 1];
-          }
-          if (itm.id === lastid) {
-            right = level.items[num + 1];
-          }
-        });
+    level.items.forEach(function (itm, num) {
+      if (itm.id === firstid) {
+        left = level.items[num - 1];
+      }
+      if (itm.id === lastid) {
+        right = level.items[num + 1];
       }
     });
     return {
@@ -643,15 +559,13 @@ export class LevelService {
    * @param sampleNr
    * @param maximum
    * @returns object of the form {current: item, nearest: item, isFirst: boolean, isLast: boolean} where
-   * @returns object of the form {current: item, nearest: item, isFirst: boolean, isLast: boolean} where
    * - current is the actual item where the mouse is
    * - nearest is the item next to the current one depending on where the mouse is (ie if over 50% right element, under 50% left element)
    * - isFirst is true if the mouse is before the first item
    * - isLast is true if the mouse is after the last item
    *
    */
-  getClosestItem (sampleNr, levelname, maximum) {
-    let level = this.getLevelDetails(levelname);
+  getClosestItem (sampleNr, level: ILevel, maximum) {
     let current;
     let nearest;
     let isFirst;
@@ -734,16 +648,18 @@ export class LevelService {
   /**
    * deletes a level by its index
    */
-  public deleteLevel = function (levelIndex, curPerspectiveIdx) {
+  /*
+  public deleteLevel (levelIndex, curPerspectiveIdx) {
     let lvl = this.data_service.getLevelDataAt(levelIndex);
     this.data_service.deleteLevelDataAt(levelIndex);
     this.config_provider_service.vals.perspectives[curPerspectiveIdx].levelCanvases.order.splice(levelIndex, 1);
     return lvl;
   };
-
+  */
   /**
    * adds a level by its name
    */
+  /*
   public insertLevel (originalLevel, levelIndex, curPerspectiveIdx) {
     if (this.data_service.getLevelData() === undefined) {
       this.data_service.setLevelData([]);
@@ -751,12 +667,13 @@ export class LevelService {
     this.data_service.insertLevelDataAt(levelIndex, originalLevel);
     this.config_provider_service.vals.perspectives[curPerspectiveIdx].levelCanvases.order.splice(levelIndex, 0, originalLevel.name);
   };
+  */
 
   /**
-   * rename the label of an element by passing in level name and id
+   * rename the label of an element by passing in level and id
    */
-  public renameLabel (levelName, id, attrIndex, newLabelName) {
-    this.updateSegment(levelName, id, newLabelName, attrIndex, undefined, undefined);
+  public renameLabel (level: ILevel, id, attrIndex, newLabelName) {
+    this.updateSegment(level, id, newLabelName, attrIndex, undefined, undefined);
   };
 
   /**
@@ -789,43 +706,39 @@ export class LevelService {
   /**
    *
    */
-  public deleteSegmentsInvers (name, id, length, deletedSegment, attrDefName: string) {
+  public deleteSegmentsInvers (level: ILevel, id, length, deletedSegment, attrDefName: string) {
     let labelIdx;
     let x, insertPoint;
     insertPoint = 0;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        insertPoint = deletedSegment.order;
-        for (x in deletedSegment.segments) {
-          level.items.splice(insertPoint++, 0, deletedSegment.segments[x]);
-        }
-      }
-    });
-    let lastNeighbours = this.getItemNeighboursFromLevel(name, deletedSegment.segments[0].id, deletedSegment.segments[deletedSegment.segments.length - 1].id);
+    insertPoint = deletedSegment.order;
+    for (x in deletedSegment.segments) {
+      level.items.splice(insertPoint++, 0, deletedSegment.segments[x]);
+    }
+    let lastNeighbours = this.getItemNeighboursFromLevel(level, deletedSegment.segments[0].id, deletedSegment.segments[deletedSegment.segments.length - 1].id);
 
     if ((lastNeighbours.left !== undefined) && (lastNeighbours.right === undefined)) {
       labelIdx = this.getLabelIdx(attrDefName, lastNeighbours.left.labels);
-      this.updateSegment(name, lastNeighbours.left.id, lastNeighbours.left.labels[labelIdx].value, labelIdx, lastNeighbours.left.sampleStart, (lastNeighbours.left.sampleDur - deletedSegment.timeRight));
+      this.updateSegment(level, lastNeighbours.left.id, lastNeighbours.left.labels[labelIdx].value, labelIdx, lastNeighbours.left.sampleStart, (lastNeighbours.left.sampleDur - deletedSegment.timeRight));
     } else if ((lastNeighbours.left === undefined) && (lastNeighbours.right !== undefined)) {
       labelIdx = this.getLabelIdx(attrDefName, lastNeighbours.right.labels);
-      this.updateSegment(name, lastNeighbours.right.id, lastNeighbours.right.labels[labelIdx].value, labelIdx, (lastNeighbours.right.sampleStart + deletedSegment.timeLeft), (lastNeighbours.right.sampleDur - deletedSegment.timeLeft));
+      this.updateSegment(level, lastNeighbours.right.id, lastNeighbours.right.labels[labelIdx].value, labelIdx, (lastNeighbours.right.sampleStart + deletedSegment.timeLeft), (lastNeighbours.right.sampleDur - deletedSegment.timeLeft));
     } else if ((lastNeighbours.left === undefined) && (lastNeighbours.right === undefined)) {
 
     } else {
       labelIdx = this.getLabelIdx(attrDefName, lastNeighbours.left.labels);
-      this.updateSegment(name, lastNeighbours.left.id, lastNeighbours.left.labels[labelIdx].value, labelIdx, lastNeighbours.left.sampleStart, (lastNeighbours.left.sampleDur - deletedSegment.timeLeft));
-      this.updateSegment(name, lastNeighbours.right.id, lastNeighbours.right.labels[labelIdx].value, labelIdx, (lastNeighbours.right.sampleStart + deletedSegment.timeRight), (lastNeighbours.right.sampleDur - deletedSegment.timeRight));
+      this.updateSegment(level, lastNeighbours.left.id, lastNeighbours.left.labels[labelIdx].value, labelIdx, lastNeighbours.left.sampleStart, (lastNeighbours.left.sampleDur - deletedSegment.timeLeft));
+      this.updateSegment(level, lastNeighbours.right.id, lastNeighbours.right.labels[labelIdx].value, labelIdx, (lastNeighbours.right.sampleStart + deletedSegment.timeRight), (lastNeighbours.right.sampleDur - deletedSegment.timeRight));
     }
   };
 
   /**
    *
    */
-  public deleteSegments (name, id, length, attrDefName: string) {
-    let firstSegment = this.getItemFromLevelById(name, id);
-    let firstOrder = this.getOrderById(name, id);
-    let lastSegment = this.getItemDetails(name, (firstOrder + length - 1));
-    let neighbours = this.getItemNeighboursFromLevel(name, firstSegment.id, lastSegment.id);
+  public deleteSegments (level: ILevel, id, length, attrDefName: string) {
+    let firstSegment = this.getItemFromLevelById(level, id);
+    let firstOrder = this.getOrderById(level, id);
+    let lastSegment = level.items[firstOrder + length - 1];
+    let neighbours = this.getItemNeighboursFromLevel(level, firstSegment.id, lastSegment.id);
     let timeLeft = 0;
     let timeRight = 0;
     let deleteOrder = null;
@@ -834,7 +747,7 @@ export class LevelService {
     let labelIdx = this.getLabelIdx(attrDefName, firstSegment.labels);
 
     for (let i = firstOrder; i < (firstOrder + length); i++) {
-      timeLeft += this.getItemDetails(name, i).sampleDur + 1;
+      timeLeft += level.items[i].sampleDur + 1;
     }
     if (timeLeft % 2 === 0) {
       timeLeft = timeLeft / 2;
@@ -843,22 +756,18 @@ export class LevelService {
       timeLeft = Math.ceil(timeLeft / 2);
       timeRight = timeLeft - 1;
     }
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        level.items.forEach((evt, order) => {
-          if (evt.id === id) {
-            deleteOrder = order;
-            deletedSegment = level.items.splice(deleteOrder, length);
-          }
-        });
+    level.items.forEach((evt, order) => {
+      if (evt.id === id) {
+        deleteOrder = order;
+        deletedSegment = level.items.splice(deleteOrder, length);
       }
     });
 
     if ((neighbours.left !== undefined) && (neighbours.right === undefined)) {
-      this.updateSegment(name, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeRight));
+      this.updateSegment(level, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeRight));
       clickSeg = neighbours.left;
     } else if ((neighbours.left === undefined) && (neighbours.right !== undefined)) {
-      this.updateSegment(name, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart - timeLeft, (neighbours.right.sampleDur + timeLeft));
+      this.updateSegment(level, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart - timeLeft, (neighbours.right.sampleDur + timeLeft));
       clickSeg = neighbours.right;
     } else if ((neighbours.left === undefined) && (neighbours.right === undefined)) {
       // nothing left to do level empty now
@@ -867,8 +776,8 @@ export class LevelService {
       this.view_state_service.setcurMouseItem(undefined, undefined, undefined, undefined, undefined);
       */
     } else {
-      this.updateSegment(name, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeLeft));
-      this.updateSegment(name, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart - timeRight, (neighbours.right.sampleDur + timeRight));
+      this.updateSegment(level, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeLeft));
+      this.updateSegment(level, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart - timeRight, (neighbours.right.sampleDur + timeRight));
       clickSeg = neighbours.left;
     }
     return {
@@ -883,146 +792,138 @@ export class LevelService {
   /**
    *
    */
-  public insertSegmentInvers (name, start, end) {
+  public insertSegmentInvers (level: ILevel, start, end) {
     let ret = true;
-    this.data_service.getLevelData().forEach((t) => {
-      let diff, diff2, startOrder;
-      if (t.name === name) {
-        if (start === end) {
-          startOrder = -1;
-          t.items.forEach((evt, order) => {
-            if (start === evt.sampleStart) {
-              startOrder = order;
-              ret = true;
-            }
-          });
-          if (ret) {
-            diff = 0;
-            if (t.items[startOrder] !== undefined) {
-              diff = t.items[startOrder].sampleDur + 1;
-            }
-            if (t.items[startOrder - 1] !== undefined) { // if not leftmost item
-              t.items[startOrder - 1].sampleDur += diff;
-            }
-            t.items.splice(startOrder, 1);
-          }
-        } else {
-          startOrder = -1;
-          t.items.forEach((evt, order) => {
-            if (start === evt.sampleStart) {
-              startOrder = order;
-              ret = true;
-            }
-          });
-          if (ret) {
-            if (t.items[startOrder + 1] === undefined) { // if rightmost item
-              t.items.splice(startOrder - 1, 2);
-            } else if (t.items[startOrder - 1] === undefined) { // if leftmost item
-              t.items.splice(startOrder, 2);
-            } else { // in the middle
-              diff = t.items[startOrder].sampleDur + 1;
-              diff2 = t.items[startOrder + 1].sampleDur + 1;
-              t.items[startOrder - 1].sampleDur += (diff + diff2);
-              t.items.splice(startOrder, 2);
-            }
-          }
+    let diff, diff2, startOrder;
+    if (start === end) {
+      startOrder = -1;
+      level.items.forEach((evt, order) => {
+        if (start === evt.sampleStart) {
+          startOrder = order;
+          ret = true;
+        }
+      });
+      if (ret) {
+        diff = 0;
+        if (level.items[startOrder] !== undefined) {
+          diff = level.items[startOrder].sampleDur + 1;
+        }
+        if (level.items[startOrder - 1] !== undefined) { // if not leftmost item
+          level.items[startOrder - 1].sampleDur += diff;
+        }
+        level.items.splice(startOrder, 1);
+      }
+    } else {
+      startOrder = -1;
+      level.items.forEach((evt, order) => {
+        if (start === evt.sampleStart) {
+          startOrder = order;
+          ret = true;
+        }
+      });
+      if (ret) {
+        if (level.items[startOrder + 1] === undefined) { // if rightmost item
+          level.items.splice(startOrder - 1, 2);
+        } else if (level.items[startOrder - 1] === undefined) { // if leftmost item
+          level.items.splice(startOrder, 2);
+        } else { // in the middle
+          diff = level.items[startOrder].sampleDur + 1;
+          diff2 = level.items[startOrder + 1].sampleDur + 1;
+          level.items[startOrder - 1].sampleDur += (diff + diff2);
+          level.items.splice(startOrder, 2);
         }
       }
-    });
+    }
     return ret;
   }
 
   /**
    *
    */
-  public insertSegment (name, start, end, newLabel, ids, curAttrDef: string) {
+  public insertSegment (level: ILevel, start, end, newLabel, ids, curAttrDef: string) {
     let ret = true;
-    this.data_service.getLevelData().forEach((level) => {
-      let diff, diff2, startID, endID;
-      if (level.name === name) {
-        if (start === end) {
-          if (level.items.length === 0) { // if on an empty level
-            return {
-              ret: false,
-              ids: ids
-            };
-          } else { // if not on an empty level
-            if (ids === undefined) {
-              ids = [];
-              ids[0] = this.data_service.getNewId();
+    let diff, diff2, startID, endID;
+    if (start === end) {
+      if (level.items.length === 0) { // if on an empty level
+        return {
+          ret: false,
+          ids: ids
+        };
+      } else { // if not on an empty level
+        if (ids === undefined) {
+          ids = [];
+          ids[0] = this.data_service.getNewId();
+        }
+        startID = -1;
+        if (start < level.items[0].sampleStart) { // before first segment
+          diff = level.items[0].sampleStart - start;
+          this.insertItemDetails(ids[0], level, 0, newLabel, start, diff - 1, curAttrDef);
+        } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
+          let newStart = (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur + 1);
+          this.insertItemDetails(ids[0], level, level.items.length, newLabel, newStart, start - newStart, curAttrDef);
+        }
+        else {
+          level.items.forEach((evt, id) => {
+            if (start >= evt.sampleStart && start <= (evt.sampleStart + evt.sampleDur)) {
+              startID = id;
             }
-            startID = -1;
-            if (start < level.items[0].sampleStart) { // before first segment
-              diff = level.items[0].sampleStart - start;
-              this.insertItemDetails(ids[0], name, 0, newLabel, start, diff - 1, curAttrDef);
-            } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
-              let newStart = (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur + 1);
-              this.insertItemDetails(ids[0], name, level.items.length, newLabel, newStart, start - newStart, curAttrDef);
+            if (evt.sampleStart === start) {
+              ret = false;
             }
-            else {
-              level.items.forEach((evt, id) => {
-                if (start >= evt.sampleStart && start <= (evt.sampleStart + evt.sampleDur)) {
-                  startID = id;
-                }
-                if (evt.sampleStart === start) {
-                  ret = false;
-                }
-                if (evt.sampleStart + evt.sampleDur + 1 === start) {
-                  ret = false;
-                }
-              });
-              if (ret) {
-                diff = start - level.items[startID].sampleStart - 1;
-                this.insertItemDetails(ids[0], name, startID + 1, newLabel, start, level.items[startID].sampleDur - diff - 1, curAttrDef);
-                level.items[startID].sampleDur = diff;
-              }
+            if (evt.sampleStart + evt.sampleDur + 1 === start) {
+              ret = false;
             }
-          }
-        } else {
-          if (ids === undefined) {
-            ids = [];
-            ids[0] = this.data_service.getNewId();
-            ids[1] = this.data_service.getNewId();
-          }
-          if (level.items.length === 0) { // if on an empty level
-            this.insertItemDetails(ids[0], name, 0, newLabel, start, (end - start) - 1, curAttrDef);
-          } else { // if not on an empty level
-            if (end < level.items[0].sampleStart) { // before first segment
-              diff = level.items[0].sampleStart - end - 1;
-              diff2 = end - start - 1;
-              this.insertItemDetails(ids[0], name, 0, newLabel, end, diff, curAttrDef);
-              this.insertItemDetails(ids[1], name, 0, newLabel, start, diff2, curAttrDef);
-
-            } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
-              diff = start - (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur) - 1;
-              diff2 = end - start - 1;
-              let len = level.items.length;
-              this.insertItemDetails(ids[0], name, len, newLabel, (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur), diff, curAttrDef);
-              this.insertItemDetails(ids[1], name, len + 1, newLabel, start, diff2, curAttrDef);
-            } else { // in the middle
-              startID = -1;
-              endID = -1;
-              level.items.forEach((evt, id) => {
-                if (start >= evt.sampleStart && start <= (evt.sampleStart + evt.sampleDur)) {
-                  startID = id;
-                }
-                if (end >= evt.sampleStart && end <= (evt.sampleStart + evt.sampleDur)) {
-                  endID = id;
-                }
-              });
-              ret = (startID === endID);
-              if (ret && startID !== -1) {
-                diff = start - level.items[startID].sampleStart - 1;
-                diff2 = end - start - 1;
-                this.insertItemDetails(ids[0], name, startID + 1, newLabel, start, diff2, curAttrDef);
-                this.insertItemDetails(ids[1], name, startID + 2, newLabel, end, level.items[startID].sampleDur - diff - 1 - diff2 - 1, curAttrDef);
-                level.items[startID].sampleDur = diff;
-              }
-            }
+          });
+          if (ret) {
+            diff = start - level.items[startID].sampleStart - 1;
+            this.insertItemDetails(ids[0], level, startID + 1, newLabel, start, level.items[startID].sampleDur - diff - 1, curAttrDef);
+            level.items[startID].sampleDur = diff;
           }
         }
       }
-    });
+    } else {
+      if (ids === undefined) {
+        ids = [];
+        ids[0] = this.data_service.getNewId();
+        ids[1] = this.data_service.getNewId();
+      }
+      if (level.items.length === 0) { // if on an empty level
+        this.insertItemDetails(ids[0], level, 0, newLabel, start, (end - start) - 1, curAttrDef);
+      } else { // if not on an empty level
+        if (end < level.items[0].sampleStart) { // before first segment
+          diff = level.items[0].sampleStart - end - 1;
+          diff2 = end - start - 1;
+          this.insertItemDetails(ids[0], level, 0, newLabel, end, diff, curAttrDef);
+          this.insertItemDetails(ids[1], level, 0, newLabel, start, diff2, curAttrDef);
+
+        } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
+          diff = start - (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur) - 1;
+          diff2 = end - start - 1;
+          let len = level.items.length;
+          this.insertItemDetails(ids[0], level, len, newLabel, (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur), diff, curAttrDef);
+          this.insertItemDetails(ids[1], level, len + 1, newLabel, start, diff2, curAttrDef);
+        } else { // in the middle
+          startID = -1;
+          endID = -1;
+          level.items.forEach((evt, id) => {
+            if (start >= evt.sampleStart && start <= (evt.sampleStart + evt.sampleDur)) {
+              startID = id;
+            }
+            if (end >= evt.sampleStart && end <= (evt.sampleStart + evt.sampleDur)) {
+              endID = id;
+            }
+          });
+          ret = (startID === endID);
+          if (ret && startID !== -1) {
+            diff = start - level.items[startID].sampleStart - 1;
+            diff2 = end - start - 1;
+            this.insertItemDetails(ids[0], level, startID + 1, newLabel, start, diff2, curAttrDef);
+            this.insertItemDetails(ids[1], level, startID + 2, newLabel, end, level.items[startID].sampleDur - diff - 1 - diff2 - 1, curAttrDef);
+            level.items[startID].sampleDur = diff;
+          }
+        }
+      }
+    }
     return {
       ret: ret,
       ids: ids
@@ -1032,33 +933,31 @@ export class LevelService {
   /**
    *
    */
-  public insertEvent (name, start, pointName, id, curAttrDef: string) {
+  public insertEvent (level: ILevel, start, pointName, id, curAttrDef: string) {
     let alreadyExists = false;
     let pos;
     let last;
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name && level.type === 'EVENT') {
-        if (level.items.length > 0) {
-          last = level.items[0].samplePoint;
-        }
-        else {
-          last = 0;
-        }
-        level.items.forEach((evt, order) => {
-          if (Math.floor(start) === Math.floor(evt.samplePoint)) {
-            alreadyExists = true;
-          }
-          if (start > evt.samplePoint) {
-            pos = order + 1;
-          }
-        });
+    if (level.type === 'EVENT') {
+      if (level.items.length > 0) {
+        last = level.items[0].samplePoint;
       }
-    });
+      else {
+        last = 0;
+      }
+      level.items.forEach((evt, order) => {
+        if (Math.floor(start) === Math.floor(evt.samplePoint)) {
+          alreadyExists = true;
+        }
+        if (start > evt.samplePoint) {
+          pos = order + 1;
+        }
+      });
+    }
     if (!alreadyExists) {
       if (id === undefined) {
         id = this.data_service.getNewId();
       }
-      this.insertItemDetails(id, name, pos, pointName, start, undefined, curAttrDef);
+      this.insertItemDetails(id, level, pos, pointName, start, undefined, curAttrDef);
     }
     return {
       alreadyExists: alreadyExists,
@@ -1069,72 +968,64 @@ export class LevelService {
   /**
    *
    */
-  public deleteEvent = function (name, id) {
+  public deleteEvent (level: ILevel, id) {
     let ret = false;
-    this.data_service.getLevelData().forEach((t) => {
-      if (t.name === name && t.type === 'EVENT') {
-        t.items.forEach((evt, order) => {
-          if (!ret) {
-            if (id === evt.id) {
-              ret = evt;
-              t.items.splice(order, 1);
-            }
+    if (level.type === 'EVENT') {
+      level.items.forEach((evt, order) => {
+        if (!ret) {
+          if (id === evt.id) {
+            ret = evt;
+            level.items.splice(order, 1);
           }
-        });
-      }
-    });
+        }
+      });
+    }
     return ret;
   };
 
   /**
    *   delete a single boundary between items
-   *   @param toDelete
-   *   @param name
-   *   @param levelType
    */
-  public deleteBoundary (name, id, isFirst, isLast) {
-    let toDelete = this.getItemFromLevelById(name, id);
+  public deleteBoundary (level: ILevel, id, isFirst, isLast) {
+    let toDelete = this.getItemFromLevelById(level, id);
     let last: IItem = null;
     let retOrder = null;
     let retEvt = null;
     let clickSeg = null;
-    this.data_service.getLevelData().forEach((level: ILevel) => {
-      if (level.name === name) {
-        last = level.items[0];
-        level.items.forEach((evt, order) => {
-          if (level.type === 'SEGMENT') {
-            if (toDelete.sampleStart === evt.sampleStart && toDelete.sampleDur === evt.sampleDur) {
-              if (order === 0 && isFirst) {
-                level.items.splice(order, 1);
-                retOrder = order;
-                retEvt = evt;
-                clickSeg = level.items[0];
-              }
-              else if (order === (level.items.length - 1) && isLast) {
-                level.items.splice(order, 1);
-                retOrder = order;
-                retEvt = evt;
-                clickSeg = level.items[level.items.length - 1];
-              }
-              else {
-                for (let i = 0; i < last.labels.length; i++) {
-                  last.labels[i].value += evt.labels[i].value;
-                }
-                last.sampleDur += evt.sampleDur + 1;
-                level.items.splice(order, 1);
-                retOrder = order;
-                retEvt = evt;
-                clickSeg = last;
-              }
-            }
+
+    last = level.items[0];
+    level.items.forEach((evt, order) => {
+      if (level.type === 'SEGMENT') {
+        if (toDelete.sampleStart === evt.sampleStart && toDelete.sampleDur === evt.sampleDur) {
+          if (order === 0 && isFirst) {
+            level.items.splice(order, 1);
+            retOrder = order;
+            retEvt = evt;
+            clickSeg = level.items[0];
           }
-          last = evt;
-        });
-        if (clickSeg === null) {
-          clickSeg = level.items[0];
+          else if (order === (level.items.length - 1) && isLast) {
+            level.items.splice(order, 1);
+            retOrder = order;
+            retEvt = evt;
+            clickSeg = level.items[level.items.length - 1];
+          }
+          else {
+            for (let i = 0; i < last.labels.length; i++) {
+              last.labels[i].value += evt.labels[i].value;
+            }
+            last.sampleDur += evt.sampleDur + 1;
+            level.items.splice(order, 1);
+            retOrder = order;
+            retEvt = evt;
+            clickSeg = last;
+          }
         }
       }
+      last = evt;
     });
+    if (clickSeg === null) {
+      clickSeg = level.items[0];
+    }
 
     return {
       order: retOrder,
@@ -1145,28 +1036,21 @@ export class LevelService {
 
   /**
    *   restore a single boundary between items
-   *   @param toDelete
-   *   @param name
-   *   @param levelType
    */
-  public deleteBoundaryInvers (name, id, isFirst, isLast, deletedSegment) {
-    this.data_service.getLevelData().forEach((level) => {
-      if (level.name === name) {
-        level.items.splice(deletedSegment.order, 0, deletedSegment.event);
-        let oldName = deletedSegment.event.labels[0].value;
-        if (!isFirst && !isLast) {
-          oldName = level.items[deletedSegment.order - 1].labels[0].value.slice(0, (level.items[deletedSegment.order - 1].labels[0].value.length - deletedSegment.event.labels[0].value.length));
-          level.items[deletedSegment.order - 1].labels[0].value = oldName;
-          level.items[deletedSegment.order - 1].sampleDur -= (deletedSegment.event.sampleDur + 1);
-        }
-      }
-    });
+  public deleteBoundaryInvers (level: ILevel, id, isFirst, isLast, deletedSegment) {
+    level.items.splice(deletedSegment.order, 0, deletedSegment.event);
+    let oldName = deletedSegment.event.labels[0].value;
+    if (!isFirst && !isLast) {
+      oldName = level.items[deletedSegment.order - 1].labels[0].value.slice(0, (level.items[deletedSegment.order - 1].labels[0].value.length - deletedSegment.event.labels[0].value.length));
+      level.items[deletedSegment.order - 1].labels[0].value = oldName;
+      level.items[deletedSegment.order - 1].sampleDur -= (deletedSegment.event.sampleDur + 1);
+    }
   }
 
-  /**
-   *
-   */
-  snapBoundary (toTop, levelName, segment, neighbor, type, curAttrDef: string) {
+  /*
+   @todo snapBoundary is faulty. To determine a level's neighbor, it looks for the level's neighbors in the annotation instead of the neighbors in the perspective.
+   Anyway, neither of these neighbors can be determined without a dependency. The caller should pass in the neighbors.
+  snapBoundary (toTop, levelName: string, segment, neighbor, type, curAttrDef: string) {
     let neighTd;
     let absMinDist = Infinity;
     let absDist;
@@ -1221,54 +1105,55 @@ export class LevelService {
       return false;
     }
   }
+  */
 
   /**
    *  moves a boundary of a given segment
    *
-   *  @param levelName name The name of the level in which the segment lies
+   *  @param level The level in which the segment lies
    *  @param id The id of the segment
    *  @param changeTime The time to add or subtract
    *  @param isFirst if item is first
    *  @param isLast if item is last
    *
    */
-  public moveBoundary (levelName, id, changeTime, isFirst, isLast, attrDefName: string) {
-    let orig = this.getItemFromLevelById(levelName, id);
+  public moveBoundary (level: ILevel, id, changeTime, isFirst, isLast, attrDefName: string) {
+    let orig = this.getItemFromLevelById(level, id);
     let labelIdx = this.getLabelIdx(attrDefName, orig.labels);
     let origRight;
-    let ln = this.getItemNeighboursFromLevel(levelName, id, id);
+    let ln = this.getItemNeighboursFromLevel(level, id, id);
     if (isFirst) { // before first item
       origRight = ln.right;
       if (origRight !== undefined) {
         if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + changeTime) < origRight.sampleStart)) {
-          this.updateSegment(levelName, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+          this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       } else {
         if ((orig.sampleStart + changeTime) >= 0 && (orig.sampleDur - changeTime) >= 0 && (orig.sampleStart + orig.sampleDur + changeTime) <= this.sound_handler_service.audioBuffer.length) {
-          this.updateSegment(levelName, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+          this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       }
     } else if (isLast) { // after last item
       if ((orig.sampleDur + changeTime) >= 0 && (orig.sampleDur + orig.sampleStart + changeTime) <= this.sound_handler_service.audioBuffer.length) {
-        this.updateSegment(levelName, orig.id, undefined, labelIdx, orig.sampleStart, (orig.sampleDur + changeTime));
+        this.updateSegment(level, orig.id, undefined, labelIdx, orig.sampleStart, (orig.sampleDur + changeTime));
       }
     } else {
       if (ln.left === undefined) {
         origRight = ln.right;
         if (origRight !== undefined) {
           if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + changeTime) < origRight.sampleStart)) {
-            this.updateSegment(levelName, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+            this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
           }
         } else {
           if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + orig.sampleDur + changeTime) <= this.sound_handler_service.audioBuffer.length)) {
-            this.updateSegment(levelName, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+            this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
           }
         }
       } else {
         let origLeft = ln.left;
         if ((origLeft.sampleDur + changeTime >= 0) && (orig.sampleStart + changeTime >= 0) && (orig.sampleDur - changeTime >= 0)) {
-          this.updateSegment(levelName, ln.left.id, undefined, labelIdx, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
-          this.updateSegment(levelName, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+          this.updateSegment(level, ln.left.id, undefined, labelIdx, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
+          this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       }
     }
@@ -1277,32 +1162,32 @@ export class LevelService {
   /**
    *
    */
-  moveEvent (name, id, changeTime, attrDefName: string) {
-    let orig = this.getItemFromLevelById(name, id);
+  moveEvent (level: ILevel, id, changeTime, attrDefName: string) {
+    let orig = this.getItemFromLevelById(level, id);
     let labelIdx = this.getLabelIdx(attrDefName, orig.labels);
 
     // if (this.link_service.isLinked(id)) {
     if(true){
       console.error("TODO: should check: this.link_service.isLinked(id)");
-      let neighbour = this.getItemNeighboursFromLevel(name, id, id);
+      let neighbour = this.getItemNeighboursFromLevel(level, id, id);
       if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= this.sound_handler_service.audioBuffer.length) { // if within audio
         if (neighbour.left !== undefined && neighbour.right !== undefined) { // if between two events
           // console.log('between two events')
           if ((orig.samplePoint + changeTime) > (neighbour.left.samplePoint) && (orig.samplePoint + changeTime) < (neighbour.right.samplePoint)) {
-            this.updatePoint(name, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+            this.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
           }
         } else if (neighbour.left === undefined && neighbour.right === undefined) { // if only event
           // console.log('only element')
-          this.updatePoint(name, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+          this.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
         } else if (neighbour.left === undefined && neighbour.right !== undefined) { // if first event
           // console.log('first event')
           if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) < (neighbour.right.samplePoint)) {
-            this.updatePoint(name, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+            this.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
           }
         } else if (neighbour.left !== undefined && neighbour.right === undefined) { // if last event
           // console.log('last event')
           if ((orig.samplePoint + changeTime) > neighbour.left.samplePoint && (orig.samplePoint + changeTime) <= this.sound_handler_service.audioBuffer.length) {
-            this.updatePoint(name, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+            this.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
           }
         }
       }
@@ -1311,14 +1196,10 @@ export class LevelService {
     // else {
     //   // console.log('unlinked event')
     //   if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= this.sound_handler_service.audioBuffer.length) {
-    //     this.updatePoint(name, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+    //     this.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
     //   }
     //   //resort Points after moving
-    //   this.data_service.getLevelData().forEach((t) => {
-    //     if (t.name === name) {
-    //       t.items.sort(this.view_state_service.sortbystart);
-    //     }
-    //   });
+    //   level.items.sort(this.view_state_service.sortbystart);
     // }
   }
 
@@ -1340,52 +1221,52 @@ export class LevelService {
   /**
    *
    */
-  public moveSegment (name, id, length, changeTime, attrDefName: string) {
-    let firstOrder = this.getOrderById(name, id);
-    let firstSegment = this.getItemDetails(name, firstOrder);
-    let lastSegment = this.getItemDetails(name, firstOrder + length - 1);
+  public moveSegment (level: ILevel, id, length, changeTime, attrDefName: string) {
+    let firstOrder = this.getOrderById(level, id);
+    let firstSegment = level.items[firstOrder];
+    let lastSegment = level.items[firstOrder + length - 1];
     let orig, i;
     if (firstSegment !== null && lastSegment !== null) {
-      let lastNeighbours = this.getItemNeighboursFromLevel(name, firstSegment.id, lastSegment.id);
+      let lastNeighbours = this.getItemNeighboursFromLevel(level, firstSegment.id, lastSegment.id);
       let labelIdx = this.getLabelIdx(attrDefName, firstSegment.labels);
       if ((lastNeighbours.left === undefined) && (lastNeighbours.right !== undefined)) {
-        let right = this.getItemFromLevelById(name, lastNeighbours.right.id);
+        let right = this.getItemFromLevelById(level, lastNeighbours.right.id);
         if (((firstSegment.sampleStart + changeTime) > 0) && ((lastNeighbours.right.sampleDur - changeTime) >= 0)) {
-          this.updateSegment(name, right.id, undefined, labelIdx, (right.sampleStart + changeTime), (right.sampleDur - changeTime));
+          this.updateSegment(level, right.id, undefined, labelIdx, (right.sampleStart + changeTime), (right.sampleDur - changeTime));
           for (i = firstOrder; i < (firstOrder + length); i++) {
-            orig = this.getItemDetails(name, i);
-            this.updateSegment(name, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+            orig = level.items[i];
+            this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
           }
         }
       } else if ((lastNeighbours.right === undefined) && (lastNeighbours.left !== undefined)) {
-        let left = this.getItemFromLevelById(name, lastNeighbours.left.id);
+        let left = this.getItemFromLevelById(level, lastNeighbours.left.id);
         if ((lastNeighbours.left.sampleDur + changeTime) >= 0) {
           if ((lastSegment.sampleStart + lastSegment.sampleDur + changeTime) < this.sound_handler_service.audioBuffer.length) {
-            this.updateSegment(name, left.id, undefined, labelIdx, left.sampleStart, (left.sampleDur + changeTime));
+            this.updateSegment(level, left.id, undefined, labelIdx, left.sampleStart, (left.sampleDur + changeTime));
             for (i = firstOrder; i < (firstOrder + length); i++) {
-              orig = this.getItemDetails(name, i);
-              this.updateSegment(name, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+              orig = level.items[i];
+              this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
             }
           }
         }
       } else if ((lastNeighbours.right !== undefined) && (lastNeighbours.left !== undefined)) {
-        let origLeft = this.getItemFromLevelById(name, lastNeighbours.left.id);
-        let origRight = this.getItemFromLevelById(name, lastNeighbours.right.id);
+        let origLeft = this.getItemFromLevelById(level, lastNeighbours.left.id);
+        let origRight = this.getItemFromLevelById(level, lastNeighbours.right.id);
         if (((origLeft.sampleDur + changeTime) >= 0) && ((origRight.sampleDur - changeTime) >= 0)) {
-          this.updateSegment(name, origLeft.id, undefined, labelIdx, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
-          this.updateSegment(name, origRight.id, undefined, labelIdx, (origRight.sampleStart + changeTime), (origRight.sampleDur - changeTime));
+          this.updateSegment(level, origLeft.id, undefined, labelIdx, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
+          this.updateSegment(level, origRight.id, undefined, labelIdx, (origRight.sampleStart + changeTime), (origRight.sampleDur - changeTime));
           for (i = firstOrder; i < (firstOrder + length); i++) {
-            orig = this.getItemDetails(name, i);
-            this.updateSegment(name, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+            orig = level.items[i];
+            this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
           }
         }
       } else if ((lastNeighbours.right === undefined) && (lastNeighbours.left === undefined)) {
-        let first = this.getItemDetails(name, firstOrder);
-        let last = this.getItemDetails(name, (firstOrder + length - 1));
+        let first = level.items[firstOrder];
+        let last = level.items[firstOrder + length - 1];
         if (((first.sampleStart + changeTime) > 0) && (((last.sampleDur + last.sampleStart) + changeTime) < this.sound_handler_service.audioBuffer.length)) {
           for (i = firstOrder; i < (firstOrder + length); i++) {
-            orig = this.getItemDetails(name, i);
-            this.updateSegment(name, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+            orig = level.items[i];
+            this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
           }
         }
       }
@@ -1396,9 +1277,9 @@ export class LevelService {
   /**
    *
    */
-  public expandSegment (rightSide, segments, name, changeTime, attrDefName: string) {
+  public expandSegment (rightSide, segments, level: ILevel, changeTime, attrDefName: string) {
     let startTime = 0;
-    let neighbours = this.getItemNeighboursFromLevel(name, segments[0].id, segments[segments.length - 1].id);
+    let neighbours = this.getItemNeighboursFromLevel(level, segments[0].id, segments[segments.length - 1].id);
     let labelIdx = this.getLabelIdx(attrDefName, segments[0].labels);
     let tempItem;
     let allow = true;
@@ -1408,8 +1289,8 @@ export class LevelService {
         let lastLength = segments[segments.length - 1].sampleStart + segments[segments.length - 1].sampleDur + (changeTime * segments.length);
         if (lastLength <= this.sound_handler_service.audioBuffer.length) {
           segments.forEach((seg) => {
-            tempItem = this.getItemFromLevelById(name, seg.id);
-            this.updateSegment(name, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
+            tempItem = this.getItemFromLevelById(level, seg.id);
+            this.updateSegment(level, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
             startTime += changeTime;
           });
         }
@@ -1421,20 +1302,20 @@ export class LevelService {
         });
         if (allow && (neighbours.right.sampleDur - (changeTime * segments.length) > 0)) {
           segments.forEach((seg) => {
-            tempItem = this.getItemFromLevelById(name, seg.id);
-            this.updateSegment(name, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
+            tempItem = this.getItemFromLevelById(level, seg.id);
+            this.updateSegment(level, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
             startTime += changeTime;
           });
-          this.updateSegment(name, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart + startTime, neighbours.right.sampleDur - startTime);
+          this.updateSegment(level, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart + startTime, neighbours.right.sampleDur - startTime);
         }
       }
     } else { // if expand or shrink on LEFT side
       if (neighbours.left === undefined) { // first element
-        let first = this.getItemDetails(name, 0);
+        let first = level.items[0];
         if (first.sampleStart + (changeTime * (segments.length + 1)) > 0) {
           segments.forEach((seg) => {
-            tempItem = this.getItemFromLevelById(name, seg.id);
-            this.updateSegment(name, tempItem.id, undefined, tempItem.sampleStart - changeTime, labelIdx, tempItem.sampleDur + changeTime);
+            tempItem = this.getItemFromLevelById(level, seg.id);
+            this.updateSegment(level, tempItem.id, undefined, tempItem.sampleStart - changeTime, labelIdx, tempItem.sampleDur + changeTime);
           });
         }
       } else {
@@ -1446,11 +1327,11 @@ export class LevelService {
         if (allow && (neighbours.left.sampleDur - (changeTime * segments.length) > 0)) {
           startTime = 0;
           segments.forEach((seg, i) => {
-            tempItem = this.getItemFromLevelById(name, seg.id);
+            tempItem = this.getItemFromLevelById(level, seg.id);
             startTime = -(segments.length - i) * changeTime;
-            this.updateSegment(name, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
+            this.updateSegment(level, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
           });
-          this.updateSegment(name, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, neighbours.left.sampleDur - (segments.length * changeTime));
+          this.updateSegment(level, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, neighbours.left.sampleDur - (segments.length * changeTime));
         }
       }
     }
@@ -1495,14 +1376,13 @@ export class LevelService {
   /**
    * Add an item to the end of the specified level
    *
-   * @param levelName of the level onto which to push the new item
+   * @param level onto which to push the new item
    * @param id (optional) if given, this id is used instead of a new one
    *
    * @returns id of the new item or -1 if no item has been added
    */
-  pushNewItem (levelName, id) {
-    let level = this.getLevelDetails(levelName);
-    console.debug(levelName, level, id);
+  pushNewItem (level: ILevel, id) {
+    console.debug(level, level, id);
 
     // Check whether the level has time information
     // and only proceed if this is not the case
@@ -1678,7 +1558,7 @@ export class LevelService {
    */
   public deleteItemWithLinksInvers (item, levelName, position, deletedLinks) {
     // Re-add item
-    this.getLevelDetails(levelName).items.splice(position, 0, item);
+    this.data_service.getLevelDataByName(levelName).items.splice(position, 0, item);
 
     // Re-add deleted links
     for (let i = 0; i < deletedLinks.length; ++i) {

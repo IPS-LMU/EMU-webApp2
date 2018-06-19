@@ -6,6 +6,8 @@ import { ViewStateService } from '../_services/view-state.service';
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
+import {ILevel} from '../_interfaces/annot-json.interface';
+import {DataService} from '../_services/data.service';
 
 @Component({
   selector: 'app-level',
@@ -14,7 +16,7 @@ import { DrawHelperService } from '../_services/draw-helper.service';
 })
 export class LevelComponent implements OnInit {
 
-  private _level_annotation: any;
+  private _level_annotation: ILevel;
   private _attributeDefinition: string;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
@@ -30,7 +32,7 @@ export class LevelComponent implements OnInit {
   curMouseSampleNrInView: any;
   // order = attr.trackMouseInLevel;
 
-  @Input() set level_annotation(value: string){
+  @Input() set level_annotation(value: ILevel){
     this._level_annotation = value;
     // console.log(value);
     // this.redraw();
@@ -71,6 +73,7 @@ export class LevelComponent implements OnInit {
               private font_scale_service: FontScaleService,
               private view_state_service: ViewStateService,
               private level_service: LevelService,
+              private data_service: DataService,
               private history_service: HistoryService,
               private draw_helper_service: DrawHelperService,
               private element_ref: ElementRef) { }
@@ -257,19 +260,19 @@ export class LevelComponent implements OnInit {
         this.curMouseSampleNrInView = this.view_state_service.getX(event) * samplesPerPixel;
         moveBy = (this.curMouseSampleNrInView - this.lastPCM);
         if (samplesPerPixel <= 1) {
-          let zoomEventMove = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+          let zoomEventMove = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_sample_length);
           // absolute movement in pcm below 1 pcm per pixel
           if (this._level_annotation.type === 'SEGMENT') {
             if (zoomEventMove.isFirst === true && zoomEventMove.isLast === false) { // before first elem
-              moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemDetails(this._level_annotation.name, 0).sampleStart);
+              moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this._level_annotation.items[0].sampleStart);
             } else if (zoomEventMove.isFirst === false && zoomEventMove.isLast === true) { // after last elem
-              let lastItem = this.level_service.getLastItem(this._level_annotation.name);
+              let lastItem = this._level_annotation.items[this._level_annotation.items.length - 1];
               moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - lastItem.sampleStart - lastItem.sampleDur);
             } else {
-              moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemFromLevelById(this._level_annotation.name, zoomEventMove.nearest.id).sampleStart);
+              moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemFromLevelById(this._level_annotation, zoomEventMove.nearest.id).sampleStart);
             }
           } else {
-            moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemFromLevelById(this._level_annotation.name, zoomEventMove.nearest.id).samplePoint - 0.5); // 0.5 to break between samples not on
+            moveBy = Math.ceil((this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS) - this.level_service.getItemFromLevelById(this._level_annotation, zoomEventMove.nearest.id).samplePoint - 0.5); // 0.5 to break between samples not on
           }
         } else {
           // relative movement in pcm above 1 pcm per pixel
@@ -305,10 +308,10 @@ export class LevelComponent implements OnInit {
                   if (this.view_state_service.getcurMouseisFirst() || this.view_state_service.getcurMouseisLast()) {
                     // before first segment
                     if (this.view_state_service.getcurMouseisFirst()) {
-                      seg = this.level_service.getItemDetails(this._level_annotation.name, 0);
+                      seg = this._level_annotation.items[0];
                       this.view_state_service.movingBoundarySample = seg.sampleStart + moveBy;
                     } else if (this.view_state_service.getcurMouseisLast()) {
-                      seg = this.level_service.getLastItem(this._level_annotation.name);
+                      seg = this._level_annotation.items[this._level_annotation.items.length - 1];
                       this.view_state_service.movingBoundarySample = seg.sampleStart + seg.sampleDur + moveBy;
                     }
                   } else {
@@ -316,7 +319,7 @@ export class LevelComponent implements OnInit {
                     seg = curMouseItem;
                   }
                   this.level_service.moveBoundary(
-                    this._level_annotation.name,
+                    this._level_annotation,
                     seg.id,
                     moveBy,
                     this.view_state_service.getcurMouseisFirst(),
@@ -336,7 +339,7 @@ export class LevelComponent implements OnInit {
                 } else {
                   seg = curMouseItem;
                   this.view_state_service.movingBoundarySample = curMouseItem.samplePoint + moveBy;
-                  this.level_service.moveEvent(this._level_annotation.name, seg.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
+                  this.level_service.moveEvent(this._level_annotation, seg.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
                     'action': 'MOVEEVENT',
@@ -355,7 +358,7 @@ export class LevelComponent implements OnInit {
               if (this._level_annotation.type === 'SEGMENT') {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
-                  this.level_service.moveSegment(this._level_annotation.name, seg[0].id, seg.length, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
+                  this.level_service.moveSegment(this._level_annotation, seg[0].id, seg.length, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
                     'action': 'MOVESEGMENT',
@@ -373,7 +376,7 @@ export class LevelComponent implements OnInit {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
                   seg.forEach((s) => {
-                    this.level_service.moveEvent(this._level_annotation.name, s.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
+                    this.level_service.moveEvent(this._level_annotation, s.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
                     this.history_service.updateCurChangeObj({
                       'type': 'ANNOT',
                       'action': 'MOVEEVENT',
@@ -406,7 +409,7 @@ export class LevelComponent implements OnInit {
     this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
     this.level_service.deleteEditArea();
     this.view_state_service.setEditing(false);
-    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_sample_length);
     this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
     if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
       this.level_service.setlasteditArea('_' + this.lastEventClick.current.id);
@@ -427,10 +430,10 @@ export class LevelComponent implements OnInit {
     }
     this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
     this.level_service.deleteEditArea();
-    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_sample_length);
     if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
-      let next = this.level_service.getItemInTime(this.view_state_service.getcurClickLevelName(), this.lastEventClick.current.id, true);
-      let prev = this.level_service.getItemInTime(this.view_state_service.getcurClickLevelName(), this.lastEventClick.current.id, false);
+      let next = this.level_service.getItemInTime(this.data_service.getLevelDataByName(this.view_state_service.getcurClickLevelName()), this.lastEventClick.current.id, true);
+      let prev = this.level_service.getItemInTime(this.data_service.getLevelDataByName(this.view_state_service.getcurClickLevelName()), this.lastEventClick.current.id, false);
       this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
       this.view_state_service.setcurClickItemMultiple(this.lastEventClick.current, next); // also used to pass in  prev
       this.view_state_service.selectBoundary();
@@ -445,7 +448,7 @@ export class LevelComponent implements OnInit {
    */
   setLastDblClick (x) {
     this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
-    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_sample_length);
     // let isOpen = this.element_ref.nativeElement.parentElement.css('height') === '25px' ? false : true;
     // expand to full size on dbl click if level is in small size
     // if (!isOpen) {
@@ -486,10 +489,10 @@ export class LevelComponent implements OnInit {
    */
   setLastMove (x, doChange) {
     this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
-    this.lastEventMove = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation.name, this._audio_sample_length);
+    this.lastEventMove = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_sample_length);
     if (doChange) {
       if (this.lastEventMove.current !== undefined && this.lastEventMove.nearest !== undefined) {
-        this.lastNeighboursMove = this.level_service.getItemNeighboursFromLevel(this._level_annotation.name, this.lastEventMove.nearest.id, this.lastEventMove.nearest.id);
+        this.lastNeighboursMove = this.level_service.getItemNeighboursFromLevel(this._level_annotation, this.lastEventMove.nearest.id, this.lastEventMove.nearest.id);
         this.view_state_service.setcurMouseItem(this.lastEventMove.nearest, this.lastNeighboursMove, this.view_state_service.getX(x), this.lastEventMove.isFirst, this.lastEventMove.isLast);
       }
     }

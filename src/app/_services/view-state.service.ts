@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { SoundHandlerService } from './sound-handler.service';
+import {DataService} from './data.service';
 
 
 @Injectable({
@@ -567,14 +568,14 @@ setState(nameOrObj) {
   /**
    *
    */
-  selectLevel(next, order, Levelserv) {
+  selectLevel(next, order, data_service: DataService) {
     let curLev;
     let now = this.getcurClickLevelName();
     if (now === undefined) {
       if (!next) {
         // select first if none prev. defined (up)
         // viewState.setcurClickLevel(levelID, levelType, scope.$index, scope.this.level.items.length);
-        curLev = Levelserv.getLevelDetails(order[0]);
+        curLev = data_service.getLevelDataByName(order[0]);
         if(curLev !== null) {
           this.setcurClickLevel(curLev.name, curLev.type);
         }
@@ -582,7 +583,7 @@ setState(nameOrObj) {
       }
       else {
         // select last if none prev. defined (down)
-        curLev = Levelserv.getLevelDetails(order[order.length - 1]);
+        curLev = data_service.getLevelDataByName(order[order.length - 1]);
         this.setcurClickLevel(curLev.name, curLev.type);
         return;
       }
@@ -594,7 +595,7 @@ setState(nameOrObj) {
       }
     });
     if (idxOfNow === undefined) {
-      curLev = Levelserv.getLevelDetails(order[0]);
+      curLev = data_service.getLevelDataByName(order[0]);
       this.setcurClickLevel(curLev.name, curLev.type);
       this.curClickItems = [];
       this.selectBoundary();
@@ -602,7 +603,7 @@ setState(nameOrObj) {
     else {
       if (next) {
         if (idxOfNow + 1 < order.length) {
-          curLev = Levelserv.getLevelDetails(order[idxOfNow + 1]);
+          curLev = data_service.getLevelDataByName(order[idxOfNow + 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow + 1]);
           this.setcurClickLevel(curLev.name, curLev.type);
           this.curClickItems = [];
@@ -611,7 +612,7 @@ setState(nameOrObj) {
         }
       } else {
         if (idxOfNow - 1 >= 0) {
-          curLev = Levelserv.getLevelDetails(order[idxOfNow - 1]);
+          curLev = data_service.getLevelDataByName(order[idxOfNow - 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow - 1]);
           this.setcurClickLevel(curLev.name, curLev.type);
           this.curClickItems = [];

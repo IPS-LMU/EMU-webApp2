@@ -157,7 +157,7 @@ export class DbObjLoadSaveService {
         this.data_service.setData(bundleData.annotation);
         this.loaded_meta_data_service.setCurBndl(bndl);
         // select first level
-        this.view_state_service.selectLevel(false, this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.order, this.level_service);
+        this.view_state_service.selectLevel(false, this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.order, this.data_service);
         this.view_state_service.setState('labeling');
 
         this.view_state_service.somethingInProgress = false;

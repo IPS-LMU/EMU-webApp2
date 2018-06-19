@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {ILevel} from '../_interfaces/annot-json.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -62,7 +63,7 @@ export class DataService {
    * returns a specific level with a given name
    * @param name of the level in the level array
    */
-  public getLevelDataByName(name) {
+  public getLevelDataByName(name: string): ILevel {
     let found_level;
     this.data.levels.forEach((level) => {
       if(level.name === name){
