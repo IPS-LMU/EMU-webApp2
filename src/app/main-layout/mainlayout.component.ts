@@ -1592,7 +1592,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
    */
   public cmdZoomAll() {
     if (this.view_state_service.getPermission('zoom')) {
-      this.level_service.deleteEditArea();
+      // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
       this.view_state_service.setViewPort(0, this.sound_handler_service.audioBuffer.length);
     } else {
       //console.log('action currently not allowed');
@@ -1604,7 +1604,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
    */
   public cmdZoomIn() {
     if (this.view_state_service.getPermission('zoom')) {
-      this.level_service.deleteEditArea();
+      // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
       this.view_state_service.zoomViewPort(true, this.level_service);
     } else {
       //console.log('action currently not allowed');
@@ -1616,7 +1616,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
    */
   cmdZoomOut() {
     if (this.view_state_service.getPermission('zoom')) {
-      this.level_service.deleteEditArea();
+      // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
       this.view_state_service.zoomViewPort(false, this.level_service);
     } else {
       //console.log('action currently not allowed');
@@ -1628,7 +1628,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
    */
   cmdZoomLeft() {
     if (this.view_state_service.getPermission('zoom')) {
-      this.level_service.deleteEditArea();
+      // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
       this.view_state_service.shiftViewPort(false);
     } else {
       //console.log('action currently not allowed');
@@ -1640,7 +1640,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
    */
   cmdZoomRight() {
     if (this.view_state_service.getPermission('zoom')) {
-      this.level_service.deleteEditArea();
+      // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
       this.view_state_service.shiftViewPort(true);
     } else {
       //console.log('action currently not allowed');
@@ -1652,7 +1652,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
    */
   cmdZoomSel() {
     if (this.view_state_service.getPermission('zoom')) {
-      this.level_service.deleteEditArea();
+      // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
       this.view_state_service.setViewPort(this.view_state_service.curViewPort.selectS, this.view_state_service.curViewPort.selectE);
     } else {
       //console.log('action currently not allowed');

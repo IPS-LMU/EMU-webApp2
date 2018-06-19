@@ -235,7 +235,7 @@ export class LevelService {
    *   @param start the starting character position as int
    *   @param end the ending character position as int
    */
-  public createSelection (field: HTMLTextAreaElement, start, end) {
+  public createSelection (field, start, end) {
     if (field.createTextRange) {
       let selRange: {collapse, moveStart, moveEnd, select} = field.createTextRange();
       selRange.collapse(true);
@@ -800,8 +800,8 @@ export class LevelService {
   /**
    *
    */
-  public deleteEvent (level: ILevel, id) {
-    let ret = false;
+  public deleteEvent (level: ILevel, id): IItem {
+    let ret;
     if (level.type === 'EVENT') {
       level.items.forEach((evt, order) => {
         if (!ret) {

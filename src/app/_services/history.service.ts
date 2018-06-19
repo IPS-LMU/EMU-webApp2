@@ -5,6 +5,7 @@ import { ConfigProviderService } from './config-provider.service';
 import { SsffDataService } from './ssff-data.service';
 import { LevelService } from './level.service';
 import {DataService} from './data.service';
+import {LoadedMetaDataService} from './loaded-meta-data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class HistoryService {
               private config_provider_service: ConfigProviderService,
               private ssff_data_service: SsffDataService,
               private data_service: DataService,
+              private loaded_meta_data_service: LoadedMetaDataService,
               private level_service: LevelService) { }
 
   movesAwayFromLastSave = 0;
@@ -110,7 +112,6 @@ export class HistoryService {
               this.level_service.renameLevel(cur.name, cur.newname, cur.curPerspectiveIdx);
             }
             break;
-          */
           case 'DELETELEVEL':
             if (applyOldVal) {
               action = true;
@@ -119,6 +120,7 @@ export class HistoryService {
               this.level_service.deleteLevel(cur.id, cur.curPerspectiveIdx);
             }
             break;
+          */
           case 'DELETEBOUNDARY':
             if (applyOldVal) {
               action = true;
@@ -170,6 +172,7 @@ export class HistoryService {
             //   LinkService.deleteLinkSegment(cur.segments);
             // }
             break;
+          /*
           case 'INSERTLEVEL':
             if (applyOldVal) {
               action = true;
@@ -178,6 +181,7 @@ export class HistoryService {
               this.level_service.insertLevel(cur.level, cur.id, cur.curPerspectiveIdx);
             }
             break;
+          */
           case 'INSERTSEGMENTS':
             if (applyOldVal) {
               action = true;

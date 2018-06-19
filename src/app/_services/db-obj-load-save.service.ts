@@ -74,7 +74,7 @@ export class DbObjLoadSaveService {
         // reset hierarchy
         // this.view_state_service.hierarchyState.reset();
         // set state
-        this.level_service.deleteEditArea();
+        // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
         this.view_state_service.setEditing(false);
         this.view_state_service.setState('loadingSaving');
 
