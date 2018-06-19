@@ -1,9 +1,5 @@
-import { Injectable } from '@angular/core';
-import {IEvent, IItem, ILabel, ILevel, ISegment} from '../_interfaces/annot-json.interface';
+import {IItem, ILabel, ILevel} from '../_interfaces/annot-json.interface';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class LevelService {
   /**
    * search for the according label field in labels
