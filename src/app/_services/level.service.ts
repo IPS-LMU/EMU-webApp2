@@ -603,6 +603,14 @@ export class LevelService {
    *
    */
   public insertSegment (level: ILevel, start, end, newLabel, ids, curAttrDef: string, attrDefs) {
+    if (ids === undefined) {
+      console.error("insertSegment must be called with two ids");
+      return {
+        ret: false,
+        ids: undefined
+      };
+    }
+
     let ret = true;
     let diff, diff2, startID, endID;
     if (start === end) {
@@ -612,10 +620,6 @@ export class LevelService {
           ids: ids
         };
       } else { // if not on an empty level
-        if (ids === undefined) {
-          ids = [];
-          ids[0] = this.data_service.getNewId();
-        }
         startID = -1;
         if (start < level.items[0].sampleStart) { // before first segment
           diff = level.items[0].sampleStart - start;
@@ -644,11 +648,6 @@ export class LevelService {
         }
       }
     } else {
-      if (ids === undefined) {
-        ids = [];
-        ids[0] = this.data_service.getNewId();
-        ids[1] = this.data_service.getNewId();
-      }
       if (level.items.length === 0) { // if on an empty level
         this.insertItemDetails(ids[0], level, 0, newLabel, start, (end - start) - 1, curAttrDef, attrDefs);
       } else { // if not on an empty level
@@ -717,7 +716,8 @@ export class LevelService {
     }
     if (!alreadyExists) {
       if (id === undefined) {
-        id = this.data_service.getNewId();
+        console.error("insertEvent must be called with an id");
+        return;
       }
       this.insertItemDetails(id, level, pos, pointName, start, undefined, curAttrDef, attrDefs);
     }
@@ -1154,7 +1154,8 @@ export class LevelService {
       if (typeof id === 'number') {
         newObject = {id: id, labels: []};
       } else {
-        newObject = {id: this.data_service.getNewId(), labels: []};
+          console.error("pushNewItem() must be called with an id");
+          return -1;
       }
 
       // Add all necessary labels
@@ -1204,7 +1205,8 @@ export class LevelService {
       // Create new item object
       let newObject;
       if (newID === undefined) {
-        newObject = {id: this.data_service.getNewId(), labels: []};
+        console.error("addItem() must be called with an id");
+        return -1;
       } else {
         newObject = {id: newID, labels: []};
       }
