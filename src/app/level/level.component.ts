@@ -8,6 +8,7 @@ import { HistoryService } from '../_services/history.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import {ILevel} from '../_interfaces/annot-json.interface';
 import {DataService} from '../_services/data.service';
+import {SoundHandlerService} from '../_services/sound-handler.service';
 
 @Component({
   selector: 'app-level',
@@ -80,6 +81,7 @@ export class LevelComponent implements OnInit {
 
 
   constructor(private config_provider_service: ConfigProviderService,
+              private sound_handler_service: SoundHandlerService,
               private font_scale_service: FontScaleService,
               private view_state_service: ViewStateService,
               private level_service: LevelService,
@@ -334,7 +336,8 @@ export class LevelComponent implements OnInit {
                     moveBy,
                     this.view_state_service.getcurMouseisFirst(),
                     this.view_state_service.getcurMouseisLast(),
-                    this.view_state_service.getCurAttrDef(this._level_annotation.name)
+                    this.view_state_service.getCurAttrDef(this._level_annotation.name),
+                    this.sound_handler_service.audioBuffer.length
                   );
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
@@ -349,7 +352,7 @@ export class LevelComponent implements OnInit {
                 } else {
                   seg = curMouseItem;
                   this.view_state_service.movingBoundarySample = curMouseItem.samplePoint + moveBy;
-                  this.level_service.moveEvent(this._level_annotation, seg.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
+                  this.level_service.moveEvent(this._level_annotation, seg.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name), this.sound_handler_service.audioBuffer.length);
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
                     'action': 'MOVEEVENT',
@@ -368,7 +371,7 @@ export class LevelComponent implements OnInit {
               if (this._level_annotation.type === 'SEGMENT') {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
-                  this.level_service.moveSegment(this._level_annotation, seg[0].id, seg.length, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
+                  this.level_service.moveSegment(this._level_annotation, seg[0].id, seg.length, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name), this.sound_handler_service.audioBuffer.length);
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
                     'action': 'MOVESEGMENT',
@@ -386,7 +389,7 @@ export class LevelComponent implements OnInit {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
                   seg.forEach((s) => {
-                    this.level_service.moveEvent(this._level_annotation, s.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
+                    this.level_service.moveEvent(this._level_annotation, s.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name), this.sound_handler_service.audioBuffer.length);
                     this.history_service.updateCurChangeObj({
                       'type': 'ANNOT',
                       'action': 'MOVEEVENT',

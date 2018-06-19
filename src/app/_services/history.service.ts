@@ -6,6 +6,7 @@ import { SsffDataService } from './ssff-data.service';
 import { LevelService } from './level.service';
 import {DataService} from './data.service';
 import {LoadedMetaDataService} from './loaded-meta-data.service';
+import {SoundHandlerService} from './sound-handler.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class HistoryService {
   constructor(private view_state_service: ViewStateService,
               private config_provider_service: ConfigProviderService,
               private ssff_data_service: SsffDataService,
+              private sound_handler_service: SoundHandlerService,
               private data_service: DataService,
               private loaded_meta_data_service: LoadedMetaDataService,
               private level_service: LevelService) { }
@@ -74,25 +76,25 @@ export class HistoryService {
           case 'MOVEBOUNDARY':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'MOVESEGMENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'MOVEEVENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'RENAMELABEL':
@@ -233,9 +235,9 @@ export class HistoryService {
           case 'EXPANDSEGMENTS':
             if (applyOldVal) {
               action = true;
-              this.level_service.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), -cur.changeTime, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), -cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), cur.changeTime, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
         }

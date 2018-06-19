@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
 import { DataService } from './data.service';
-import { SoundHandlerService } from './sound-handler.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 // import { LinkS}
 
@@ -10,8 +9,7 @@ import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 })
 export class LevelService {
 
-  constructor(private data_service: DataService,
-              private sound_handler_service: SoundHandlerService) { }
+  constructor(private data_service: DataService) { }
 
   /**
    * search for the according label field in labels
@@ -881,7 +879,7 @@ export class LevelService {
    *  @param isLast if item is last
    *
    */
-  public moveBoundary (level: ILevel, id, changeTime, isFirst, isLast, attrDefName: string) {
+  public moveBoundary (level: ILevel, id, changeTime, isFirst, isLast, attrDefName: string, audioBufferLength: number) {
     let orig = this.getItemFromLevelById(level, id);
     let labelIdx = this.getLabelIdx(attrDefName, orig.labels);
     let origRight;
@@ -893,12 +891,12 @@ export class LevelService {
           this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       } else {
-        if ((orig.sampleStart + changeTime) >= 0 && (orig.sampleDur - changeTime) >= 0 && (orig.sampleStart + orig.sampleDur + changeTime) <= this.sound_handler_service.audioBuffer.length) {
+        if ((orig.sampleStart + changeTime) >= 0 && (orig.sampleDur - changeTime) >= 0 && (orig.sampleStart + orig.sampleDur + changeTime) <= audioBufferLength) {
           this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       }
     } else if (isLast) { // after last item
-      if ((orig.sampleDur + changeTime) >= 0 && (orig.sampleDur + orig.sampleStart + changeTime) <= this.sound_handler_service.audioBuffer.length) {
+      if ((orig.sampleDur + changeTime) >= 0 && (orig.sampleDur + orig.sampleStart + changeTime) <= audioBufferLength) {
         this.updateSegment(level, orig.id, undefined, labelIdx, orig.sampleStart, (orig.sampleDur + changeTime));
       }
     } else {
@@ -909,7 +907,7 @@ export class LevelService {
             this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
           }
         } else {
-          if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + orig.sampleDur + changeTime) <= this.sound_handler_service.audioBuffer.length)) {
+          if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + orig.sampleDur + changeTime) <= audioBufferLength)) {
             this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
           }
         }
@@ -926,7 +924,7 @@ export class LevelService {
   /**
    *
    */
-  moveEvent (level: ILevel, id, changeTime, attrDefName: string) {
+  moveEvent (level: ILevel, id, changeTime, attrDefName: string, audioBufferLength: number) {
     let orig = this.getItemFromLevelById(level, id);
     let labelIdx = this.getLabelIdx(attrDefName, orig.labels);
 
@@ -934,7 +932,7 @@ export class LevelService {
     if(true){
       console.error("TODO: should check: this.link_service.isLinked(id)");
       let neighbour = this.getItemNeighboursFromLevel(level, id, id);
-      if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= this.sound_handler_service.audioBuffer.length) { // if within audio
+      if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= audioBufferLength) { // if within audio
         if (neighbour.left !== undefined && neighbour.right !== undefined) { // if between two events
           // console.log('between two events')
           if ((orig.samplePoint + changeTime) > (neighbour.left.samplePoint) && (orig.samplePoint + changeTime) < (neighbour.right.samplePoint)) {
@@ -950,7 +948,7 @@ export class LevelService {
           }
         } else if (neighbour.left !== undefined && neighbour.right === undefined) { // if last event
           // console.log('last event')
-          if ((orig.samplePoint + changeTime) > neighbour.left.samplePoint && (orig.samplePoint + changeTime) <= this.sound_handler_service.audioBuffer.length) {
+          if ((orig.samplePoint + changeTime) > neighbour.left.samplePoint && (orig.samplePoint + changeTime) <= audioBufferLength) {
             this.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
           }
         }
@@ -959,7 +957,7 @@ export class LevelService {
     console.error('uncomment else as well!')
     // else {
     //   // console.log('unlinked event')
-    //   if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= this.sound_handler_service.audioBuffer.length) {
+    //   if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= audioBufferLength) {
     //     this.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
     //   }
     //   //resort Points after moving
@@ -985,7 +983,7 @@ export class LevelService {
   /**
    *
    */
-  public moveSegment (level: ILevel, id, length, changeTime, attrDefName: string) {
+  public moveSegment (level: ILevel, id, length, changeTime, attrDefName: string, audioBufferLength: number) {
     let firstOrder = this.getOrderById(level, id);
     let firstSegment = level.items[firstOrder];
     let lastSegment = level.items[firstOrder + length - 1];
@@ -1005,7 +1003,7 @@ export class LevelService {
       } else if ((lastNeighbours.right === undefined) && (lastNeighbours.left !== undefined)) {
         let left = this.getItemFromLevelById(level, lastNeighbours.left.id);
         if ((lastNeighbours.left.sampleDur + changeTime) >= 0) {
-          if ((lastSegment.sampleStart + lastSegment.sampleDur + changeTime) < this.sound_handler_service.audioBuffer.length) {
+          if ((lastSegment.sampleStart + lastSegment.sampleDur + changeTime) < audioBufferLength) {
             this.updateSegment(level, left.id, undefined, labelIdx, left.sampleStart, (left.sampleDur + changeTime));
             for (i = firstOrder; i < (firstOrder + length); i++) {
               orig = level.items[i];
@@ -1027,7 +1025,7 @@ export class LevelService {
       } else if ((lastNeighbours.right === undefined) && (lastNeighbours.left === undefined)) {
         let first = level.items[firstOrder];
         let last = level.items[firstOrder + length - 1];
-        if (((first.sampleStart + changeTime) > 0) && (((last.sampleDur + last.sampleStart) + changeTime) < this.sound_handler_service.audioBuffer.length)) {
+        if (((first.sampleStart + changeTime) > 0) && (((last.sampleDur + last.sampleStart) + changeTime) < audioBufferLength)) {
           for (i = firstOrder; i < (firstOrder + length); i++) {
             orig = level.items[i];
             this.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
@@ -1041,7 +1039,7 @@ export class LevelService {
   /**
    *
    */
-  public expandSegment (rightSide, segments, level: ILevel, changeTime, attrDefName: string) {
+  public expandSegment (rightSide, segments, level: ILevel, changeTime, attrDefName: string, audioBufferLength: number) {
     let startTime = 0;
     let neighbours = this.getItemNeighboursFromLevel(level, segments[0].id, segments[segments.length - 1].id);
     let labelIdx = this.getLabelIdx(attrDefName, segments[0].labels);
@@ -1051,7 +1049,7 @@ export class LevelService {
     if (rightSide) { // if expand or shrink on RIGHT side
       if (neighbours.right === undefined) { // last element
         let lastLength = segments[segments.length - 1].sampleStart + segments[segments.length - 1].sampleDur + (changeTime * segments.length);
-        if (lastLength <= this.sound_handler_service.audioBuffer.length) {
+        if (lastLength <= audioBufferLength) {
           segments.forEach((seg) => {
             tempItem = this.getItemFromLevelById(level, seg.id);
             this.updateSegment(level, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
