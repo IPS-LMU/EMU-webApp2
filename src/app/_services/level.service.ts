@@ -30,20 +30,6 @@ export class LevelService {
   }
 
   /**
-   * returns all levels with details for a specific type
-   *    @param types
-   */
-  public getLevelsByType(types) {
-    let levels = [];
-    this.data_service.getLevelData().forEach((level) => {
-      if (types.indexOf(level.type) >= 0) {
-        levels.push(level);
-      }
-    });
-    return levels;
-  }
-
-  /**
    * gets element position inside a given level
    * by passing in the element id
    *    @param level
