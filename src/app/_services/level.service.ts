@@ -4,6 +4,7 @@ import { ViewStateService } from './view-state.service';
 import { DataService } from './data.service';
 import { ConfigProviderService } from './config-provider.service';
 import { SoundHandlerService } from './sound-handler.service';
+import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 // import { LinkS}
 
 @Injectable({
@@ -16,8 +17,8 @@ export class LevelService {
               private config_provider_service: ConfigProviderService,
               private sound_handler_service: SoundHandlerService) { }
 
-  lasteditArea = null; // holding current edit area
-  lasteditAreaElem = null; // holding current edit area element
+  lasteditArea: string = null; // holding current edit area
+  lasteditAreaElem: HTMLElement = null; // holding current edit area element
 
   /**
    * search for the according label field in labels
@@ -41,7 +42,7 @@ export class LevelService {
    * otherwise returns 'null'
    *    @param name
    */
-  public getLevelDetails(name) {
+  public getLevelDetails(name): ILevel {
     let ret = null;
     this.data_service.getLevelData().forEach((level) => {
       if (level.name === name) {
@@ -111,7 +112,7 @@ export class LevelService {
    *    @param name
    *    @param order
    */
-  public getItemDetails(name, order) {
+  public getItemDetails(name, order): IItem {
     let ret = null;
     this.data_service.getLevelData().forEach((level) => {
       if (level.name === name) {
@@ -197,7 +198,7 @@ export class LevelService {
    *    @param name
    *    @param id
    */
-  public getItemFromLevelById(name, id) {
+  public getItemFromLevelById(name, id): IItem {
     let ret = null;
     this.data_service.getLevelData().forEach((level) => {
       if (level.name === name) {
@@ -313,7 +314,7 @@ export class LevelService {
    * Setter for last edit Area Element
    *   @param e lasteditAreaElem last edit Area Element
    */
-  public setlasteditAreaElem (e) {
+  public setlasteditAreaElem (e: HTMLElement) {
     this.lasteditAreaElem = e;
   }
 
@@ -321,7 +322,7 @@ export class LevelService {
    * Setter for last edit Area
    *   @param name lasteditAreaElem last edit Area
    */
-  public setlasteditArea (name) {
+  public setlasteditArea (name: string) {
     this.lasteditArea = name;
   }
 
@@ -427,7 +428,7 @@ export class LevelService {
       this.view_state_service.largeTextFieldInputFieldVisable = true;
       this.view_state_service.largeTextFieldInputFieldCurLabel =  editText;
     }
-  }
+  };
 
   /**
    * Create a Text Selection in a html Textarea
@@ -435,9 +436,9 @@ export class LevelService {
    *   @param start the starting character position as int
    *   @param end the ending character position as int
    */
-  public createSelection (field, start, end) {
+  public createSelection (field: HTMLTextAreaElement, start, end) {
     if (field.createTextRange) {
-      let selRange = field.createTextRange();
+      let selRange: {collapse, moveStart, moveEnd, select} = field.createTextRange();
       selRange.collapse(true);
       selRange.moveStart('character', start);
       selRange.moveEnd('character', end);
@@ -1077,7 +1078,7 @@ export class LevelService {
       }
     });
     return ret;
-  }
+  };
 
   /**
    *   delete a single boundary between items
@@ -1087,11 +1088,11 @@ export class LevelService {
    */
   public deleteBoundary (name, id, isFirst, isLast) {
     let toDelete = this.getItemFromLevelById(name, id);
-    let last = null;
+    let last: IItem = null;
     let retOrder = null;
     let retEvt = null;
     let clickSeg = null;
-    this.data_service.getLevelData().forEach((level) => {
+    this.data_service.getLevelData().forEach((level: ILevel) => {
       if (level.name === name) {
         last = level.items[0];
         level.items.forEach((evt, order) => {
@@ -1278,7 +1279,7 @@ export class LevelService {
 
     // if (this.link_service.isLinked(id)) {
     if(true){
-      console.error("TODO: should check: this.link_service.isLinked(id)")
+      console.error("TODO: should check: this.link_service.isLinked(id)");
       let neighbour = this.getItemNeighboursFromLevel(name, id, id);
       if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= this.sound_handler_service.audioBuffer.length) { // if within audio
         if (neighbour.left !== undefined && neighbour.right !== undefined) { // if between two events
