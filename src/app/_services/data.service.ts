@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {ILevel} from '../_interfaces/annot-json.interface';
+import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -159,6 +159,26 @@ export class DataService {
         }
       });
     });
+  }
+
+  /**
+   * Returns a level object and an item object according to a given item id
+   * @param nodeID id of the node
+   * @return object with level and item
+   */
+  public getNodeInfo(nodeID) {
+      for (let level: ILevel of this.data.levels) {
+        for (let item: IItem of level.items) {
+          if (item.id === nodeID) {
+            return {
+              level: level,
+              item: item
+            };
+          }
+        }
+      }
+
+      return null;
   }
 
   /**

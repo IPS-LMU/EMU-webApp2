@@ -140,7 +140,15 @@ export class HistoryService {
           case 'DELETEEVENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.insertEvent(this.data_service.getLevelDataByName(cur.name), cur.start, cur.pointName, cur.id, this.view_state_service.getCurAttrDef(cur.name));
+              let attrDefs = this.config_provider_service.getLevelDefinition(cur.name).attributeDefinitions;
+              this.level_service.insertEvent(
+                  this.data_service.getLevelDataByName(cur.name),
+                  cur.start,
+                  cur.pointName,
+                  cur.id,
+                  this.view_state_service.getCurAttrDef(cur.name),
+                  this.config_provider_service.getLevelDefinition(cur.name).attributeDefinitions
+              );
             } else {
               this.level_service.deleteEvent(this.data_service.getLevelDataByName(cur.name), cur.id);
             }
@@ -187,7 +195,15 @@ export class HistoryService {
               action = true;
               this.level_service.insertSegmentInvers(this.data_service.getLevelDataByName(cur.name), cur.start, cur.end);
             } else {
-              this.level_service.insertSegment(this.data_service.getLevelDataByName(cur.name), cur.start, cur.end, cur.segName, cur.ids, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.insertSegment(
+                  this.data_service.getLevelDataByName(cur.name),
+                  cur.start,
+                  cur.end,
+                  cur.segName,
+                  cur.ids,
+                  this.view_state_service.getCurAttrDef(cur.name),
+                  this.config_provider_service.getLevelDefinition(cur.name).attributeDefinitions
+              );
             }
             break;
           case 'INSERTEVENT':
@@ -195,7 +211,14 @@ export class HistoryService {
               action = true;
               this.level_service.deleteEvent(this.data_service.getLevelDataByName(cur.name), cur.id);
             } else {
-              this.level_service.insertEvent(this.data_service.getLevelDataByName(cur.name), cur.start, cur.pointName, cur.id, this.view_state_service.getCurAttrDef(cur.name));
+              this.level_service.insertEvent(
+                  this.data_service.getLevelDataByName(cur.name),
+                  cur.start,
+                  cur.pointName,
+                  cur.id,
+                  this.view_state_service.getCurAttrDef(cur.name),
+                  this.config_provider_service.getLevelDefinition(cur.name).attributeDefinitions
+              );
             }
             break;
           case 'INSERTLINKSTO':
@@ -245,7 +268,9 @@ export class HistoryService {
               action = true;
               this.level_service.addItemInvers(cur.newID);
             } else {
-              this.level_service.addItem(cur.neighborID, cur.before, cur.newID);
+              const siblingInfo = this.data_service.getNodeInfo(cur.neighborID);
+              const attrDefs = this.config_provider_service.getLevelDefinition(siblingInfo.level.name).attributeDefinitions;
+              this.level_service.addItem(siblingInfo.item, siblingInfo.level, attrDefs, cur.before, cur.newID);
             }
             break;
 
@@ -264,7 +289,10 @@ export class HistoryService {
               action = true;
               this.level_service.addItemInvers(cur.newID);
             } else {
-              this.level_service.pushNewItem(this.data_service.getLevelDataByName(cur.level), cur.newID);
+              this.level_service.pushNewItem(
+                this.data_service.getLevelDataByName(cur.level),
+                this.config_provider_service.getLevelDefinition(cur.level).attributeDefinitions,
+                cur.newID);
             }
             break;
         }

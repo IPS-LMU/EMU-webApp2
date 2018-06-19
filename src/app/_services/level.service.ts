@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
 import { DataService } from './data.service';
-import { ConfigProviderService } from './config-provider.service';
 import { SoundHandlerService } from './sound-handler.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 // import { LinkS}
@@ -12,7 +11,6 @@ import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 export class LevelService {
 
   constructor(private data_service: DataService,
-              private config_provider_service: ConfigProviderService,
               private sound_handler_service: SoundHandlerService) { }
 
   /**
@@ -161,57 +159,6 @@ export class LevelService {
   }
 
   /**
-   * returns level name of a given node id
-   * @param nodeID id of the node
-   * @return name of the containing level
-   */
-  public getLevelName(nodeID) {
-    let ret = null;
-    this.data_service.getLevelData().forEach((level) => {
-      let pos = level.items.map(function (e) {
-        return e.id;
-      }).indexOf(nodeID);
-      if (pos >= 0) {
-        ret = level.name;
-      }
-    });
-    return ret;
-  }
-
-  /**
-   * Returns a level object and an item object according to a given item id
-   * @param nodeID id of the node
-   * @return object with level and item
-   */
-  public getLevelAndItem(nodeID) {
-    let name = this.getLevelName(nodeID);
-    if (name !== null) {
-      return {level: this.data_service.getLevelDataByName(name), item: this.getItemByID(nodeID)};
-    }
-    else {
-      return null;
-    }
-  }
-
-  /**
-   * Returns an item with a given id
-   * @param nodeID id of the node
-   * @return item with id
-   */
-  public getItemByID(nodeID) {
-    let ret;
-    this.data_service.getLevelData().forEach((level) => {
-      let pos = level.items.map(function (e) {
-        return e.id;
-      }).indexOf(nodeID);
-      if (pos >= 0) {
-        ret = level.items[pos];
-      }
-    });
-    return ret;
-  }
-
-  /**
    * returns multiple item(s) from a given level by passing in
    * the start item 'id' and the length (how many objects to return)
    *    @param level
@@ -254,11 +201,10 @@ export class LevelService {
   /**
    * insert a new Item with id labelname start and duration at position on level
    */
-  public insertItemDetails (id, level: ILevel, position, labelname, start, duration, curAttrDef: string) {
-    let attrdefs = this.config_provider_service.getLevelDefinition(level.name).attributeDefinitions;
+  public insertItemDetails (id, level: ILevel, position, labelname, start, duration, curAttrDef: string, attrDefs) {
     let newElement;
-    if (attrdefs === undefined) { // ugly hack if attrdefs undefined
-      attrdefs = [];
+    if (attrDefs === undefined) { // ugly hack if attrDefs undefined
+      attrDefs = [];
     }
     if (level.type === 'SEGMENT') {
       newElement = {
@@ -267,16 +213,16 @@ export class LevelService {
         sampleDur: duration,
         labels: []
       };
-      if (attrdefs.length > 0) {
-        for (let i = 0; i < attrdefs.length; i++) {
-          if (attrdefs[i].name === curAttrDef) {
+      if (attrDefs.length > 0) {
+        for (let i = 0; i < attrDefs.length; i++) {
+          if (attrDefs[i].name === curAttrDef) {
             newElement.labels.push({
-              name: attrdefs[i].name,
+              name: attrDefs[i].name,
               value: labelname
             });
           } else {
             newElement.labels.push({
-              name: attrdefs[i].name,
+              name: attrDefs[i].name,
               value: labelname
             });
           }
@@ -302,16 +248,16 @@ export class LevelService {
           labels: []
         };
       }
-      if (attrdefs.length > 0) {
-        for (let i = 0; i < attrdefs.length; i++) {
-          if (attrdefs[i].name === curAttrDef) {
+      if (attrDefs.length > 0) {
+        for (let i = 0; i < attrDefs.length; i++) {
+          if (attrDefs[i].name === curAttrDef) {
             newElement.labels.push({
-              name: attrdefs[i].name,
+              name: attrDefs[i].name,
               value: labelname
             });
           } else {
             newElement.labels.push({
-              name: attrdefs[i].name,
+              name: attrDefs[i].name,
               value: labelname
             });
           }
@@ -672,7 +618,7 @@ export class LevelService {
   /**
    *
    */
-  public insertSegment (level: ILevel, start, end, newLabel, ids, curAttrDef: string) {
+  public insertSegment (level: ILevel, start, end, newLabel, ids, curAttrDef: string, attrDefs) {
     let ret = true;
     let diff, diff2, startID, endID;
     if (start === end) {
@@ -689,10 +635,10 @@ export class LevelService {
         startID = -1;
         if (start < level.items[0].sampleStart) { // before first segment
           diff = level.items[0].sampleStart - start;
-          this.insertItemDetails(ids[0], level, 0, newLabel, start, diff - 1, curAttrDef);
+          this.insertItemDetails(ids[0], level, 0, newLabel, start, diff - 1, curAttrDef, attrDefs);
         } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
           let newStart = (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur + 1);
-          this.insertItemDetails(ids[0], level, level.items.length, newLabel, newStart, start - newStart, curAttrDef);
+          this.insertItemDetails(ids[0], level, level.items.length, newLabel, newStart, start - newStart, curAttrDef, attrDefs);
         }
         else {
           level.items.forEach((evt, id) => {
@@ -708,7 +654,7 @@ export class LevelService {
           });
           if (ret) {
             diff = start - level.items[startID].sampleStart - 1;
-            this.insertItemDetails(ids[0], level, startID + 1, newLabel, start, level.items[startID].sampleDur - diff - 1, curAttrDef);
+            this.insertItemDetails(ids[0], level, startID + 1, newLabel, start, level.items[startID].sampleDur - diff - 1, curAttrDef, attrDefs);
             level.items[startID].sampleDur = diff;
           }
         }
@@ -720,20 +666,20 @@ export class LevelService {
         ids[1] = this.data_service.getNewId();
       }
       if (level.items.length === 0) { // if on an empty level
-        this.insertItemDetails(ids[0], level, 0, newLabel, start, (end - start) - 1, curAttrDef);
+        this.insertItemDetails(ids[0], level, 0, newLabel, start, (end - start) - 1, curAttrDef, attrDefs);
       } else { // if not on an empty level
         if (end < level.items[0].sampleStart) { // before first segment
           diff = level.items[0].sampleStart - end - 1;
           diff2 = end - start - 1;
-          this.insertItemDetails(ids[0], level, 0, newLabel, end, diff, curAttrDef);
-          this.insertItemDetails(ids[1], level, 0, newLabel, start, diff2, curAttrDef);
+          this.insertItemDetails(ids[0], level, 0, newLabel, end, diff, curAttrDef, attrDefs);
+          this.insertItemDetails(ids[1], level, 0, newLabel, start, diff2, curAttrDef, attrDefs);
 
         } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
           diff = start - (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur) - 1;
           diff2 = end - start - 1;
           let len = level.items.length;
-          this.insertItemDetails(ids[0], level, len, newLabel, (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur), diff, curAttrDef);
-          this.insertItemDetails(ids[1], level, len + 1, newLabel, start, diff2, curAttrDef);
+          this.insertItemDetails(ids[0], level, len, newLabel, (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur), diff, curAttrDef, attrDefs);
+          this.insertItemDetails(ids[1], level, len + 1, newLabel, start, diff2, curAttrDef, attrDefs);
         } else { // in the middle
           startID = -1;
           endID = -1;
@@ -749,8 +695,8 @@ export class LevelService {
           if (ret && startID !== -1) {
             diff = start - level.items[startID].sampleStart - 1;
             diff2 = end - start - 1;
-            this.insertItemDetails(ids[0], level, startID + 1, newLabel, start, diff2, curAttrDef);
-            this.insertItemDetails(ids[1], level, startID + 2, newLabel, end, level.items[startID].sampleDur - diff - 1 - diff2 - 1, curAttrDef);
+            this.insertItemDetails(ids[0], level, startID + 1, newLabel, start, diff2, curAttrDef, attrDefs);
+            this.insertItemDetails(ids[1], level, startID + 2, newLabel, end, level.items[startID].sampleDur - diff - 1 - diff2 - 1, curAttrDef, attrDefs);
             level.items[startID].sampleDur = diff;
           }
         }
@@ -765,7 +711,7 @@ export class LevelService {
   /**
    *
    */
-  public insertEvent (level: ILevel, start, pointName, id, curAttrDef: string) {
+  public insertEvent (level: ILevel, start, pointName, id, curAttrDef: string, attrDefs) {
     let alreadyExists = false;
     let pos;
     let last;
@@ -789,7 +735,7 @@ export class LevelService {
       if (id === undefined) {
         id = this.data_service.getNewId();
       }
-      this.insertItemDetails(id, level, pos, pointName, start, undefined, curAttrDef);
+      this.insertItemDetails(id, level, pos, pointName, start, undefined, curAttrDef, attrDefs);
     }
     return {
       alreadyExists: alreadyExists,
@@ -1213,7 +1159,7 @@ export class LevelService {
    *
    * @returns id of the new item or -1 if no item has been added
    */
-  pushNewItem (level: ILevel, id) {
+  pushNewItem (level: ILevel, attrDefs, id) {
     console.debug(level, level, id);
 
     // Check whether the level has time information
@@ -1228,12 +1174,11 @@ export class LevelService {
       }
 
       // Add all necessary labels
-      let attrdefs = this.config_provider_service.getLevelDefinition(level.name).attributeDefinitions;
-      for (let i = 0; i < attrdefs.length; ++i) {
-        if (attrdefs[i].type === 'STRING') {
-          newObject.labels.push({name: attrdefs[i].name, value: ''});
+      for (let i = 0; i < attrDefs.length; ++i) {
+        if (attrDefs[i].type === 'STRING') {
+          newObject.labels.push({name: attrDefs[i].name, value: ''});
         } else {
-          newObject.labels.push({name: attrdefs[i].name, value: null});
+          newObject.labels.push({name: attrDefs[i].name, value: null});
         }
       }
 
@@ -1247,40 +1192,24 @@ export class LevelService {
   };
 
   /**
-   * Add an item next to the item with id === eid.
-   * Do nothing if eid is not of type ITEM (ie, if it is on a level with time information)
+   * Add an item next to a given sibling item.
+   * Do nothing if the given sibling is not of type ITEM (ie, if it is on a level with time information)
    *
-   * @param eid The ID of the element that will get a new sibling
-   * @param before boolean to define whether the new sibling will be inserted before or after eid
+   * @param sibling The element that will get a new sibling
+   * @param level The given sibling's level
+   * @param attrDefs The level's attribute definitions.
+   * @param before boolean to define whether the new sibling will be inserted before or after the sibling
    * @param newID optional, only used for redoing from within the history service. if given, no new id is requested from the this.data_service.
    *
    * @return the id of the newly added item (if an item has been added); -1 if no item has been added
    */
-  public addItem (eid, before, newID) {
-    // Check parameters
-    if (eid === undefined) {
-      return -1;
-    }
-    if (typeof before !== 'boolean') {
-      return -1;
-    }
-
-    // Find the level and item objects corresponding to the given id
-    let levelAndItem = this.getLevelAndItem(eid);
-    if (levelAndItem === null) {
-      console.debug('Could not find item with id:', eid);
-      return -1;
-    }
-    let level = levelAndItem.level;
-    let item = levelAndItem.item;
-
-
+  public addItem (sibling: IItem, level: ILevel, attrDefs, before, newID) {
     // Check whether the level has time information
     // and only proceed if this is not the case
     if (level.type === 'ITEM') {
       // Find position of the given element and
       // define position of the new one
-      let posOld = level.items.indexOf(item);
+      let posOld = level.items.indexOf(sibling);
       let posNew;
       if (before === true) {
         posNew = posOld;
@@ -1297,12 +1226,11 @@ export class LevelService {
       }
 
       // Add all necessary labels
-      let attrdefs = this.config_provider_service.getLevelDefinition(level.name).attributeDefinitions;
-      for (let i = 0; i < attrdefs.length; ++i) {
-        if (attrdefs[i].type === 'STRING') {
-          newObject.labels.push({name: attrdefs[i].name, value: ''});
+      for (let i = 0; i < attrDefs.length; ++i) {
+        if (attrDefs[i].type === 'STRING') {
+          newObject.labels.push({name: attrDefs[i].name, value: ''});
         } else {
-          newObject.labels.push({name: attrdefs[i].name, value: null});
+          newObject.labels.push({name: attrDefs[i].name, value: null});
         }
       }
 
