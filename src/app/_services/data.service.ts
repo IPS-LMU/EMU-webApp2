@@ -167,8 +167,8 @@ export class DataService {
    * @return object with level and item
    */
   public getNodeInfo(nodeID) {
-      for (let level: ILevel of this.data.levels) {
-        for (let item: IItem of level.items) {
+      for (let level of this.data.levels) {
+        for (let item of level.items) {
           if (item.id === nodeID) {
             return {
               level: level,
