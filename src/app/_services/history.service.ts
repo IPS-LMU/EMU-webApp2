@@ -266,7 +266,7 @@ export class HistoryService {
           case 'ADDITEM':
             if (applyOldVal) {
               action = true;
-              this.level_service.addItemInvers(cur.newID);
+              this.level_service.addItemInvers(cur.newID, this.data_service.getLevelData());
             } else {
               const siblingInfo = this.data_service.getNodeInfo(cur.neighborID);
               const attrDefs = this.config_provider_service.getLevelDefinition(siblingInfo.level.name).attributeDefinitions;
@@ -287,7 +287,7 @@ export class HistoryService {
           case 'PUSHITEM':
             if (applyOldVal) {
               action = true;
-              this.level_service.addItemInvers(cur.newID);
+              this.level_service.addItemInvers(cur.newID, this.data_service.getLevelData());
             } else {
               this.level_service.pushNewItem(
                 this.data_service.getLevelDataByName(cur.level),

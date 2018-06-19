@@ -1234,9 +1234,7 @@ export class LevelService {
    *
    * Deletes an item but doesn't check whether there are links to or from it
    */
-  public addItemInvers (id) {
-    let levels = this.data_service.getLevelData();
-
+  public addItemInvers (id, levels) {
     for (let i = 0; i < levels.length; ++i) {
       for (let ii = 0; ii < levels[i].items.length; ++ii) {
         if (levels[i].items[ii].id === id) {
@@ -1263,7 +1261,7 @@ export class LevelService {
       deletedLinks: []
     };
 
-    let levelAndItem = this.getLevelAndItem(id);
+    let levelAndItem = this.data_service.getNodeInfo(id);
 
     if (levelAndItem === null) {
       // item with the specified id does not exist
