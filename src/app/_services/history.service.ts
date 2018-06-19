@@ -18,8 +18,7 @@ export class HistoryService {
               private ssff_data_service: SsffDataService,
               private sound_handler_service: SoundHandlerService,
               private data_service: DataService,
-              private loaded_meta_data_service: LoadedMetaDataService,
-              private level_service: LevelService) { }
+              private loaded_meta_data_service: LoadedMetaDataService) { }
 
   movesAwayFromLastSave = 0;
 
@@ -76,33 +75,33 @@ export class HistoryService {
           case 'MOVEBOUNDARY':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'MOVESEGMENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'MOVEEVENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'RENAMELABEL':
             if (applyOldVal) {
               action = true;
-              this.level_service.renameLabel(this.data_service.getLevelDataByName(cur.name), cur.id, cur.attrIndex, cur.oldValue);
+              LevelService.renameLabel(this.data_service.getLevelDataByName(cur.name), cur.id, cur.attrIndex, cur.oldValue);
             } else {
-              this.level_service.renameLabel(this.data_service.getLevelDataByName(cur.name), cur.id, cur.attrIndex, cur.newValue);
+              LevelService.renameLabel(this.data_service.getLevelDataByName(cur.name), cur.id, cur.attrIndex, cur.newValue);
             }
             break;
           /*
@@ -126,24 +125,24 @@ export class HistoryService {
           case 'DELETEBOUNDARY':
             if (applyOldVal) {
               action = true;
-              this.level_service.deleteBoundaryInvers(this.data_service.getLevelDataByName(cur.name), cur.id, cur.isFirst, cur.isLast, cur.deletedSegment);
+              LevelService.deleteBoundaryInvers(this.data_service.getLevelDataByName(cur.name), cur.id, cur.isFirst, cur.isLast, cur.deletedSegment);
             } else {
-              this.level_service.deleteBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.isFirst, cur.isLast);
+              LevelService.deleteBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.isFirst, cur.isLast);
             }
             break;
           case 'DELETESEGMENTS':
             if (applyOldVal) {
               action = true;
-              this.level_service.deleteSegmentsInvers(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.deletedSegment, this.view_state_service.getCurAttrDef(cur.name));
+              LevelService.deleteSegmentsInvers(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.deletedSegment, this.view_state_service.getCurAttrDef(cur.name));
             } else {
-              this.level_service.deleteSegments(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, this.view_state_service.getCurAttrDef(cur.name));
+              LevelService.deleteSegments(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
           case 'DELETEEVENT':
             if (applyOldVal) {
               action = true;
               let attrDefs = this.config_provider_service.getLevelDefinition(cur.name).attributeDefinitions;
-              this.level_service.insertEvent(
+              LevelService.insertEvent(
                   this.data_service.getLevelDataByName(cur.name),
                   cur.start,
                   cur.pointName,
@@ -152,7 +151,7 @@ export class HistoryService {
                   this.config_provider_service.getLevelDefinition(cur.name).attributeDefinitions
               );
             } else {
-              this.level_service.deleteEvent(this.data_service.getLevelDataByName(cur.name), cur.id);
+              LevelService.deleteEvent(this.data_service.getLevelDataByName(cur.name), cur.id);
             }
             break;
           case 'DELETELINKSTO':
@@ -195,9 +194,9 @@ export class HistoryService {
           case 'INSERTSEGMENTS':
             if (applyOldVal) {
               action = true;
-              this.level_service.insertSegmentInvers(this.data_service.getLevelDataByName(cur.name), cur.start, cur.end);
+              LevelService.insertSegmentInvers(this.data_service.getLevelDataByName(cur.name), cur.start, cur.end);
             } else {
-              this.level_service.insertSegment(
+              LevelService.insertSegment(
                   this.data_service.getLevelDataByName(cur.name),
                   cur.start,
                   cur.end,
@@ -211,9 +210,9 @@ export class HistoryService {
           case 'INSERTEVENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.deleteEvent(this.data_service.getLevelDataByName(cur.name), cur.id);
+              LevelService.deleteEvent(this.data_service.getLevelDataByName(cur.name), cur.id);
             } else {
-              this.level_service.insertEvent(
+              LevelService.insertEvent(
                   this.data_service.getLevelDataByName(cur.name),
                   cur.start,
                   cur.pointName,
@@ -235,9 +234,9 @@ export class HistoryService {
           case 'EXPANDSEGMENTS':
             if (applyOldVal) {
               action = true;
-              this.level_service.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), -cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), -cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             } else {
-              this.level_service.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
             }
             break;
         }
@@ -259,20 +258,20 @@ export class HistoryService {
           case 'DELETEITEM':
             if (applyOldVal) {
               action = true;
-              this.level_service.deleteItemWithLinksInvers({level: this.data_service.getLevelDataByName(cur.levelName), item: cur.item}, cur.position, cur.deletedLinks, this.data_service.getLinkData());
+              LevelService.deleteItemWithLinksInvers({level: this.data_service.getLevelDataByName(cur.levelName), item: cur.item}, cur.position, cur.deletedLinks, this.data_service.getLinkData());
             } else {
-              this.level_service.deleteItemWithLinks(this.data_service.getNodeInfo(cur.item.id), this.data_service.getLinkData());
+              LevelService.deleteItemWithLinks(this.data_service.getNodeInfo(cur.item.id), this.data_service.getLinkData());
             }
             break;
 
           case 'ADDITEM':
             if (applyOldVal) {
               action = true;
-              this.level_service.addItemInvers(cur.newID, this.data_service.getLevelData());
+              LevelService.addItemInvers(cur.newID, this.data_service.getLevelData());
             } else {
               const siblingInfo = this.data_service.getNodeInfo(cur.neighborID);
               const attrDefs = this.config_provider_service.getLevelDefinition(siblingInfo.level.name).attributeDefinitions;
-              this.level_service.addItem(siblingInfo.item, siblingInfo.level, attrDefs, cur.before, cur.newID);
+              LevelService.addItem(siblingInfo.item, siblingInfo.level, attrDefs, cur.before, cur.newID);
             }
             break;
 
@@ -289,9 +288,9 @@ export class HistoryService {
           case 'PUSHITEM':
             if (applyOldVal) {
               action = true;
-              this.level_service.addItemInvers(cur.newID, this.data_service.getLevelData());
+              LevelService.addItemInvers(cur.newID, this.data_service.getLevelData());
             } else {
-              this.level_service.pushNewItem(
+              LevelService.pushNewItem(
                 this.data_service.getLevelDataByName(cur.level),
                 this.config_provider_service.getLevelDefinition(cur.level).attributeDefinitions,
                 cur.newID);
