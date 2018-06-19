@@ -15,16 +15,13 @@ export class LevelService {
               private config_provider_service: ConfigProviderService,
               private sound_handler_service: SoundHandlerService) { }
 
-  lasteditArea: string = null; // holding current edit area
-  lasteditAreaElem: HTMLElement = null; // holding current edit area element
-
   /**
    * search for the according label field in labels
    * and return its position
    *    @param attrDefName
    *    @param labels
    */
-  private getLabelIdx(attrDefName, labels) {
+  public getLabelIdx(attrDefName, labels) {
     let labelIdx;
     labels.forEach((l, idx) => {
       if (l.name === attrDefName) {
@@ -233,137 +230,6 @@ export class LevelService {
   }
 
   /**
-   * Getter for last edit Area Element
-   *   @return lasteditAreaElem last edit Area Element
-   */
-  public getlasteditAreaElem () {
-    return this.lasteditAreaElem;
-  }
-
-  /**
-   * Setter for last edit Area Element
-   *   @param e lasteditAreaElem last edit Area Element
-   */
-  public setlasteditAreaElem (e: HTMLElement) {
-    this.lasteditAreaElem = e;
-  }
-
-  /**
-   * Setter for last edit Area
-   *   @param name lasteditAreaElem last edit Area
-   */
-  public setlasteditArea (name: string) {
-    this.lasteditArea = name;
-  }
-
-  /**
-   * Getter for last edit Area
-   *   @return lasteditAreaElem last edit Area
-   */
-  public getlasteditArea () {
-    return this.lasteditArea;
-  }
-
-  /**
-   * Getter for id of last edited Element
-   *   @return lasteditAreaElem last edit Area
-   */
-  public getlastID () {
-    return parseInt(this.lasteditArea.substr(1));
-  }
-
-  /**
-   * Remove currently open html textarea (if there is a textarea open)
-   * and set this.view_state_service.editing to false.
-   */
-  public deleteEditArea() {
-    // if (null !== this.getlasteditArea()) {
-    //   $('.' + this.getlasteditArea()).remove();
-    // }
-
-    /*
-    @todo the viewState must be handled elsewhere
-    this.view_state_service.editing = false;
-    // close large text input field
-    this.view_state_service.largeTextFieldInputFieldCurLabel =  '';
-    this.view_state_service.largeTextFieldInputFieldVisable = false;
-    */
-  }
-
-  /**
-   * Calculate values (x,y,width,height) for textarea to open
-   * depending on the current Level type, the current canvas
-   * and the current clicked Element
-   *   @param lastEventClick the current clicked Level Element
-   *   @param element the current html Element to get canvas from
-   *   @param type the current Level type
-   */
-  public openEditArea = function (lastEventClick, element, type) {
-    let levelName = this.view_state_service.getcurClickLevelName();
-    let attrDefName = this.view_state_service.getCurAttrDef(levelName);
-
-    // find labelIdx
-    let labelIdx = this.getLabelIdx(attrDefName, lastEventClick.labels);
-
-    let elem = element.querySelectorAll('canvas')[0];
-    let clientWidth = elem.clientWidth;
-    let clientOffset = elem.offsetLeft;
-    let top = elem.offsetTop;
-    let height = elem.clientHeight - 1;
-    let len = 10;
-    let start, end, width;
-    if (labelIdx !== undefined) {
-      if (lastEventClick.labels[labelIdx].value.length > 0) {
-        len = lastEventClick.labels[labelIdx].value.length * 7;
-      }
-    }
-    let editText = '';
-    if (lastEventClick.labels.length > 0) {
-      if (lastEventClick.labels[labelIdx] !== undefined) {
-        editText = lastEventClick.labels[labelIdx].value;
-      }
-      else {
-        editText = '';
-      }
-    }
-    if(!this.config_provider_service.vals.restrictions.useLargeTextInputField){
-      if (type === 'SEGMENT') {
-        start = Math.floor(this.view_state_service.getPos(clientWidth, lastEventClick.sampleStart) + clientOffset);
-        end = Math.ceil(this.view_state_service.getPos(clientWidth, (lastEventClick.sampleStart + lastEventClick.sampleDur + 1)) + clientOffset);
-        this.createEditAreaElement(element, start, top, end - start, height, lastEventClick.labels[labelIdx].value, lastEventClick.id);
-
-        /*
-              zooming in disabled
-
-                          if (width < (2 * len)) {
-                              let zoom = this.view_state_service.curViewPort.eS - this.view_state_service.curViewPort.sS;
-                              if (zoom <= 10) { // if already zoomed in but text is still too long
-                                  this.createEditAreaElement(element, start, top, end - start, height, lastEventClick.labels[labelIdx].value, lastEventClick.id);
-                              }
-                              else {
-                                  this.view_state_service.zoomViewPort(true, this);
-                                  this.openEditArea(lastEventClick, element, type);
-                                  return;
-                              }
-                          }
-          */
-      } else {
-        start = this.view_state_service.getPos(clientWidth, lastEventClick.samplePoint) + clientOffset - (len / 2);
-        end = this.view_state_service.getPos(clientWidth, lastEventClick.samplePoint) + clientOffset + (len / 2);
-        width = end - start;
-        if (width < (2 * len)) {
-          width = (2 * len);
-        }
-        this.createEditAreaElement(element, start, top, width, height, editText, lastEventClick.id);
-      }
-      this.createSelection(element.querySelectorAll('textarea')[0], 0, editText.length);
-    }else{
-      this.view_state_service.largeTextFieldInputFieldVisable = true;
-      this.view_state_service.largeTextFieldInputFieldCurLabel =  editText;
-    }
-  };
-
-  /**
    * Create a Text Selection in a html Textarea
    *   @param field the textarea element
    *   @param start the starting character position as int
@@ -383,41 +249,6 @@ export class LevelService {
       field.selectionEnd = end;
     }
     field.focus();
-  }
-
-  /**
-   * create a html textarea element at given
-   * @param element to prepend textarea to
-   * @param x the x Position
-   * @param y the y Position
-   * @param width the Width
-   * @param height the Height
-   * @param label the Text Content of the Textarea
-   * @param labelid the id of the element
-   */
-  public createEditAreaElement (element, x, y, width, height, label, labelid) {
-    let textid = '_' + labelid;
-    let cssObj = {
-      'left': Math.round(x + 2) + 'px',
-      'top': Math.round(y + 1) + 'px',
-      'width': Math.round(width) - 2 + 'px',
-      'height': Math.round(height) - 20 + 'px',
-      'padding-top': Math.round(height / 3 + 1) + 'px'
-    };
-    // add custom label font to CSS if specified
-    /*
-     @todo just remove this freaking custom font stuff
-    if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily !== 'undefined'){
-      cssObj['font-family'] = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
-    }
-    */
-    console.error("should prepend texarea");
-    // element.prepend($('<textarea>').attr({
-    //   id: textid,
-    //   'class': textid + ' emuwebapp-label-edit',
-    //   'ng-model': 'message',
-    //   'autofocus': 'true'
-    // }).css(cssObj).text(label));
   }
 
   /**
@@ -644,6 +475,7 @@ export class LevelService {
       isLast: isLast
     };
   }
+
 
   /**
    * deletes a level by its index

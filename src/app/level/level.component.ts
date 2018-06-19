@@ -23,6 +23,16 @@ export class LevelComponent implements OnInit {
   private _external_cursor_sample_position: number;
   private _audio_sample_length: number;
 
+  private lasteditArea: string = null; // holding current edit area
+  private lasteditAreaElem: HTMLElement = null; // holding current edit area element
+  /**
+   * Getter for id of last edited Element
+   *   @return lasteditAreaElem last edit Area
+   */
+  public getlastID () {
+      return parseInt(this.lasteditArea.substr(1));
+  }
+
 
   // mouse handeling lets
   lastEventClick: any;
@@ -186,7 +196,7 @@ export class LevelComponent implements OnInit {
 //
 //       if (!element.hasClass('emuwebapp-level-animation')) {
 //         this.vs.setEditing(false);
-//         this.level_service.deleteEditArea();
+//         this.deleteEditArea();
 //         $animate.addClass(levelCanvasContainer, 'emuwebapp-level-animation').then(function () {
 //           $animate.removeClass(levelCanvasContainer, 'emuwebapp-level-animation');
 //           // redraw
@@ -301,7 +311,7 @@ export class LevelComponent implements OnInit {
             let curMouseItem = this.view_state_service.getcurMouseItem();
             let seg;
             if (this.config_provider_service.vals.restrictions.editItemSize && event.shiftKey) {
-              this.level_service.deleteEditArea();
+              this.deleteEditArea();
               if (curMouseItem !== undefined) {
                 this.view_state_service.movingBoundary = true;
                 if (this._level_annotation.type === 'SEGMENT') {
@@ -354,7 +364,7 @@ export class LevelComponent implements OnInit {
                 moveLine = false;
               }
             } else if (this.config_provider_service.vals.restrictions.editItemSize && event.altKey) {
-              this.level_service.deleteEditArea();
+              this.deleteEditArea();
               if (this._level_annotation.type === 'SEGMENT') {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
@@ -407,13 +417,13 @@ export class LevelComponent implements OnInit {
    */
   setLastClick (x) {
     this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
-    this.level_service.deleteEditArea();
+    this.deleteEditArea();
     this.view_state_service.setEditing(false);
     this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_sample_length);
     this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
     if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
-      this.level_service.setlasteditArea('_' + this.lastEventClick.current.id);
-      this.level_service.setlasteditAreaElem(this.element_ref.nativeElement.parentElement);
+      this.lasteditArea =  '_' + this.lastEventClick.current.id;
+      this.lasteditAreaElem = this.element_ref.nativeElement.parentElement;
       this.view_state_service.setcurClickItem(this.lastEventClick.current);
       this.view_state_service.selectBoundary();
     }
@@ -429,7 +439,7 @@ export class LevelComponent implements OnInit {
       this.setLastClick(x);
     }
     this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
-    this.level_service.deleteEditArea();
+    this.deleteEditArea();
     this.lastEventClick = this.level_service.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_sample_length);
     if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
       let next = this.level_service.getItemInTime(this.data_service.getLevelDataByName(this.view_state_service.getcurClickLevelName()), this.lastEventClick.current.id, true);
@@ -460,10 +470,10 @@ export class LevelComponent implements OnInit {
           if ((this.lastEventClick.current.sampleStart + this.lastEventClick.current.sampleDur) <= this.view_state_service.curViewPort.eS) {
             this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
             this.view_state_service.setcurClickItem(this.lastEventClick.current);
-            this.level_service.setlasteditArea('_' + this.lastEventClick.current.id);
-            this.level_service.setlasteditAreaElem(this.element_ref.nativeElement.parentElement);
+            this.lasteditArea = '_' + this.lastEventClick.current.id;
+            this.lasteditAreaElem = this.element_ref.nativeElement.parentElement;
             this.view_state_service.setEditing(true);
-            this.level_service.openEditArea(this.lastEventClick.current, this.element_ref.nativeElement.parentElement, this._level_annotation.name);
+            this.openEditArea(this.lastEventClick.current, this.element_ref.nativeElement.parentElement, this._level_annotation.name);
           } else {
             //console.log('Editing out of right bound !');
           }
@@ -473,10 +483,10 @@ export class LevelComponent implements OnInit {
       } else {
         this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
         this.view_state_service.setcurClickItem(this.lastEventClick.current);
-        this.level_service.setlasteditArea('_' + this.lastEventClick.current.id);
-        this.level_service.setlasteditAreaElem(this.element_ref.nativeElement.parentElement);
+        this.lasteditArea = '_' + this.lastEventClick.current.id;
+        this.lasteditAreaElem = this.element_ref.nativeElement.parentElement;
         this.view_state_service.setEditing(true);
-        this.level_service.openEditArea(this.lastEventClick.current, this.element_ref.nativeElement.parentElement, this._level_annotation.name);
+        this.openEditArea(this.lastEventClick.current, this.element_ref.nativeElement.parentElement, this._level_annotation.name);
         this.view_state_service.setEditing(true);
       }
     }
@@ -830,4 +840,129 @@ export class LevelComponent implements OnInit {
     return (w * (s - this._viewport_sample_start) / (this._viewport_sample_end - this._viewport_sample_start + 1)); // + 1 because of view (displays all samples in view)
   }
 
+  /**
+   * create a html textarea element at given
+   * @param element to prepend textarea to
+   * @param x the x Position
+   * @param y the y Position
+   * @param width the Width
+   * @param height the Height
+   * @param label the Text Content of the Textarea
+   * @param labelid the id of the element
+   */
+  private createEditAreaElement (element, x, y, width, height, label, labelid) {
+      let textid = '_' + labelid;
+      let cssObj = {
+          'left': Math.round(x + 2) + 'px',
+          'top': Math.round(y + 1) + 'px',
+          'width': Math.round(width) - 2 + 'px',
+          'height': Math.round(height) - 20 + 'px',
+          'padding-top': Math.round(height / 3 + 1) + 'px'
+      };
+      // add custom label font to CSS if specified
+      /*
+       @todo just remove this freaking custom font stuff
+      if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily !== 'undefined'){
+        cssObj['font-family'] = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
+      }
+      */
+      console.error("should prepend texarea");
+      // element.prepend($('<textarea>').attr({
+      //   id: textid,
+      //   'class': textid + ' emuwebapp-label-edit',
+      //   'ng-model': 'message',
+      //   'autofocus': 'true'
+      // }).css(cssObj).text(label));
+  }
+
+  /**
+   * Calculate values (x,y,width,height) for textarea to open
+   * depending on the current Level type, the current canvas
+   * and the current clicked Element
+   *   @param lastEventClick the current clicked Level Element
+   *   @param element the current html Element to get canvas from
+   *   @param type the current Level type
+   */
+  private openEditArea (lastEventClick, element, type) {
+      let levelName = this.view_state_service.getcurClickLevelName();
+      let attrDefName = this.view_state_service.getCurAttrDef(levelName);
+
+      // find labelIdx
+      let labelIdx = this.level_service.getLabelIdx(attrDefName, lastEventClick.labels);
+
+      let elem = element.querySelectorAll('canvas')[0];
+      let clientWidth = elem.clientWidth;
+      let clientOffset = elem.offsetLeft;
+      let top = elem.offsetTop;
+      let height = elem.clientHeight - 1;
+      let len = 10;
+      let start, end, width;
+      if (labelIdx !== undefined) {
+          if (lastEventClick.labels[labelIdx].value.length > 0) {
+              len = lastEventClick.labels[labelIdx].value.length * 7;
+          }
+      }
+      let editText = '';
+      if (lastEventClick.labels.length > 0) {
+          if (lastEventClick.labels[labelIdx] !== undefined) {
+              editText = lastEventClick.labels[labelIdx].value;
+          }
+          else {
+              editText = '';
+          }
+      }
+      if(!this.config_provider_service.vals.restrictions.useLargeTextInputField){
+          if (type === 'SEGMENT') {
+              start = Math.floor(this.view_state_service.getPos(clientWidth, lastEventClick.sampleStart) + clientOffset);
+              end = Math.ceil(this.view_state_service.getPos(clientWidth, (lastEventClick.sampleStart + lastEventClick.sampleDur + 1)) + clientOffset);
+              this.createEditAreaElement(element, start, top, end - start, height, lastEventClick.labels[labelIdx].value, lastEventClick.id);
+
+              /*
+                    zooming in disabled
+
+                                if (width < (2 * len)) {
+                                    let zoom = this.view_state_service.curViewPort.eS - this.view_state_service.curViewPort.sS;
+                                    if (zoom <= 10) { // if already zoomed in but text is still too long
+                                        this.createEditAreaElement(element, start, top, end - start, height, lastEventClick.labels[labelIdx].value, lastEventClick.id);
+                                    }
+                                    else {
+                                        this.view_state_service.zoomViewPort(true, this);
+                                        this.openEditArea(lastEventClick, element, type);
+                                        return;
+                                    }
+                                }
+                */
+          } else {
+              start = this.view_state_service.getPos(clientWidth, lastEventClick.samplePoint) + clientOffset - (len / 2);
+              end = this.view_state_service.getPos(clientWidth, lastEventClick.samplePoint) + clientOffset + (len / 2);
+              width = end - start;
+              if (width < (2 * len)) {
+                  width = (2 * len);
+              }
+              this.createEditAreaElement(element, start, top, width, height, editText, lastEventClick.id);
+          }
+          this.level_service.createSelection(element.querySelectorAll('textarea')[0], 0, editText.length);
+      }else{
+          this.view_state_service.largeTextFieldInputFieldVisable = true;
+          this.view_state_service.largeTextFieldInputFieldCurLabel =  editText;
+      }
+  };
+
+  /**
+   * Remove currently open html textarea (if there is a textarea open)
+   * and set this.view_state_service.editing to false.
+   */
+  public deleteEditArea() {
+      // if (null !== this.getlasteditArea()) {
+      //   $('.' + this.getlasteditArea()).remove();
+      // }
+
+      /*
+      @todo the viewState must be handled elsewhere
+      this.view_state_service.editing = false;
+      // close large text input field
+      this.view_state_service.largeTextFieldInputFieldCurLabel =  '';
+      this.view_state_service.largeTextFieldInputFieldVisable = false;
+      */
+  }
 }
