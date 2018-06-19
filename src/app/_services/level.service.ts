@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 
-import { ViewStateService } from './view-state.service';
 import { DataService } from './data.service';
 import { ConfigProviderService } from './config-provider.service';
 import { SoundHandlerService } from './sound-handler.service';
@@ -12,8 +11,7 @@ import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 })
 export class LevelService {
 
-  constructor(private view_state_service: ViewStateService,
-              private data_service: DataService,
+  constructor(private data_service: DataService,
               private config_provider_service: ConfigProviderService,
               private sound_handler_service: SoundHandlerService) { }
 
@@ -219,8 +217,7 @@ export class LevelService {
    * @param levelDetails containing labels
    * @return array containing all labels (form==['x','y','z'])
    */
-  public getAllLabelsOfLevel(levelDetails) {
-    let curAttrDef = this.view_state_service.getCurAttrDef(levelDetails.name);
+  public getAllLabelsOfLevel(levelDetails, curAttrDef: string) {
     let labels = [];
     levelDetails.items.forEach((item) => {
       let pos = item.labels.map(function (e) {
@@ -350,11 +347,14 @@ export class LevelService {
     // if (null !== this.getlasteditArea()) {
     //   $('.' + this.getlasteditArea()).remove();
     // }
+
+    /*
+    @todo the viewState must be handled elsewhere
     this.view_state_service.editing = false;
     // close large text input field
     this.view_state_service.largeTextFieldInputFieldCurLabel =  '';
     this.view_state_service.largeTextFieldInputFieldVisable = false;
-
+    */
   }
 
   /**
@@ -372,7 +372,7 @@ export class LevelService {
     // find labelIdx
     let labelIdx = this.getLabelIdx(attrDefName, lastEventClick.labels);
 
-    let elem = element.find('canvas')[0];
+    let elem = element.querySelectorAll('canvas')[0];
     let clientWidth = elem.clientWidth;
     let clientOffset = elem.offsetLeft;
     let top = elem.offsetTop;
@@ -423,7 +423,7 @@ export class LevelService {
         }
         this.createEditAreaElement(element, start, top, width, height, editText, lastEventClick.id);
       }
-      this.createSelection(element.find('textarea')[0], 0, editText.length);
+      this.createSelection(element.querySelectorAll('textarea')[0], 0, editText.length);
     }else{
       this.view_state_service.largeTextFieldInputFieldVisable = true;
       this.view_state_service.largeTextFieldInputFieldCurLabel =  editText;
@@ -472,9 +472,12 @@ export class LevelService {
       'padding-top': Math.round(height / 3 + 1) + 'px'
     };
     // add custom label font to CSS if specified
+    /*
+     @todo just remove this freaking custom font stuff
     if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily !== 'undefined'){
       cssObj['font-family'] = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
     }
+    */
     console.error("should prepend texarea");
     // element.prepend($('<textarea>').attr({
     //   id: textid,
@@ -487,9 +490,8 @@ export class LevelService {
   /**
    * insert a new Item with id labelname start and duration at position on level
    */
-  public insertItemDetails (id, levelname, position, labelname, start, duration) {
+  public insertItemDetails (id, levelname, position, labelname, start, duration, curAttrDef: string) {
     let attrdefs = this.config_provider_service.getLevelDefinition(levelname).attributeDefinitions;
-    let curAttrDef = this.view_state_service.getCurAttrDef(levelname);
     let newElement;
     if (attrdefs === undefined) { // ugly hack if attrdefs undefined
       attrdefs = [];
@@ -760,6 +762,7 @@ export class LevelService {
   /**
    * rename a level by passing in old and new level name and perspective id
    */
+  /*
   public renameLevel (oldname, newname, curPerspectiveIdx) {
     //rename level name
     this.data_service.getLevelData().forEach((level) => {
@@ -778,14 +781,15 @@ export class LevelService {
       }
     });
     // update order name as well
+    // @todo this has to change all perspectives, not only the current one
     this.config_provider_service.vals.perspectives[curPerspectiveIdx].levelCanvases.order[this.config_provider_service.vals.perspectives[curPerspectiveIdx].levelCanvases.order.indexOf(oldname)] = newname;
   };
+  */
 
   /**
    *
    */
-  public deleteSegmentsInvers (name, id, length, deletedSegment) {
-    let attrDefName = this.view_state_service.getCurAttrDef(name);
+  public deleteSegmentsInvers (name, id, length, deletedSegment, attrDefName: string) {
     let labelIdx;
     let x, insertPoint;
     insertPoint = 0;
@@ -817,7 +821,7 @@ export class LevelService {
   /**
    *
    */
-  public deleteSegments (name, id, length) {
+  public deleteSegments (name, id, length, attrDefName: string) {
     let firstSegment = this.getItemFromLevelById(name, id);
     let firstOrder = this.getOrderById(name, id);
     let lastSegment = this.getItemDetails(name, (firstOrder + length - 1));
@@ -827,7 +831,6 @@ export class LevelService {
     let deleteOrder = null;
     let deletedSegment = null;
     let clickSeg = null;
-    let attrDefName = this.view_state_service.getCurAttrDef(name);
     let labelIdx = this.getLabelIdx(attrDefName, firstSegment.labels);
 
     for (let i = firstOrder; i < (firstOrder + length); i++) {
@@ -859,7 +862,10 @@ export class LevelService {
       clickSeg = neighbours.right;
     } else if ((neighbours.left === undefined) && (neighbours.right === undefined)) {
       // nothing left to do level empty now
+      /*
+      @todo the viewState must be handled elsewhere - probably as an @Output in LevelComponent
       this.view_state_service.setcurMouseItem(undefined, undefined, undefined, undefined, undefined);
+      */
     } else {
       this.updateSegment(name, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeLeft));
       this.updateSegment(name, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart - timeRight, (neighbours.right.sampleDur + timeRight));
@@ -929,7 +935,7 @@ export class LevelService {
   /**
    *
    */
-  public insertSegment (name, start, end, newLabel, ids) {
+  public insertSegment (name, start, end, newLabel, ids, curAttrDef: string) {
     let ret = true;
     this.data_service.getLevelData().forEach((level) => {
       let diff, diff2, startID, endID;
@@ -948,10 +954,10 @@ export class LevelService {
             startID = -1;
             if (start < level.items[0].sampleStart) { // before first segment
               diff = level.items[0].sampleStart - start;
-              this.insertItemDetails(ids[0], name, 0, newLabel, start, diff - 1);
+              this.insertItemDetails(ids[0], name, 0, newLabel, start, diff - 1, curAttrDef);
             } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
               let newStart = (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur + 1);
-              this.insertItemDetails(ids[0], name, level.items.length, newLabel, newStart, start - newStart);
+              this.insertItemDetails(ids[0], name, level.items.length, newLabel, newStart, start - newStart, curAttrDef);
             }
             else {
               level.items.forEach((evt, id) => {
@@ -967,7 +973,7 @@ export class LevelService {
               });
               if (ret) {
                 diff = start - level.items[startID].sampleStart - 1;
-                this.insertItemDetails(ids[0], name, startID + 1, newLabel, start, level.items[startID].sampleDur - diff - 1);
+                this.insertItemDetails(ids[0], name, startID + 1, newLabel, start, level.items[startID].sampleDur - diff - 1, curAttrDef);
                 level.items[startID].sampleDur = diff;
               }
             }
@@ -979,20 +985,20 @@ export class LevelService {
             ids[1] = this.data_service.getNewId();
           }
           if (level.items.length === 0) { // if on an empty level
-            this.insertItemDetails(ids[0], name, 0, newLabel, start, (end - start) - 1);
+            this.insertItemDetails(ids[0], name, 0, newLabel, start, (end - start) - 1, curAttrDef);
           } else { // if not on an empty level
             if (end < level.items[0].sampleStart) { // before first segment
               diff = level.items[0].sampleStart - end - 1;
               diff2 = end - start - 1;
-              this.insertItemDetails(ids[0], name, 0, newLabel, end, diff);
-              this.insertItemDetails(ids[1], name, 0, newLabel, start, diff2);
+              this.insertItemDetails(ids[0], name, 0, newLabel, end, diff, curAttrDef);
+              this.insertItemDetails(ids[1], name, 0, newLabel, start, diff2, curAttrDef);
 
             } else if (start > (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur)) { // after last segment
               diff = start - (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur) - 1;
               diff2 = end - start - 1;
               let len = level.items.length;
-              this.insertItemDetails(ids[0], name, len, newLabel, (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur), diff);
-              this.insertItemDetails(ids[1], name, len + 1, newLabel, start, diff2);
+              this.insertItemDetails(ids[0], name, len, newLabel, (level.items[level.items.length - 1].sampleStart + level.items[level.items.length - 1].sampleDur), diff, curAttrDef);
+              this.insertItemDetails(ids[1], name, len + 1, newLabel, start, diff2, curAttrDef);
             } else { // in the middle
               startID = -1;
               endID = -1;
@@ -1008,8 +1014,8 @@ export class LevelService {
               if (ret && startID !== -1) {
                 diff = start - level.items[startID].sampleStart - 1;
                 diff2 = end - start - 1;
-                this.insertItemDetails(ids[0], name, startID + 1, newLabel, start, diff2);
-                this.insertItemDetails(ids[1], name, startID + 2, newLabel, end, level.items[startID].sampleDur - diff - 1 - diff2 - 1);
+                this.insertItemDetails(ids[0], name, startID + 1, newLabel, start, diff2, curAttrDef);
+                this.insertItemDetails(ids[1], name, startID + 2, newLabel, end, level.items[startID].sampleDur - diff - 1 - diff2 - 1, curAttrDef);
                 level.items[startID].sampleDur = diff;
               }
             }
@@ -1026,7 +1032,7 @@ export class LevelService {
   /**
    *
    */
-  public insertEvent (name, start, pointName, id) {
+  public insertEvent (name, start, pointName, id, curAttrDef: string) {
     let alreadyExists = false;
     let pos;
     let last;
@@ -1052,7 +1058,7 @@ export class LevelService {
       if (id === undefined) {
         id = this.data_service.getNewId();
       }
-      this.insertItemDetails(id, name, pos, pointName, start, undefined);
+      this.insertItemDetails(id, name, pos, pointName, start, undefined, curAttrDef);
     }
     return {
       alreadyExists: alreadyExists,
@@ -1160,7 +1166,7 @@ export class LevelService {
   /**
    *
    */
-  snapBoundary (toTop, levelName, segment, neighbor, type) {
+  snapBoundary (toTop, levelName, segment, neighbor, type, curAttrDef: string) {
     let neighTd;
     let absMinDist = Infinity;
     let absDist;
@@ -1206,9 +1212,9 @@ export class LevelService {
     });
     if (minDist !== undefined) {
       if (type === 'SEGMENT') {
-        this.moveBoundary(levelName, segment.id, minDist, 0, undefined);
+        this.moveBoundary(levelName, segment.id, minDist, 0, undefined, curAttrDef);
       } else if (type === 'EVENT') {
-        this.moveEvent(levelName, segment.id, minDist);
+        this.moveEvent(levelName, segment.id, minDist, curAttrDef);
       }
       return minDist;
     } else {
@@ -1226,9 +1232,8 @@ export class LevelService {
    *  @param isLast if item is last
    *
    */
-  public moveBoundary (levelName, id, changeTime, isFirst, isLast) {
+  public moveBoundary (levelName, id, changeTime, isFirst, isLast, attrDefName: string) {
     let orig = this.getItemFromLevelById(levelName, id);
-    let attrDefName = this.view_state_service.getCurAttrDef(levelName);
     let labelIdx = this.getLabelIdx(attrDefName, orig.labels);
     let origRight;
     let ln = this.getItemNeighboursFromLevel(levelName, id, id);
@@ -1272,9 +1277,8 @@ export class LevelService {
   /**
    *
    */
-  moveEvent (name, id, changeTime) {
+  moveEvent (name, id, changeTime, attrDefName: string) {
     let orig = this.getItemFromLevelById(name, id);
-    let attrDefName = this.view_state_service.getCurAttrDef(name);
     let labelIdx = this.getLabelIdx(attrDefName, orig.labels);
 
     // if (this.link_service.isLinked(id)) {
@@ -1336,14 +1340,13 @@ export class LevelService {
   /**
    *
    */
-  public moveSegment (name, id, length, changeTime) {
+  public moveSegment (name, id, length, changeTime, attrDefName: string) {
     let firstOrder = this.getOrderById(name, id);
     let firstSegment = this.getItemDetails(name, firstOrder);
     let lastSegment = this.getItemDetails(name, firstOrder + length - 1);
     let orig, i;
     if (firstSegment !== null && lastSegment !== null) {
       let lastNeighbours = this.getItemNeighboursFromLevel(name, firstSegment.id, lastSegment.id);
-      let attrDefName = this.view_state_service.getCurAttrDef(name);
       let labelIdx = this.getLabelIdx(attrDefName, firstSegment.labels);
       if ((lastNeighbours.left === undefined) && (lastNeighbours.right !== undefined)) {
         let right = this.getItemFromLevelById(name, lastNeighbours.right.id);
@@ -1393,10 +1396,9 @@ export class LevelService {
   /**
    *
    */
-  public expandSegment (rightSide, segments, name, changeTime) {
+  public expandSegment (rightSide, segments, name, changeTime, attrDefName: string) {
     let startTime = 0;
     let neighbours = this.getItemNeighboursFromLevel(name, segments[0].id, segments[segments.length - 1].id);
-    let attrDefName = this.view_state_service.getCurAttrDef(name);
     let labelIdx = this.getLabelIdx(attrDefName, segments[0].labels);
     let tempItem;
     let allow = true;
@@ -1458,6 +1460,8 @@ export class LevelService {
    *
    */
   public calcDistanceToNearestZeroCrossing (sample) {
+    console.error("calcDistanceToNearestZeroCrossing doesn't belong in LevelService - commented out for the time being.");
+    /*
     // walk right
     let distRight = Infinity;
     let distLeft = Infinity;
@@ -1485,6 +1489,7 @@ export class LevelService {
     }
 
     return res;
+    */
   }
 
   /**

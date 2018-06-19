@@ -118,7 +118,11 @@ export class ViewStateService {
   prevState;
   curState;
 
-  curLevelAttrDefs;
+  curLevelAttrDefs: {
+    levelName: string;
+    curAttrDefName: string;
+    // curAttrDefIndex: number; @todo the functions setCrrAttrDef and getCurAttrDefIndex have been commented out - these were the only ones to use the currAttrDefIndex property
+  }[];
 
   /**
    * initialize all needed vars in viewState
@@ -1397,7 +1401,7 @@ setState(nameOrObj) {
    * @param levelName name of level
    * @returns attrDefName
    */
-  getCurAttrDef(levelName) {
+  getCurAttrDef(levelName): string {
     let curAttrDef;
     this.curLevelAttrDefs.forEach((ad) => {
       if (ad.levelName === levelName) {

@@ -320,7 +320,8 @@ export class LevelComponent implements OnInit {
                     seg.id,
                     moveBy,
                     this.view_state_service.getcurMouseisFirst(),
-                    this.view_state_service.getcurMouseisLast()
+                    this.view_state_service.getcurMouseisLast(),
+                    this.view_state_service.getCurAttrDef(this._level_annotation.name)
                   );
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
@@ -335,7 +336,7 @@ export class LevelComponent implements OnInit {
                 } else {
                   seg = curMouseItem;
                   this.view_state_service.movingBoundarySample = curMouseItem.samplePoint + moveBy;
-                  this.level_service.moveEvent(this._level_annotation.name, seg.id, moveBy);
+                  this.level_service.moveEvent(this._level_annotation.name, seg.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
                     'action': 'MOVEEVENT',
@@ -354,7 +355,7 @@ export class LevelComponent implements OnInit {
               if (this._level_annotation.type === 'SEGMENT') {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
-                  this.level_service.moveSegment(this._level_annotation.name, seg[0].id, seg.length, moveBy);
+                  this.level_service.moveSegment(this._level_annotation.name, seg[0].id, seg.length, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
                     'action': 'MOVESEGMENT',
@@ -372,7 +373,7 @@ export class LevelComponent implements OnInit {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
                   seg.forEach((s) => {
-                    this.level_service.moveEvent(this._level_annotation.name, s.id, moveBy);
+                    this.level_service.moveEvent(this._level_annotation.name, s.id, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name));
                     this.history_service.updateCurChangeObj({
                       'type': 'ANNOT',
                       'action': 'MOVEEVENT',

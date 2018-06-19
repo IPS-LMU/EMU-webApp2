@@ -27,7 +27,7 @@ export class HistoryService {
 
   // applyChanges should be called by undo redo functions
   private applyChange(changeObj, applyOldVal) {
-    Object.keys(changeObj).forEach(function (key) {
+    Object.keys(changeObj).forEach((key) => {
       let tr, col, action;
       let cur = changeObj[key];
       if (cur.type === 'SSFF') {
@@ -70,25 +70,25 @@ export class HistoryService {
           case 'MOVEBOUNDARY':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveBoundary(cur.name, cur.id, -cur.movedBy, cur.isFirst, cur.isLast);
+              this.level_service.moveBoundary(cur.name, cur.id, -cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name));
             } else {
-              this.level_service.moveBoundary(cur.name, cur.id, cur.movedBy, cur.isFirst, cur.isLast);
+              this.level_service.moveBoundary(cur.name, cur.id, cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
           case 'MOVESEGMENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveSegment(cur.name, cur.id, cur.length, -cur.movedBy);
+              this.level_service.moveSegment(cur.name, cur.id, cur.length, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
             } else {
-              this.level_service.moveSegment(cur.name, cur.id, cur.length, cur.movedBy);
+              this.level_service.moveSegment(cur.name, cur.id, cur.length, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
           case 'MOVEEVENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.moveEvent(cur.name, cur.id, -cur.movedBy);
+              this.level_service.moveEvent(cur.name, cur.id, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
             } else {
-              this.level_service.moveEvent(cur.name, cur.id, cur.movedBy);
+              this.level_service.moveEvent(cur.name, cur.id, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
           case 'RENAMELABEL':
@@ -99,6 +99,7 @@ export class HistoryService {
               this.level_service.renameLabel(cur.name, cur.id, cur.attrIndex, cur.newValue);
             }
             break;
+          /*
           case 'RENAMELEVEL':
             if (applyOldVal) {
               action = true;
@@ -107,6 +108,7 @@ export class HistoryService {
               this.level_service.renameLevel(cur.name, cur.newname, cur.curPerspectiveIdx);
             }
             break;
+          */
           case 'DELETELEVEL':
             if (applyOldVal) {
               action = true;
@@ -126,15 +128,15 @@ export class HistoryService {
           case 'DELETESEGMENTS':
             if (applyOldVal) {
               action = true;
-              this.level_service.deleteSegmentsInvers(cur.name, cur.id, cur.length, cur.deletedSegment);
+              this.level_service.deleteSegmentsInvers(cur.name, cur.id, cur.length, cur.deletedSegment, this.view_state_service.getCurAttrDef(cur.name));
             } else {
-              this.level_service.deleteSegments(cur.name, cur.id, cur.length);
+              this.level_service.deleteSegments(cur.name, cur.id, cur.length, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
           case 'DELETEEVENT':
             if (applyOldVal) {
               action = true;
-              this.level_service.insertEvent(cur.name, cur.start, cur.pointName, cur.id);
+              this.level_service.insertEvent(cur.name, cur.start, cur.pointName, cur.id, this.view_state_service.getCurAttrDef(cur.name));
             } else {
               this.level_service.deleteEvent(cur.name, cur.id);
             }
@@ -179,7 +181,7 @@ export class HistoryService {
               action = true;
               this.level_service.insertSegmentInvers(cur.name, cur.start, cur.end, cur.segName);
             } else {
-              this.level_service.insertSegment(cur.name, cur.start, cur.end, cur.segName, cur.ids);
+              this.level_service.insertSegment(cur.name, cur.start, cur.end, cur.segName, cur.ids, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
           case 'INSERTEVENT':
@@ -187,7 +189,7 @@ export class HistoryService {
               action = true;
               this.level_service.deleteEvent(cur.name, cur.id);
             } else {
-              this.level_service.insertEvent(cur.name, cur.start, cur.pointName, cur.id);
+              this.level_service.insertEvent(cur.name, cur.start, cur.pointName, cur.id, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
           case 'INSERTLINKSTO':
@@ -202,9 +204,9 @@ export class HistoryService {
           case 'EXPANDSEGMENTS':
             if (applyOldVal) {
               action = true;
-              this.level_service.expandSegment(cur.rightSide, cur.item, cur.name, -cur.changeTime);
+              this.level_service.expandSegment(cur.rightSide, cur.item, cur.name, -cur.changeTime, this.view_state_service.getCurAttrDef(cur.name));
             } else {
-              this.level_service.expandSegment(cur.rightSide, cur.item, cur.name, cur.changeTime);
+              this.level_service.expandSegment(cur.rightSide, cur.item, cur.name, cur.changeTime, this.view_state_service.getCurAttrDef(cur.name));
             }
             break;
         }
