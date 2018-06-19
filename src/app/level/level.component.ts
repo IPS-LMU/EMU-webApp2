@@ -5,7 +5,7 @@ import { FontScaleService } from '../_services/font-scale.service';
 import { ViewStateService } from '../_services/view-state.service';
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
-import {DrawHelperService} from '../_services/draw-helper.service';
+import { DrawHelperService } from '../_services/draw-helper.service';
 
 @Component({
   selector: 'app-level',
