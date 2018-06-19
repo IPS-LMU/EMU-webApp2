@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 
-import { DataService } from './data.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 // import { LinkS}
 
@@ -9,7 +8,7 @@ import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 })
 export class LevelService {
 
-  constructor(private data_service: DataService) { }
+  constructor() { }
 
   /**
    * search for the according label field in labels
@@ -1250,10 +1249,11 @@ export class LevelService {
    * Delete an item (of type ITEM, not of type SEGMENT or EVENT)
    * and all links that lead from or to it
    *
-   * @param id The ID of the item to be deleted
+   * @param nodeInfo The item to remove and its level
+   * @param linkData All links in the current annotation
    * @return an object like {item: object/undefined, ...} (an undefined value of item means that nothing has been done)
    */
-  deleteItemWithLinks (id) {
+  deleteItemWithLinks (nodeInfo, linkData) {
     let result = {
       item: undefined,
       levelName: undefined,
@@ -1261,15 +1261,13 @@ export class LevelService {
       deletedLinks: []
     };
 
-    let levelAndItem = this.data_service.getNodeInfo(id);
-
-    if (levelAndItem === null) {
-      // item with the specified id does not exist
+    if (nodeInfo === null) {
+      // specified item does not exist
       return result;
     }
 
-    let level = levelAndItem.level;
-    let item = levelAndItem.item;
+    let level = nodeInfo.level;
+    let item = nodeInfo.item;
 
     if (level.type !== 'ITEM') {
       // Never touch non-ITEMs
@@ -1285,12 +1283,11 @@ export class LevelService {
 
     // Delete all links that lead from or to the item
     // Iterate over the links array backwards so we can manipulate the array from within the loop
-    let links = this.data_service.getLinkData();
-    for (let i = links.length - 1; i >= 0; --i) {
-      if (links[i].fromID === id || links[i].toID === id) {
+    for (let i = linkData.length - 1; i >= 0; --i) {
+      if (linkData[i].fromID === nodeInfo || linkData[i].toID === nodeInfo) {
         // console.log('Deleting link', i);
-        result.deletedLinks.push(links[i]);
-        links.splice(i, 1);
+        result.deletedLinks.push(linkData[i]);
+        linkData.splice(i, 1);
       }
     }
 
@@ -1300,13 +1297,13 @@ export class LevelService {
   /**
    * undo the deletion of an item with its links
    */
-  public deleteItemWithLinksInvers (item, levelName, position, deletedLinks) {
+  public deleteItemWithLinksInvers (nodeInfo, position, deletedLinks, linkData) {
     // Re-add item
-    this.data_service.getLevelDataByName(levelName).items.splice(position, 0, item);
+    nodeInfo.level.items.splice(position, 0, nodeInfo.item);
 
     // Re-add deleted links
     for (let i = 0; i < deletedLinks.length; ++i) {
-      this.data_service.insertLinkData(deletedLinks[i]);
+      linkData.push(deletedLinks[i]);
     }
   };
 }

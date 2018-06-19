@@ -259,9 +259,9 @@ export class HistoryService {
           case 'DELETEITEM':
             if (applyOldVal) {
               action = true;
-              this.level_service.deleteItemWithLinksInvers(cur.item, cur.levelName, cur.position, cur.deletedLinks);
+              this.level_service.deleteItemWithLinksInvers({level: this.data_service.getLevelDataByName(cur.levelName), item: cur.item}, cur.position, cur.deletedLinks, this.data_service.getLinkData());
             } else {
-              this.level_service.deleteItemWithLinks(cur.item.id);
+              this.level_service.deleteItemWithLinks(this.data_service.getNodeInfo(cur.item.id), this.data_service.getLinkData());
             }
             break;
 
