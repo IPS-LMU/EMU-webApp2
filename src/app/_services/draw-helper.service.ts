@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 
 import { ViewStateService } from './view-state.service';
-import { SoundHandlerService } from './sound-handler.service';
-import { ConfigProviderService } from './config-provider.service';
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
 
@@ -12,30 +10,28 @@ import { FontScaleService } from './font-scale.service';
 export class DrawHelperService {
 
   constructor(private view_state_service: ViewStateService,
-              private sound_handler_service: SoundHandlerService,
-              private config_provider_service: ConfigProviderService,
               private math_helper_service: MathHelperService) { }
 
   osciPeaks: any = {};
 
-  private getScale(ctx, str, scale) {
+  private static getScale(ctx, str, scale) {
     return ctx.measureText(str).width * scale;
   }
 
-  private getScaleWidth(ctx, str1, str2, scaleX) {
+  private static getScaleWidth(ctx, str1, str2, scaleX) {
     if (str1 !== undefined && str1.toString().length > str2.toString().length) {
-      return this.getScale(ctx, str1, scaleX);
+      return DrawHelperService.getScale(ctx, str1, scaleX);
     } else {
-      return this.getScale(ctx, str2, scaleX);
+      return DrawHelperService.getScale(ctx, str2, scaleX);
     }
   }
 
   /**
    *
    */
-  public calculateOsciPeaks() {
-    let sampleRate = this.sound_handler_service.audioBuffer.sampleRate;
-    let numberOfChannels = this.sound_handler_service.audioBuffer.numberOfChannels;
+  public calculateOsciPeaks(audioBuffer: AudioBuffer) {
+    let sampleRate = audioBuffer.sampleRate;
+    let numberOfChannels = audioBuffer.numberOfChannels;
 
     // TODO mix all channels
 
@@ -61,17 +57,17 @@ export class DrawHelperService {
 
     for(let channelIdx = 0; channelIdx < numberOfChannels; channelIdx++){
 
-      let curChannelSamples = this.sound_handler_service.audioBuffer.getChannelData(channelIdx);
+      let curChannelSamples = audioBuffer.getChannelData(channelIdx);
 
       // preallocate min max peaks arrays
-      let curChannelMaxPeaksWinSize0 = new Float32Array(Math.round(this.sound_handler_service.audioBuffer.length / winSize0));
-      let curChannelMinPeaksWinSize0 = new Float32Array(Math.round(this.sound_handler_service.audioBuffer.length / winSize0));
+      let curChannelMaxPeaksWinSize0 = new Float32Array(Math.round(audioBuffer.length / winSize0));
+      let curChannelMinPeaksWinSize0 = new Float32Array(Math.round(audioBuffer.length / winSize0));
 
-      let curChannelMaxPeaksWinSize1 = new Float32Array(Math.round(this.sound_handler_service.audioBuffer.length / winSize1));
-      let curChannelMinPeaksWinSize1 = new Float32Array(Math.round(this.sound_handler_service.audioBuffer.length / winSize1));
+      let curChannelMaxPeaksWinSize1 = new Float32Array(Math.round(audioBuffer.length / winSize1));
+      let curChannelMinPeaksWinSize1 = new Float32Array(Math.round(audioBuffer.length / winSize1));
 
-      let curChannelMaxPeaksWinSize2 = new Float32Array(Math.round(this.sound_handler_service.audioBuffer.length / winSize2));
-      let curChannelMinPeaksWinSize2 = new Float32Array(Math.round(this.sound_handler_service.audioBuffer.length / winSize2));
+      let curChannelMaxPeaksWinSize2 = new Float32Array(Math.round(audioBuffer.length / winSize2));
+      let curChannelMinPeaksWinSize2 = new Float32Array(Math.round(audioBuffer.length / winSize2));
 
       let curWindowIdxCounterWinSize0 = 0;
       let curPeakIdxWinSize0 = 0;
@@ -306,7 +302,7 @@ export class DrawHelperService {
   /**
    *
    */
-  public freshRedrawDrawOsciOnCanvas(canvas, sS, eS, forceToCalcOsciPeaks) {
+  public freshRedrawDrawOsciOnCanvas(canvas, sS, eS, forceToCalcOsciPeaks, audioBuffer: AudioBuffer) {
     // clear canvas
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -318,7 +314,7 @@ export class DrawHelperService {
     // calc osciPeaks if these have not been calculated yet
     // if(Object.keys(this.osciPeaks).length === 0 && this.osciPeaks.constructor === Object){
     if(true){
-      this.calculateOsciPeaks();
+      this.calculateOsciPeaks(audioBuffer);
     }
 
     // samples per pixel + one to correct for subtraction
@@ -390,7 +386,7 @@ export class DrawHelperService {
 
     }else{
       // if winIdx is -1 then calculate the peaks from the channel data
-      allPeakVals = this.calculatePeaks(canvas, this.sound_handler_service.audioBuffer.getChannelData(this.view_state_service.osciSettings.curChannel), sS, eS);
+      allPeakVals = this.calculatePeaks(canvas, audioBuffer.getChannelData(this.view_state_service.osciSettings.curChannel), sS, eS);
 
       // check if envelope is to be drawn
       if (allPeakVals.minPeaks && allPeakVals.maxPeaks && allPeakVals.samplePerPx >= 1) {
@@ -538,7 +534,7 @@ export class DrawHelperService {
    * drawing method to drawCurViewPortSelected
    */
 
-  public drawCurViewPortSelected(ctx, drawTimeAndSamples) {
+  public drawCurViewPortSelected(ctx, drawTimeAndSamples, audioBuffer: AudioBuffer) {
 
     let fontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
     let xOffset, sDist, space, scaleX;
@@ -562,7 +558,7 @@ export class DrawHelperService {
       if (drawTimeAndSamples) {
         if (this.view_state_service.curViewPort.sS !== this.view_state_service.curViewPort.selectS && this.view_state_service.curViewPort.selectS !== -1) {
           scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-          space = this.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / this.sound_handler_service.audioBuffer.sampleRate, 6), scaleX);
+          space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / audioBuffer.sampleRate, 6), scaleX);
           // fontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
         }
       }
@@ -581,19 +577,19 @@ export class DrawHelperService {
       if (drawTimeAndSamples) {
         // start values
         scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-        space = this.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / this.sound_handler_service.audioBuffer.sampleRate, 6), scaleX);
+        space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / audioBuffer.sampleRate, 6), scaleX);
         // fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectS, this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
 
         // end values
         // fontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectE, this.math_helper_service.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
         // dur values
         // check if space
-        space = this.getScale(ctx, this.math_helper_service.roundToNdigitsAfterDecPoint((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / this.sound_handler_service.audioBuffer.sampleRate, 6), scaleX);
+        space = DrawHelperService.getScale(ctx, this.math_helper_service.roundToNdigitsAfterDecPoint((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / audioBuffer.sampleRate, 6), scaleX);
 
         if (posE - posS > space) {
           let str1 = this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS - 1;
-          let str2 = this.math_helper_service.roundToNdigitsAfterDecPoint(((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / this.sound_handler_service.audioBuffer.sampleRate), 6);
-          space = this.getScaleWidth(ctx, str1, str2, scaleX);
+          let str2 = this.math_helper_service.roundToNdigitsAfterDecPoint(((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / audioBuffer.sampleRate), 6);
+          space = DrawHelperService.getScaleWidth(ctx, str1, str2, scaleX);
           // fontScaleService.drawUndistortedTextTwoLines(ctx, str1, str2, fontSize, ConfigProviderService.design.font.small.family, posS + (posE - posS) / 2 - space / 2, 0, ConfigProviderService.design.color.black, false);
         }
       }
@@ -757,7 +753,7 @@ export class DrawHelperService {
   /**
    *
    */
-  drawViewPortTimes(ctx) {
+  drawViewPortTimes(ctx, sampleRate: number) {
     ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.font = 'HelveticaNeue';//(ConfigProviderService.design.font.small.size + ' ' + ConfigProviderService.design.font.small.family);
@@ -778,10 +774,10 @@ export class DrawHelperService {
     let space;
     if (this.view_state_service.curViewPort) {
       //draw time and sample nr
-      sTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.sS / this.sound_handler_service.audioBuffer.sampleRate, 6);
-      eTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.eS / this.sound_handler_service.audioBuffer.sampleRate, 6);
+      sTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.sS / sampleRate, 6);
+      eTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.eS / sampleRate, 6);
       FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.sS, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
-      space = this.getScaleWidth(ctx, this.view_state_service.curViewPort.eS, eTime, scaleX);
+      space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.eS, eTime, scaleX);
       FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.eS, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
     }
   };

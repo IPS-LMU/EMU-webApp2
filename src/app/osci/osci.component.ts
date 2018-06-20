@@ -9,11 +9,11 @@ import { DrawHelperService } from '../_services/draw-helper.service'
 })
 export class OsciComponent implements OnInit {
 
-  private _audio_buffer: any;
+  private _audio_buffer: AudioBuffer;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
 
-  @Input() set audio_buffer(value: any){
+  @Input() set audio_buffer(value: AudioBuffer){
     this._audio_buffer = value;
     console.log(value);
   }
@@ -31,7 +31,9 @@ export class OsciComponent implements OnInit {
         this.mainCanvas.nativeElement,
         this._viewport_sample_start,
         this._viewport_sample_end,
-      false);
+      false,
+        // @todo make sure this._audio_buffer is set before this._viewport_sample_end
+        this._audio_buffer);
     }
   }
 
@@ -178,6 +180,7 @@ export class OsciComponent implements OnInit {
   //   }
   //   // draw moving boundary line if moving
   //   Drawhelperservice.drawMovingBoundaryLine(ctx);
+  //   @todo add this._audio_buffer.sampleRate as third parameter to drawViewPortTimes
   //   Drawhelperservice.drawViewPortTimes(ctx, true);
   //   // draw current viewport selected
   //   Drawhelperservice.drawCurViewPortSelected(ctx, true);
