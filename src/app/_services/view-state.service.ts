@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
+import {ILevel} from '../_interfaces/annot-json.interface';
 
 
 @Injectable({
@@ -1290,9 +1291,9 @@ setState(nameOrObj) {
    * @param zoomIn bool to specify zooming direction
    * if set to true -> zoom in
    * if set to false -> zoom out
-   * @param LevelService pass in LevelService to avoid circular dependencies
+   * @param data_service pass in DataService to avoid circular dependencies
    */
-  zoomViewPort(zoomIn, LevelService) {
+  zoomViewPort(zoomIn, data_service: DataService) {
     let newStartS, newEndS, curMouseMoveItemStart;
     let seg = this.getcurMouseItem();
     let d = this.curViewPort.eS - this.curViewPort.sS;
@@ -1300,10 +1301,11 @@ setState(nameOrObj) {
     let isLastSeg = false;
 
     if (seg !== undefined) {
+      const levelData: ILevel = data_service.getLevelDataByName(this.getcurMouseLevelName());
       if (this.getcurMouseisFirst()) { // before first element
-        seg = LevelService.getItemDetails(this.getcurMouseLevelName(), 0);
+        seg = levelData.items[0];
       } else if (this.getcurMouseisLast()) {
-        seg = LevelService.getLastItem(this.getcurMouseLevelName());
+        seg = levelData.items[levelData.items.length - 1];
         isLastSeg = true;
       }
       if (this.getcurMouseLevelType() === 'SEGMENT') {

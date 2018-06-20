@@ -9,7 +9,6 @@ import { DataService } from "../_services/data.service";
 import { ConfigProviderService } from "../_services/config-provider.service";
 import { ViewStateService } from "../_services/view-state.service";
 import { SoundHandlerService } from "../_services/sound-handler.service";
-import { LevelService } from "../_services/level.service"
 import { ConfirmDialogComponent } from '../_dialogs/confirm/confirm.component';
 import { HistoryService } from '../_services/history.service';
 import { AppStateService } from '../_services/app-state.service';
@@ -46,7 +45,6 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
               public config_provider_service: ConfigProviderService,
               public view_state_service: ViewStateService,
               public sound_handler_service: SoundHandlerService,
-              private level_service: LevelService,
               public confirmDialog: MatDialog,
               public hotkeys_service: HotkeysService,
               private history_service: HistoryService,
@@ -368,7 +366,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     // zoomIn
     this.hotkey_w = this.hotkeys_service.add(new Hotkey('w', (event: KeyboardEvent): boolean => {
         if (this.view_state_service.getPermission('zoom')) {
-          this.view_state_service.zoomViewPort(true, LevelService);
+          this.view_state_service.zoomViewPort(true, this.data_service);
         } else {
           //console.log('action currently not allowed');
         }
@@ -379,7 +377,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     // zoomOut
     this.hotkey_s = this.hotkeys_service.add(new Hotkey('s', (event: KeyboardEvent): boolean => {
       if (this.view_state_service.getPermission('zoom')) {
-        this.view_state_service.zoomViewPort(false, LevelService);
+        this.view_state_service.zoomViewPort(false, this.data_service);
       } else {
         //console.log('action currently not allowed');
       }
@@ -1605,7 +1603,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
   public cmdZoomIn() {
     if (this.view_state_service.getPermission('zoom')) {
       // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
-      this.view_state_service.zoomViewPort(true, this.level_service);
+      this.view_state_service.zoomViewPort(true, this.data_service);
     } else {
       //console.log('action currently not allowed');
     }
@@ -1617,7 +1615,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
   cmdZoomOut() {
     if (this.view_state_service.getPermission('zoom')) {
       // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
-      this.view_state_service.zoomViewPort(false, this.level_service);
+      this.view_state_service.zoomViewPort(false, this.data_service);
     } else {
       //console.log('action currently not allowed');
     }
