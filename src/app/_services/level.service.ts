@@ -224,7 +224,7 @@ export class LevelService {
     let left: IItem;
     let right: IItem;
 
-    for (let i = 0; i <= level.items.length; ++i) {
+    for (let i = 0; i < level.items.length; ++i) {
         if (level.items[i].id === firstId) {
             left = level.items[i - 1];
         }

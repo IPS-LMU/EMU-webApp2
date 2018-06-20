@@ -26,7 +26,6 @@ export class DbObjLoadSaveService {
               private history_service: HistoryService,
               private config_provider_service: ConfigProviderService,
               private loaded_meta_data_service: LoadedMetaDataService,
-              private level_service: LevelService,
               private ssff_data_service: SsffDataService,
               private io_handler_service: IohandlerService,
               private validation_service: ValidationService,
