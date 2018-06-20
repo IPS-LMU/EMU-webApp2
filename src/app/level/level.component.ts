@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 
-import { ConfigProviderService } from '../_services/config-provider.service';
 import { FontScaleService } from '../_services/font-scale.service';
 import { ViewStateService } from '../_services/view-state.service';
 import { LevelService } from '../_services/level.service';
@@ -15,6 +14,7 @@ import {ILevel} from '../_interfaces/annot-json.interface';
 })
 export class LevelComponent implements OnInit {
 
+  private _database_configuration: {restrictions: any, perspectives: any[]}
   private _level_annotation: ILevel;
   private _attributeDefinition: string;
   private _viewport_sample_start: number;
@@ -41,6 +41,11 @@ export class LevelComponent implements OnInit {
   curMouseSampleNrInView: any;
   // order = attr.trackMouseInLevel;
 
+  @Input() set database_configuration(value: {restrictions: any, perspectives: any[]}) {
+    // @todo make sure, database_configuration is loaded before the other @Inputs
+    // apparently this can be controlled by the order of the @Input() setter methods - but I would not rely on this
+    this._database_configuration = value;
+  }
   @Input() set level_annotation(value: ILevel){
     this._level_annotation = value;
     // console.log(value);
@@ -74,12 +79,12 @@ export class LevelComponent implements OnInit {
 
 
 
+
   @ViewChild('levelCanvas') levelCanvas: ElementRef;
   @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
 
 
-  constructor(private config_provider_service: ConfigProviderService,
-              private view_state_service: ViewStateService,
+  constructor(private view_state_service: ViewStateService,
               private history_service: HistoryService,
               private draw_helper_service: DrawHelperService,
               private element_ref: ElementRef) { }
@@ -249,7 +254,7 @@ export class LevelComponent implements OnInit {
 
   mousedblclick(){
     this.setLastMove(event, true);
-    if (this.config_provider_service.vals.restrictions.editItemName) {
+    if (this._database_configuration.restrictions.editItemName) {
       this.setLastDblClick(event);
     } else {
       this.setLastClick(event);
@@ -306,7 +311,7 @@ export class LevelComponent implements OnInit {
           if (!this.view_state_service.getdragBarActive()) {
             let curMouseItem = this.view_state_service.getcurMouseItem();
             let seg;
-            if (this.config_provider_service.vals.restrictions.editItemSize && event.shiftKey) {
+            if (this._database_configuration.restrictions.editItemSize && event.shiftKey) {
               this.deleteEditArea();
               if (curMouseItem !== undefined) {
                 this.view_state_service.movingBoundary = true;
@@ -360,7 +365,7 @@ export class LevelComponent implements OnInit {
                 this.view_state_service.selectBoundary();
                 moveLine = false;
               }
-            } else if (this.config_provider_service.vals.restrictions.editItemSize && event.altKey) {
+            } else if (this._database_configuration.restrictions.editItemSize && event.altKey) {
               this.deleteEditArea();
               if (this._level_annotation.type === 'SEGMENT') {
                 seg = this.view_state_service.getcurClickItems();
@@ -520,18 +525,18 @@ export class LevelComponent implements OnInit {
   drawLevelDetails() {
     let labelFontFamily; // font family used for labels only
     let fontFamily = 'HelveticaNeue'; //this.config_provider_service.design.font.small.family; // font family used for everything else
-    if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily === 'undefined'){
+    if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily === 'undefined'){
       labelFontFamily = 'HelveticaNeue';//this.config_provider_service.design.font.small.family;
     }else{
-      labelFontFamily = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
+      labelFontFamily = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
     }
 
     let labelFontSize; // font family used for labels only
     let fontSize = 12; //this.config_provider_service.design.font.small.size.slice(0, -2) * 1; // font size used for everything else
-    if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
+    if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
       labelFontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
     }else{
-      labelFontSize = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontPxSize;
+      labelFontSize = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontPxSize;
     }
 
 
@@ -859,8 +864,8 @@ export class LevelComponent implements OnInit {
       // add custom label font to CSS if specified
       /*
        @todo just remove this freaking custom font stuff
-      if(typeof this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily !== 'undefined'){
-        cssObj['font-family'] = this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
+      if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily !== 'undefined'){
+        cssObj['font-family'] = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
       }
       */
       console.error("should prepend texarea");
@@ -908,7 +913,7 @@ export class LevelComponent implements OnInit {
               editText = '';
           }
       }
-      if(!this.config_provider_service.vals.restrictions.useLargeTextInputField){
+      if(!this._database_configuration.restrictions.useLargeTextInputField){
           if (type === 'SEGMENT') {
               start = Math.floor(this.view_state_service.getPos(clientWidth, lastEventClick.sampleStart) + clientOffset);
               end = Math.ceil(this.view_state_service.getPos(clientWidth, (lastEventClick.sampleStart + lastEventClick.sampleDur + 1)) + clientOffset);
