@@ -3,7 +3,11 @@ import { Injectable } from '@angular/core';
 import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
 import {ILevel} from '../_interfaces/annot-json.interface';
-import {getPixelDistanceBetweenSamples, getPixelPositionOfSampleInViewport} from '../_utilities/view-state-helper-functions';
+import {
+    getMousePositionInCanvasX, getMousePositionInCanvasY,
+    getPixelDistanceBetweenSamples,
+    getPixelPositionOfSampleInViewport, getSamplesPerPixelInViewport
+} from '../_utilities/view-state-helper-functions';
 
 
 @Injectable({
@@ -1161,7 +1165,7 @@ setState(nameOrObj) {
   public getSamplesPerPixelVal(event) {
     let start = parseFloat(this.curViewPort.sS);
     let end = parseFloat(this.curViewPort.eS);
-    return (end - start) / event.target.width;
+    return getSamplesPerPixelInViewport(start, end, event.target);
   }
 
 
@@ -1409,14 +1413,14 @@ setState(nameOrObj) {
    *
    */
   getX(e) {
-    return (e.offsetX || e.layerX) * (e.target.width / e.target.clientWidth);
+    return getMousePositionInCanvasX(e);
   }
 
   /**
    *
    */
   getY = function (e) {
-    return (e.offsetY || e.layerY) * (e.target.height / e.target.clientHeight);
+    return getMousePositionInCanvasY(e);
   }
 
   /**

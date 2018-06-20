@@ -19,3 +19,19 @@ export function getPixelDistanceBetweenSamples(viewportStartSample: number,
                                                canvasWidth: number): number {
     return (canvasWidth / (viewportEndSample - viewportStartSample + 1));
 }
+
+export function getMousePositionInCanvasX(event: MouseEvent) {
+    const target: HTMLCanvasElement = event.target as HTMLCanvasElement;
+    return (event.offsetX || event.layerX) * (target.width / target.clientWidth);
+}
+
+export function getMousePositionInCanvasY(event: MouseEvent) {
+    const target: HTMLCanvasElement = event.target as HTMLCanvasElement;
+    return (event.offsetY || event.layerY) * (target.height / target.clientHeight);
+}
+
+export function getSamplesPerPixelInViewport(viewportStartSample: number,
+                                             viewportEndSample: number,
+                                             canvas: HTMLCanvasElement) {
+    return (viewportEndSample - viewportStartSample) / canvas.width;
+}
