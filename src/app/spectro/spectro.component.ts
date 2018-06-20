@@ -1034,9 +1034,15 @@ export class SpectroComponent implements OnInit {
 
   drawSpectMarkup() {
     // draw moving boundary line if moving
-    this.draw_helper_service.drawMovingBoundaryLine(this._markup_context);
+    this.draw_helper_service.drawMovingBoundaryLine(this._markup_context, this._viewport_sample_start, this._viewport_sample_end);
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(this._markup_context, false, this._audio_buffer);
+    this.draw_helper_service.drawCurViewPortSelected(
+        this._markup_context,
+        false,
+        this._viewport_sample_start,
+        this._viewport_sample_end,
+        this._audio_buffer
+    );
     // draw min max vals and name of track
     this.draw_helper_service.drawMinMaxAndName(this._markup_context, '', this.view_state_service.spectroSettings.rangeFrom, this.view_state_service.spectroSettings.rangeTo, 2);
     // only draw corsshair x line if mouse currently not over canvas
@@ -1048,7 +1054,13 @@ export class SpectroComponent implements OnInit {
     this._main_context.fillStyle = 'lightgrey'; //ConfigProviderService.design.color.lightGrey;
     this._main_context.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(this._markup_context, false, this._audio_buffer);
+    this.draw_helper_service.drawCurViewPortSelected(
+        this._markup_context,
+        false,
+        this._viewport_sample_start,
+        this._viewport_sample_end,
+        this._audio_buffer
+    );
     FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
     if (this.worker !== null) {
       this.worker.terminate();

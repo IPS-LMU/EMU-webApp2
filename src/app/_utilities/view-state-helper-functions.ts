@@ -35,3 +35,7 @@ export function getSamplesPerPixelInViewport(viewportStartSample: number,
                                              canvas: HTMLCanvasElement) {
     return (viewportEndSample - viewportStartSample) / canvas.width;
 }
+
+export function calculateSampleTime(sample: number, sampleRate: number): number {
+    return (sample + 0.5) / sampleRate;
+}

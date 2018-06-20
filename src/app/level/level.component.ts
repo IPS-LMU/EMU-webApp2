@@ -750,10 +750,16 @@ export class LevelComponent implements OnInit {
     }
 
     // draw moving boundary line if moving
-    this.draw_helper_service.drawMovingBoundaryLine(ctx);
+    this.draw_helper_service.drawMovingBoundaryLine(ctx, this._viewport_sample_start, this._viewport_sample_end);
 
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(ctx, false, this._audio_buffer);
+    this.draw_helper_service.drawCurViewPortSelected(
+        ctx,
+        false,
+        this._viewport_sample_start,
+        this._viewport_sample_end,
+        this._audio_buffer
+    );
 
 
     let posS, posE, sDist, xOffset, item;

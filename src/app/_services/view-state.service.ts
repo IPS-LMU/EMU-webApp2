@@ -4,6 +4,7 @@ import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
 import {ILevel} from '../_interfaces/annot-json.interface';
 import {
+    calculateSampleTime,
     getMousePositionInCanvasX, getMousePositionInCanvasY,
     getPixelDistanceBetweenSamples,
     getPixelPositionOfSampleInViewport, getSamplesPerPixelInViewport
@@ -1201,7 +1202,7 @@ setState(nameOrObj) {
    * calcs sample time in seconds
    */
   calcSampleTime(sample) {
-    return (sample / this.sound_handler_service.audioBuffer.sampleRate) + 0.5 / this.sound_handler_service.audioBuffer.sampleRate;
+    return calculateSampleTime(sample, this.sound_handler_service.audioBuffer.sampleRate);
   }
 
 

@@ -180,7 +180,7 @@ export class OsciComponent implements OnInit {
   //   }
   //   // draw moving boundary line if moving
   //   Drawhelperservice.drawMovingBoundaryLine(ctx);
-  //   @todo add this._audio_buffer.sampleRate as third parameter to drawViewPortTimes
+  //   @todo add this._viewport_sample_start, this._viewport_sample_end, and this._audio_buffer.sampleRate as parameters to drawViewPortTimes
   //   Drawhelperservice.drawViewPortTimes(ctx, true);
   //   // draw current viewport selected
   //   Drawhelperservice.drawCurViewPortSelected(ctx, true);
