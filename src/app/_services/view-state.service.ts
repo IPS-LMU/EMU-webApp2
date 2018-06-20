@@ -90,8 +90,7 @@ export class ViewStateService {
   curMouseTrackName;
   curMouseLevelName;
   curMouseLevelType;
-  curClickLevelName;
-  curClickLevelType;
+  currentClickLevel: ILevel;
   lastPcm;
   curPreselColumnSample;
   curCorrectionToolNr;
@@ -354,8 +353,7 @@ export class ViewStateService {
     this.curMouseTrackName = undefined;
     this.curMouseLevelName = undefined;
     this.curMouseLevelType = undefined;
-    this.curClickLevelName = undefined;
-    this.curClickLevelType = undefined;
+    this.currentClickLevel = undefined;
     this.lastPcm = undefined;
     this.curPreselColumnSample = 2;
     this.curCorrectionToolNr = undefined;
@@ -571,33 +569,33 @@ setState(nameOrObj) {
    */
   selectLevel(next, order, data_service: DataService) {
     let curLev;
-    let now = this.getcurClickLevelName();
+    let now = this.getCurrentClickLevel();
     if (now === undefined) {
       if (!next) {
         // select first if none prev. defined (up)
         // viewState.setcurClickLevel(levelID, levelType, scope.$index, scope.this.level.items.length);
         curLev = data_service.getLevelDataByName(order[0]);
         if(curLev !== null) {
-          this.setcurClickLevel(curLev.name, curLev.type);
+          this.setCurrentClickLevel(curLev);
         }
         return;
       }
       else {
         // select last if none prev. defined (down)
         curLev = data_service.getLevelDataByName(order[order.length - 1]);
-        this.setcurClickLevel(curLev.name, curLev.type);
+        this.setCurrentClickLevel(curLev);
         return;
       }
     }
     let idxOfNow = -1;
     order.forEach((name, idx) => {
-      if (name === now) {
+      if (name === now.name) {
         idxOfNow = idx;
       }
     });
     if (idxOfNow === undefined) {
       curLev = data_service.getLevelDataByName(order[0]);
-      this.setcurClickLevel(curLev.name, curLev.type);
+      this.setCurrentClickLevel(curLev);
       this.curClickItems = [];
       this.selectBoundary();
     }
@@ -606,7 +604,7 @@ setState(nameOrObj) {
         if (idxOfNow + 1 < order.length) {
           curLev = data_service.getLevelDataByName(order[idxOfNow + 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow + 1]);
-          this.setcurClickLevel(curLev.name, curLev.type);
+          this.setCurrentClickLevel(curLev);
           this.curClickItems = [];
           this.selectBoundary();
           //sServObj.resetSelect();
@@ -615,7 +613,7 @@ setState(nameOrObj) {
         if (idxOfNow - 1 >= 0) {
           curLev = data_service.getLevelDataByName(order[idxOfNow - 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow - 1]);
-          this.setcurClickLevel(curLev.name, curLev.type);
+          this.setCurrentClickLevel(curLev);
           this.curClickItems = [];
           this.selectBoundary();
           //sServObj.resetSelect();
@@ -822,45 +820,12 @@ setState(nameOrObj) {
     this.rightSubmenuOpen = s;
   }
 
-  /**
-   *
-   */
-  setcurClickLevel(levelID, levelType) {
-    this.setcurClickLevelName(levelID);
-    this.setcurClickLevelType(levelType);
+  public setCurrentClickLevel(level: ILevel) {
+      this.currentClickLevel = level;
   }
 
-
-  /**
-   * sets the current (clicked) Level Name
-   * @param name is name of level
-   */
-  setcurClickLevelType(name) {
-    this.curClickLevelType = name;
-  }
-
-  /**
-   * gets the current (clicked) Level Name
-   */
-  getcurClickLevelType() {
-    return this.curClickLevelType;
-  }
-
-
-  /**
-   * sets the current (clicked) Level Name
-   * @param name is name of level
-   * @param index index of level
-   */
-  setcurClickLevelName(name) {
-    this.curClickLevelName = name;
-  }
-
-  /**
-   * gets the current (clicked) Level Name
-   */
-  getcurClickLevelName() {
-    return this.curClickLevelName;
+  public getCurrentClickLevel(): ILevel {
+      return this.currentClickLevel;
   }
 
 

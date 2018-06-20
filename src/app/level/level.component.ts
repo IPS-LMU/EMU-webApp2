@@ -7,7 +7,6 @@ import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import {ILevel} from '../_interfaces/annot-json.interface';
-import {DataService} from '../_services/data.service';
 
 @Component({
   selector: 'app-level',
@@ -81,7 +80,6 @@ export class LevelComponent implements OnInit {
 
   constructor(private config_provider_service: ConfigProviderService,
               private view_state_service: ViewStateService,
-              private data_service: DataService,
               private history_service: HistoryService,
               private draw_helper_service: DrawHelperService,
               private element_ref: ElementRef) { }
@@ -419,7 +417,7 @@ export class LevelComponent implements OnInit {
     this.deleteEditArea();
     this.view_state_service.setEditing(false);
     this.lastEventClick = LevelService.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_buffer.length);
-    this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+    this.view_state_service.setCurrentClickLevel(this._level_annotation);
     if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
       this.lasteditArea =  '_' + this.lastEventClick.current.id;
       this.lasteditAreaElem = this.element_ref.nativeElement.parentElement;
@@ -434,16 +432,16 @@ export class LevelComponent implements OnInit {
    *
    */
   setLastRightClick (x) {
-    if (this.view_state_service.getcurClickLevelName() !== this._level_annotation) {
+    if (this.view_state_service.getCurrentClickLevel().name !== this._level_annotation.name) {
       this.setLastClick(x);
     }
     this.curMouseSampleNrInView = this.view_state_service.getX(x) * this.view_state_service.getSamplesPerPixelVal(x);
     this.deleteEditArea();
     this.lastEventClick = LevelService.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_buffer.length);
     if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
-      let next = LevelService.getItemInTime(this.data_service.getLevelDataByName(this.view_state_service.getcurClickLevelName()), this.lastEventClick.current.id, true);
-      let prev = LevelService.getItemInTime(this.data_service.getLevelDataByName(this.view_state_service.getcurClickLevelName()), this.lastEventClick.current.id, false);
-      this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+      let next = LevelService.getItemInTime(this.view_state_service.getCurrentClickLevel(), this.lastEventClick.current.id, true);
+      let prev = LevelService.getItemInTime(this.view_state_service.getCurrentClickLevel(), this.lastEventClick.current.id, false);
+      this.view_state_service.setCurrentClickLevel(this._level_annotation);
       this.view_state_service.setcurClickItemMultiple(this.lastEventClick.current, next); // also used to pass in  prev
       this.view_state_service.selectBoundary();
     }
@@ -467,7 +465,7 @@ export class LevelComponent implements OnInit {
       if (this._level_annotation.type === 'SEGMENT') {
         if (this.lastEventClick.current.sampleStart >= this.view_state_service.curViewPort.sS) {
           if ((this.lastEventClick.current.sampleStart + this.lastEventClick.current.sampleDur) <= this.view_state_service.curViewPort.eS) {
-            this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+            this.view_state_service.setCurrentClickLevel(this._level_annotation);
             this.view_state_service.setcurClickItem(this.lastEventClick.current);
             this.lasteditArea = '_' + this.lastEventClick.current.id;
             this.lasteditAreaElem = this.element_ref.nativeElement.parentElement;
@@ -480,7 +478,7 @@ export class LevelComponent implements OnInit {
           //console.log('Editing out of left bound !');
         }
       } else {
-        this.view_state_service.setcurClickLevel(this._level_annotation.name, this._level_annotation.type);
+        this.view_state_service.setCurrentClickLevel(this._level_annotation);
         this.view_state_service.setcurClickItem(this.lastEventClick.current);
         this.lasteditArea = '_' + this.lastEventClick.current.id;
         this.lasteditAreaElem = this.element_ref.nativeElement.parentElement;
@@ -709,7 +707,7 @@ export class LevelComponent implements OnInit {
     // console.log()
     let ctx = this.levelMarkupCanvas.nativeElement.getContext('2d');
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (this._level_annotation.name === this.view_state_service.getcurClickLevelName()) {
+    if (this._level_annotation.name === this.view_state_service.getCurrentClickLevel().name) {
       ctx.fillStyle = 'rgba(22, 22, 22, 0.1)'; //this.config_provider_service.design.color.transparent.grey;
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
@@ -731,7 +729,7 @@ export class LevelComponent implements OnInit {
     let isFirst = this.view_state_service.getcurMouseisFirst();
     let isLast = this.view_state_service.getcurMouseisLast();
     let clickedSegs = this.view_state_service.getcurClickItems();
-    let levelId = this.view_state_service.getcurClickLevelName();
+    let levelId = this.view_state_service.getCurrentClickLevel().name;
 
     if (clickedSegs !== undefined) {
       // draw clicked on selected areas
@@ -883,7 +881,7 @@ export class LevelComponent implements OnInit {
    *   @param type the current Level type
    */
   private openEditArea (lastEventClick, element, type) {
-      let levelName = this.view_state_service.getcurClickLevelName();
+      let levelName = this.view_state_service.getCurrentClickLevel().name;
       let attrDefName = this.view_state_service.getCurAttrDef(levelName);
 
       // find labelIdx

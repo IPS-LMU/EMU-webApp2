@@ -142,8 +142,7 @@ export class DbObjLoadSaveService {
       }
       this.view_state_service.curTimeAnchorIdx = -1;
       this.view_state_service.curClickItems = []; // used to be curClickSegment
-      this.view_state_service.curClickLevelName = undefined;
-      this.view_state_service.curClickLevelType = undefined;
+      this.view_state_service.currentClickLevel = undefined;
 
       this.sound_handler_service.audioBuffer = audioBuffer;
 
