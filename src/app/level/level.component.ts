@@ -259,13 +259,13 @@ export class LevelComponent implements OnInit {
   /////////////////////
   // handle mouse events
 
-  mouseclick(event){
+  mouseclick(event: MouseEvent){
     event.preventDefault();
     this.setLastMove(event, true);
     this.setLastClick(event);
   }
 
-  mousedblclick(){
+  mousedblclick(event: MouseEvent){
     this.setLastMove(event, true);
     if (this._database_configuration.restrictions.editItemName) {
       this.setLastDblClick(event);
@@ -441,7 +441,7 @@ export class LevelComponent implements OnInit {
     );
     this.deleteEditArea();
     this.view_state_service.setEditing(false);
-    this.lastEventClick = LevelService.getClosestItem(this.curMouseSampleNrInView + this.view_state_service.curViewPort.sS, this._level_annotation, this._audio_buffer.length);
+    this.lastEventClick = LevelService.getClosestItem(this.curMouseSampleNrInView + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
     this.view_state_service.setCurrentClickLevel(this._level_annotation);
     if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
       this.lasteditArea =  '_' + this.lastEventClick.current.id;
@@ -457,7 +457,7 @@ export class LevelComponent implements OnInit {
    *
    */
   setLastRightClick (x: MouseEvent) {
-    if (this.view_state_service.getCurrentClickLevel().name !== this._level_annotation.name) {
+    if (this._selected) {
       this.setLastClick(x);
     }
     this.curMouseSampleNrInView = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
