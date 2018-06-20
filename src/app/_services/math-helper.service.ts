@@ -1,12 +1,4 @@
-import { Injectable } from '@angular/core';
-
-@Injectable({
-  providedIn: 'root'
-})
 export class MathHelperService {
-
-  constructor() { }
-
   //////////////////////
   //////////////////////
   // public API
@@ -17,7 +9,7 @@ export class MathHelperService {
    * @param num
    * @returns power of two value
    */
-  public calcClosestPowerOf2Gt(num) {
+  public static calcClosestPowerOf2Gt(num) {
     let curExp = 0;
 
     while (Math.pow(2, curExp) < num) {
@@ -36,7 +28,7 @@ export class MathHelperService {
    * @param n digits after decimal point
    * @returns rounded number
    */
-  public roundToNdigitsAfterDecPoint(x, n) {
+  public static roundToNdigitsAfterDecPoint(x, n) {
     if (n < 1 || n > 14) {
       console.error('error in call of round function!!');
     }

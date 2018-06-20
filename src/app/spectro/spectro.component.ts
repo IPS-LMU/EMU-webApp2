@@ -54,7 +54,6 @@ export class SpectroComponent implements OnInit {
               private view_state_service: ViewStateService,
               private config_provider_service: ConfigProviderService,
               private draw_helper_service: DrawHelperService,
-              private math_helper_service: MathHelperService,
               private array_buffer_helper_service: ArrayBufferHelperService) {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
@@ -1079,7 +1078,7 @@ export class SpectroComponent implements OnInit {
       this.worker = new Worker(this.workerFunctionURL);
 
       let parseData: any = [];
-      let fftN = this.math_helper_service.calcClosestPowerOf2Gt(this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs);
+      let fftN = MathHelperService.calcClosestPowerOf2Gt(this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs);
       // fftN must be greater than 512 (leads to better resolution of spectrogram)
       if (fftN < 512) {
         fftN = 512;
