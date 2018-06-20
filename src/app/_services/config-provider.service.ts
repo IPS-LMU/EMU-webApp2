@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { ViewStateService } from './view-state.service';
-
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigProviderService {
-
-  constructor(private view_state_service: ViewStateService) { }
 
   // shared service object
   vals: any;
@@ -104,9 +100,9 @@ export class ConfigProviderService {
   /**
    *
    */
-  getValueLimsOfTrack(trackName) {
+  getValueLimsOfTrack(trackName, perspectiveIndex: number) {
     let res = {};
-    this.vals.perspectives[this.view_state_service.curPerspectiveIdx].signalCanvases.minMaxValLims.forEach((vL) => {
+    this.vals.perspectives[perspectiveIndex].signalCanvases.minMaxValLims.forEach((vL) => {
       if (vL.ssffTrackName === trackName) {
         res = vL;
       }
@@ -118,9 +114,9 @@ export class ConfigProviderService {
   /**
    *
    */
-  getContourLimsOfTrack(trackName) {
+  getContourLimsOfTrack(trackName, perspectiveIndex: number) {
     let res = {};
-    this.vals.perspectives[this.view_state_service.curPerspectiveIdx].signalCanvases.contourLims.forEach((cL) => {
+    this.vals.perspectives[perspectiveIndex].signalCanvases.contourLims.forEach((cL) => {
       if (cL.ssffTrackName === trackName) {
         res = cL;
       }
@@ -133,9 +129,9 @@ export class ConfigProviderService {
   /**
    *
    */
-  getContourColorsOfTrack(trackName) {
+  getContourColorsOfTrack(trackName, perspectiveIndex: number) {
     let res;
-    this.vals.perspectives[this.view_state_service.curPerspectiveIdx].signalCanvases.contourColors.forEach((cC) => {
+    this.vals.perspectives[perspectiveIndex].signalCanvases.contourColors.forEach((cC) => {
       if (cC.ssffTrackName === trackName) {
         res = cC;
       }

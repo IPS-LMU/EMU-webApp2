@@ -189,8 +189,8 @@ export class SsffTrackComponent implements OnInit {
             let tr = this.config_provider_service.getSsffTrackConfig(ass.ssffTrackName);
             let col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
             let sRaSt = this.ssff_data_service.getSampleRateAndStartTimeOfTrack(tr.name);
-            let minMaxCountourLims = this.config_provider_service.getContourLimsOfTrack(tr.name);
-            let minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name);
+            let minMaxCountourLims = this.config_provider_service.getContourLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
+            let minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
             // draw values
             this.drawValues(this.view_state_service, this.mainCanvas.nativeElement, ConfigProviderService, col, sRaSt.sampleRate, sRaSt.startTime, minMaxCountourLims, minMaxValLims);
           }
@@ -203,8 +203,8 @@ export class SsffTrackComponent implements OnInit {
           let col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
           let sRaSt = this.ssff_data_service.getSampleRateAndStartTimeOfTrack(tr.name);
 
-          let minMaxContourLims = this.config_provider_service.getContourLimsOfTrack(tr.name);
-          let minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name);
+          let minMaxContourLims = this.config_provider_service.getContourLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
+          let minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
           //console.log(minMaxValLims);
           // draw values
           this.drawValues(this.view_state_service, this.mainCanvas.nativeElement, ConfigProviderService, col, sRaSt.sampleRate, sRaSt.startTime, minMaxContourLims, minMaxValLims);
@@ -268,7 +268,7 @@ export class SsffTrackComponent implements OnInit {
           }
 
           // overwrite color settings if they are preconfigured
-          let contColors = this.config_provider_service.getContourColorsOfTrack(this.assTrackName);
+          let contColors = this.config_provider_service.getContourColorsOfTrack(this.assTrackName, this.view_state_service.curPerspectiveIdx);
           if (contColors !== undefined) {
             if (contColors.colors[contourNr] !== undefined) {
               this._main_context.strokeStyle = this.config_provider_service.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourColors[0].colors[contourNr];
