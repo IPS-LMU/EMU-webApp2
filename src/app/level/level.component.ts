@@ -23,6 +23,7 @@ export class LevelComponent implements OnInit {
   private _external_cursor_sample_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
+  private _hovering: boolean;
 
   private lasteditArea: string = null; // holding current edit area
   private lasteditAreaElem: HTMLElement = null; // holding current edit area element
@@ -80,6 +81,9 @@ export class LevelComponent implements OnInit {
   }
   @Input() set selected(value: boolean) {
     this._selected = value;
+  }
+  @Input() set hovering(value: boolean) {
+    this._hovering = value;
   }
 
 
@@ -789,10 +793,10 @@ export class LevelComponent implements OnInit {
 
     // draw preselected boundary
     item = this.view_state_service.getcurMouseItem();
-    if (this._level_annotation.items.length > 0 && item !== undefined && segMId !== undefined && this._level_annotation.name === this.view_state_service.getcurMouseLevelName()) {
+    if (this._level_annotation.items.length > 0 && item !== undefined && segMId !== undefined && this._hovering) {
       ctx.fillStyle = '#4fc3f7'; //this.config_provider_service.design.color.blue;
       if (isFirst === true) { // before first segment
-        if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+        if (this._level_annotation.type === 'SEGMENT') {
           item = this._level_annotation.items[0];
           posS = Math.round(getPixelPositionOfSampleInViewport(
              item.sampleStart,
@@ -803,7 +807,7 @@ export class LevelComponent implements OnInit {
           ctx.fillRect(posS, 0, 3, ctx.canvas.height);
         }
       } else if (isLast === true) { // after last segment
-        if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+        if (this._level_annotation.type === 'SEGMENT') {
           item = this._level_annotation.items[this._level_annotation.items.length - 1];
           posS = Math.round(getPixelPositionOfSampleInViewport(
              item.sampleStart + item.sampleDur + 1, // +1 because boundaries are drawn on sampleStart
@@ -814,7 +818,7 @@ export class LevelComponent implements OnInit {
           ctx.fillRect(posS, 0, 3, ctx.canvas.height);
         }
       } else { // in the middle
-        if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+        if (this._level_annotation.type === 'SEGMENT') {
           posS = Math.round(getPixelPositionOfSampleInViewport(
               item.sampleStart,
               this._viewport_sample_start,
