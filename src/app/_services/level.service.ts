@@ -326,8 +326,7 @@ export class LevelService {
   /**
    *
    */
-  public static deleteSegmentsInvers (level: ILevel, id, length, deletedSegment, attrDefName: string) {
-    let labelIdx;
+  public static deleteSegmentsInvers (level: ILevel, id, length, deletedSegment) {
     let x, insertPoint;
     insertPoint = 0;
     insertPoint = deletedSegment.order;
@@ -337,24 +336,21 @@ export class LevelService {
     let lastNeighbours = LevelService.getItemNeighboursFromLevel(level, deletedSegment.segments[0].id, deletedSegment.segments[deletedSegment.segments.length - 1].id);
 
     if ((lastNeighbours.left !== undefined) && (lastNeighbours.right === undefined)) {
-      labelIdx = LevelService.getLabelIdx(attrDefName, lastNeighbours.left.labels);
-      LevelService.updateSegment(level, lastNeighbours.left.id, lastNeighbours.left.labels[labelIdx].value, labelIdx, lastNeighbours.left.sampleStart, (lastNeighbours.left.sampleDur - deletedSegment.timeRight));
+      LevelService.updateSegment(level, lastNeighbours.left.id, undefined, undefined, undefined, (lastNeighbours.left.sampleDur - deletedSegment.timeRight));
     } else if ((lastNeighbours.left === undefined) && (lastNeighbours.right !== undefined)) {
-      labelIdx = LevelService.getLabelIdx(attrDefName, lastNeighbours.right.labels);
-      LevelService.updateSegment(level, lastNeighbours.right.id, lastNeighbours.right.labels[labelIdx].value, labelIdx, (lastNeighbours.right.sampleStart + deletedSegment.timeLeft), (lastNeighbours.right.sampleDur - deletedSegment.timeLeft));
+      LevelService.updateSegment(level, lastNeighbours.right.id, undefined, undefined, (lastNeighbours.right.sampleStart + deletedSegment.timeLeft), (lastNeighbours.right.sampleDur - deletedSegment.timeLeft));
     } else if ((lastNeighbours.left === undefined) && (lastNeighbours.right === undefined)) {
 
     } else {
-      labelIdx = LevelService.getLabelIdx(attrDefName, lastNeighbours.left.labels);
-      LevelService.updateSegment(level, lastNeighbours.left.id, lastNeighbours.left.labels[labelIdx].value, labelIdx, lastNeighbours.left.sampleStart, (lastNeighbours.left.sampleDur - deletedSegment.timeLeft));
-      LevelService.updateSegment(level, lastNeighbours.right.id, lastNeighbours.right.labels[labelIdx].value, labelIdx, (lastNeighbours.right.sampleStart + deletedSegment.timeRight), (lastNeighbours.right.sampleDur - deletedSegment.timeRight));
+      LevelService.updateSegment(level, lastNeighbours.left.id, undefined, undefined, undefined, (lastNeighbours.left.sampleDur - deletedSegment.timeLeft));
+      LevelService.updateSegment(level, lastNeighbours.right.id, undefined, undefined, (lastNeighbours.right.sampleStart + deletedSegment.timeRight), (lastNeighbours.right.sampleDur - deletedSegment.timeRight));
     }
   };
 
   /**
    *
    */
-  public static deleteSegments (level: ILevel, id, length, attrDefName: string) {
+  public static deleteSegments (level: ILevel, id, length) {
     let firstSegment = LevelService.getItemFromLevelById(level, id);
     let firstOrder = LevelService.getOrderById(level, id);
     let lastSegment = level.items[firstOrder + length - 1];
@@ -364,7 +360,6 @@ export class LevelService {
     let deleteOrder = null;
     let deletedSegment = null;
     let clickSeg = null;
-    let labelIdx = LevelService.getLabelIdx(attrDefName, firstSegment.labels);
 
     for (let i = firstOrder; i < (firstOrder + length); i++) {
       timeLeft += level.items[i].sampleDur + 1;
@@ -384,10 +379,10 @@ export class LevelService {
     });
 
     if ((neighbours.left !== undefined) && (neighbours.right === undefined)) {
-      LevelService.updateSegment(level, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeRight));
+      LevelService.updateSegment(level, neighbours.left.id, undefined, undefined, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeRight));
       clickSeg = neighbours.left;
     } else if ((neighbours.left === undefined) && (neighbours.right !== undefined)) {
-      LevelService.updateSegment(level, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart - timeLeft, (neighbours.right.sampleDur + timeLeft));
+      LevelService.updateSegment(level, neighbours.right.id, undefined, undefined, neighbours.right.sampleStart - timeLeft, (neighbours.right.sampleDur + timeLeft));
       clickSeg = neighbours.right;
     } else if ((neighbours.left === undefined) && (neighbours.right === undefined)) {
       // nothing left to do level empty now
@@ -396,8 +391,8 @@ export class LevelService {
       this.view_state_service.setcurMouseItem(undefined, undefined, undefined, undefined, undefined);
       */
     } else {
-      LevelService.updateSegment(level, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeLeft));
-      LevelService.updateSegment(level, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart - timeRight, (neighbours.right.sampleDur + timeRight));
+      LevelService.updateSegment(level, neighbours.left.id, undefined, undefined, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeLeft));
+      LevelService.updateSegment(level, neighbours.right.id, undefined, undefined, neighbours.right.sampleStart - timeRight, (neighbours.right.sampleDur + timeRight));
       clickSeg = neighbours.left;
     }
     return {
@@ -737,43 +732,42 @@ export class LevelService {
    *  @param isLast if item is last
    *
    */
-  public static moveBoundary (level: ILevel, id, changeTime, isFirst, isLast, attrDefName: string, audioBufferLength: number) {
+  public static moveBoundary (level: ILevel, id, changeTime, isFirst, isLast, audioBufferLength: number) {
     let orig = LevelService.getItemFromLevelById(level, id);
-    let labelIdx = LevelService.getLabelIdx(attrDefName, orig.labels);
     let origRight;
     let ln = LevelService.getItemNeighboursFromLevel(level, id, id);
     if (isFirst) { // before first item
       origRight = ln.right;
       if (origRight !== undefined) {
         if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + changeTime) < origRight.sampleStart)) {
-          LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+          LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       } else {
         if ((orig.sampleStart + changeTime) >= 0 && (orig.sampleDur - changeTime) >= 0 && (orig.sampleStart + orig.sampleDur + changeTime) <= audioBufferLength) {
-          LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+          LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       }
     } else if (isLast) { // after last item
       if ((orig.sampleDur + changeTime) >= 0 && (orig.sampleDur + orig.sampleStart + changeTime) <= audioBufferLength) {
-        LevelService.updateSegment(level, orig.id, undefined, labelIdx, orig.sampleStart, (orig.sampleDur + changeTime));
+        LevelService.updateSegment(level, orig.id, undefined, undefined, orig.sampleStart, (orig.sampleDur + changeTime));
       }
     } else {
       if (ln.left === undefined) {
         origRight = ln.right;
         if (origRight !== undefined) {
           if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + changeTime) < origRight.sampleStart)) {
-            LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+            LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
           }
         } else {
           if (((orig.sampleStart + changeTime) >= 0) && ((orig.sampleStart + orig.sampleDur + changeTime) <= audioBufferLength)) {
-            LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+            LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
           }
         }
       } else {
         let origLeft = ln.left;
         if ((origLeft.sampleDur + changeTime >= 0) && (orig.sampleStart + changeTime >= 0) && (orig.sampleDur - changeTime >= 0)) {
-          LevelService.updateSegment(level, ln.left.id, undefined, labelIdx, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
-          LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
+          LevelService.updateSegment(level, ln.left.id, undefined, undefined, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
+          LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), (orig.sampleDur - changeTime));
         }
       }
     }
@@ -849,31 +843,30 @@ export class LevelService {
   /**
    *
    */
-  public static moveSegment (level: ILevel, id, length, changeTime, attrDefName: string, audioBufferLength: number) {
+  public static moveSegment (level: ILevel, id, length, changeTime, audioBufferLength: number) {
     let firstOrder = LevelService.getOrderById(level, id);
     let firstSegment = level.items[firstOrder];
     let lastSegment = level.items[firstOrder + length - 1];
     let orig, i;
     if (firstSegment !== null && lastSegment !== null) {
       let lastNeighbours = LevelService.getItemNeighboursFromLevel(level, firstSegment.id, lastSegment.id);
-      let labelIdx = LevelService.getLabelIdx(attrDefName, firstSegment.labels);
       if ((lastNeighbours.left === undefined) && (lastNeighbours.right !== undefined)) {
         let right = LevelService.getItemFromLevelById(level, lastNeighbours.right.id);
         if (((firstSegment.sampleStart + changeTime) > 0) && ((lastNeighbours.right.sampleDur - changeTime) >= 0)) {
-          LevelService.updateSegment(level, right.id, undefined, labelIdx, (right.sampleStart + changeTime), (right.sampleDur - changeTime));
+          LevelService.updateSegment(level, right.id, undefined, undefined, (right.sampleStart + changeTime), (right.sampleDur - changeTime));
           for (i = firstOrder; i < (firstOrder + length); i++) {
             orig = level.items[i];
-            LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+            LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), orig.sampleDur);
           }
         }
       } else if ((lastNeighbours.right === undefined) && (lastNeighbours.left !== undefined)) {
         let left = LevelService.getItemFromLevelById(level, lastNeighbours.left.id);
         if ((lastNeighbours.left.sampleDur + changeTime) >= 0) {
           if ((lastSegment.sampleStart + lastSegment.sampleDur + changeTime) < audioBufferLength) {
-            LevelService.updateSegment(level, left.id, undefined, labelIdx, left.sampleStart, (left.sampleDur + changeTime));
+            LevelService.updateSegment(level, left.id, undefined, undefined, left.sampleStart, (left.sampleDur + changeTime));
             for (i = firstOrder; i < (firstOrder + length); i++) {
               orig = level.items[i];
-              LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+              LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), orig.sampleDur);
             }
           }
         }
@@ -881,11 +874,11 @@ export class LevelService {
         let origLeft = LevelService.getItemFromLevelById(level, lastNeighbours.left.id);
         let origRight = LevelService.getItemFromLevelById(level, lastNeighbours.right.id);
         if (((origLeft.sampleDur + changeTime) >= 0) && ((origRight.sampleDur - changeTime) >= 0)) {
-          LevelService.updateSegment(level, origLeft.id, undefined, labelIdx, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
-          LevelService.updateSegment(level, origRight.id, undefined, labelIdx, (origRight.sampleStart + changeTime), (origRight.sampleDur - changeTime));
+          LevelService.updateSegment(level, origLeft.id, undefined, undefined, origLeft.sampleStart, (origLeft.sampleDur + changeTime));
+          LevelService.updateSegment(level, origRight.id, undefined, undefined, (origRight.sampleStart + changeTime), (origRight.sampleDur - changeTime));
           for (i = firstOrder; i < (firstOrder + length); i++) {
             orig = level.items[i];
-            LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+            LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), orig.sampleDur);
           }
         }
       } else if ((lastNeighbours.right === undefined) && (lastNeighbours.left === undefined)) {
@@ -894,7 +887,7 @@ export class LevelService {
         if (((first.sampleStart + changeTime) > 0) && (((last.sampleDur + last.sampleStart) + changeTime) < audioBufferLength)) {
           for (i = firstOrder; i < (firstOrder + length); i++) {
             orig = level.items[i];
-            LevelService.updateSegment(level, orig.id, undefined, labelIdx, (orig.sampleStart + changeTime), orig.sampleDur);
+            LevelService.updateSegment(level, orig.id, undefined, undefined, (orig.sampleStart + changeTime), orig.sampleDur);
           }
         }
       }
@@ -905,10 +898,9 @@ export class LevelService {
   /**
    *
    */
-  public static expandSegment (rightSide, segments, level: ILevel, changeTime, attrDefName: string, audioBufferLength: number) {
+  public static expandSegment (rightSide, segments, level: ILevel, changeTime, audioBufferLength: number) {
     let startTime = 0;
     let neighbours = LevelService.getItemNeighboursFromLevel(level, segments[0].id, segments[segments.length - 1].id);
-    let labelIdx = LevelService.getLabelIdx(attrDefName, segments[0].labels);
     let tempItem;
     let allow = true;
 
@@ -918,7 +910,7 @@ export class LevelService {
         if (lastLength <= audioBufferLength) {
           segments.forEach((seg) => {
             tempItem = LevelService.getItemFromLevelById(level, seg.id);
-            LevelService.updateSegment(level, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
+            LevelService.updateSegment(level, tempItem.id, undefined, undefined, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
             startTime += changeTime;
           });
         }
@@ -931,10 +923,10 @@ export class LevelService {
         if (allow && (neighbours.right.sampleDur - (changeTime * segments.length) > 0)) {
           segments.forEach((seg) => {
             tempItem = LevelService.getItemFromLevelById(level, seg.id);
-            LevelService.updateSegment(level, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
+            LevelService.updateSegment(level, tempItem.id, undefined, undefined, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
             startTime += changeTime;
           });
-          LevelService.updateSegment(level, neighbours.right.id, undefined, labelIdx, neighbours.right.sampleStart + startTime, neighbours.right.sampleDur - startTime);
+          LevelService.updateSegment(level, neighbours.right.id, undefined, undefined, neighbours.right.sampleStart + startTime, neighbours.right.sampleDur - startTime);
         }
       }
     } else { // if expand or shrink on LEFT side
@@ -943,7 +935,7 @@ export class LevelService {
         if (first.sampleStart + (changeTime * (segments.length + 1)) > 0) {
           segments.forEach((seg) => {
             tempItem = LevelService.getItemFromLevelById(level, seg.id);
-            LevelService.updateSegment(level, tempItem.id, undefined, tempItem.sampleStart - changeTime, labelIdx, tempItem.sampleDur + changeTime);
+            LevelService.updateSegment(level, tempItem.id, undefined, undefined, tempItem.sampleStart - changeTime, tempItem.sampleDur + changeTime);
           });
         }
       } else {
@@ -957,9 +949,9 @@ export class LevelService {
           segments.forEach((seg, i) => {
             tempItem = LevelService.getItemFromLevelById(level, seg.id);
             startTime = -(segments.length - i) * changeTime;
-            LevelService.updateSegment(level, tempItem.id, undefined, labelIdx, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
+            LevelService.updateSegment(level, tempItem.id, undefined, undefined, tempItem.sampleStart + startTime, tempItem.sampleDur + changeTime);
           });
-          LevelService.updateSegment(level, neighbours.left.id, undefined, labelIdx, neighbours.left.sampleStart, neighbours.left.sampleDur - (segments.length * changeTime));
+          LevelService.updateSegment(level, neighbours.left.id, undefined, undefined, neighbours.left.sampleStart, neighbours.left.sampleDur - (segments.length * changeTime));
         }
       }
     }

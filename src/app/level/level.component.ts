@@ -340,7 +340,6 @@ export class LevelComponent implements OnInit {
                     moveBy,
                     this.view_state_service.getcurMouseisFirst(),
                     this.view_state_service.getcurMouseisLast(),
-                    this.view_state_service.getCurAttrDef(this._level_annotation.name),
                     this._audio_buffer.length
                   );
                   this.history_service.updateCurChangeObj({
@@ -375,7 +374,7 @@ export class LevelComponent implements OnInit {
               if (this._level_annotation.type === 'SEGMENT') {
                 seg = this.view_state_service.getcurClickItems();
                 if (seg[0] !== undefined) {
-                  LevelService.moveSegment(this._level_annotation, seg[0].id, seg.length, moveBy, this.view_state_service.getCurAttrDef(this._level_annotation.name), this._audio_buffer.length);
+                  LevelService.moveSegment(this._level_annotation, seg[0].id, seg.length, moveBy, this._audio_buffer.length);
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
                     'action': 'MOVESEGMENT',
