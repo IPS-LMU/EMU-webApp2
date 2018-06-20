@@ -6,6 +6,7 @@ import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import {ILevel} from '../_interfaces/annot-json.interface';
+import {getPixelDistanceBetweenSamples, getPixelPositionOfSampleInViewport} from '../_utilities/view-state-helper-functions';
 
 @Component({
   selector: 'app-level',
@@ -725,9 +726,19 @@ export class LevelComponent implements OnInit {
 
 
     let posS, posE, sDist, xOffset, item;
-    posS = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectS);
-    posE = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectE);
-    sDist = this.view_state_service.getSampleDist(ctx.canvas.width);
+    posS = getPixelPositionOfSampleInViewport(
+        this.view_state_service.curViewPort.selectS,
+        this._viewport_sample_start,
+        this._viewport_sample_end,
+        ctx.canvas.width
+    );
+    posE = getPixelPositionOfSampleInViewport(
+        this.view_state_service.curViewPort.selectE,
+        this._viewport_sample_start,
+        this._viewport_sample_end,
+        ctx.canvas.width
+    );
+    sDist = getPixelDistanceBetweenSamples(this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
 
 
     let segMId = this.view_state_service.getcurMouseItem();
@@ -743,10 +754,25 @@ export class LevelComponent implements OnInit {
           if (cs !== undefined) {
             // check if segment or event level
             if (cs.sampleStart !== undefined) {
-              posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, cs.sampleStart));
-              posE = Math.round(this.view_state_service.getPos(ctx.canvas.width, cs.sampleStart + cs.sampleDur + 1));
+              posS = Math.round(getPixelPositionOfSampleInViewport(
+                 cs.sampleStart,
+                 this._viewport_sample_start,
+                 this._viewport_sample_end,
+                 ctx.canvas.width
+              ));
+              posE = Math.round(getPixelPositionOfSampleInViewport(
+                  cs.sampleStart + cs.sampleDur + 1,
+                  this._viewport_sample_start,
+                  this._viewport_sample_end,
+                  ctx.canvas.width
+              ));
             } else {
-              posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, cs.samplePoint) + sDist / 2);
+              posS = Math.round(getPixelPositionOfSampleInViewport(
+                  cs.samplePoint,
+                  this._viewport_sample_start,
+                  this._viewport_sample_end,
+                  ctx.canvas.width
+              ) + sDist / 2);
               posS = posS - 5;
               posE = posS + 10;
             }
@@ -766,21 +792,41 @@ export class LevelComponent implements OnInit {
       if (isFirst === true) { // before first segment
         if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
           item = this._level_annotation.items[0];
-          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, item.sampleStart));
+          posS = Math.round(getPixelPositionOfSampleInViewport(
+             item.sampleStart,
+             this._viewport_sample_start,
+             this._viewport_sample_end,
+             ctx.canvas.width
+          ));
           ctx.fillRect(posS, 0, 3, ctx.canvas.height);
         }
       } else if (isLast === true) { // after last segment
         if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
           item = this._level_annotation.items[this._level_annotation.items.length - 1];
-          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, (item.sampleStart + item.sampleDur + 1))); // +1 because boundaries are drawn on sampleStart
+          posS = Math.round(getPixelPositionOfSampleInViewport(
+             item.sampleStart + item.sampleDur + 1, // +1 because boundaries are drawn on sampleStart
+             this._viewport_sample_start,
+             this._viewport_sample_end,
+             ctx.canvas.width
+          ));
           ctx.fillRect(posS, 0, 3, ctx.canvas.height);
         }
       } else { // in the middle
         if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
-          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, item.sampleStart));
+          posS = Math.round(getPixelPositionOfSampleInViewport(
+              item.sampleStart,
+              this._viewport_sample_start,
+              this._viewport_sample_end,
+              ctx.canvas.width
+          ));
           ctx.fillRect(posS, 0, 3, ctx.canvas.height);
         } else {
-          posS = Math.round(this.view_state_service.getPos(ctx.canvas.width, item.samplePoint));
+          posS = Math.round(getPixelPositionOfSampleInViewport(
+              item.samplePoint,
+              this._viewport_sample_start,
+              this._viewport_sample_end,
+              ctx.canvas.width
+          ));
           xOffset = (sDist / 2);
           ctx.fillRect(posS + xOffset, 0, 3, ctx.canvas.height);
 
@@ -818,8 +864,18 @@ export class LevelComponent implements OnInit {
 //       let levelHeight = ctx.canvas.height / curPath.length;
 //       let curStartY = ctx.canvas.height - (i + 1) * levelHeight;
 //       for(let itemIdx = 0; itemIdx < curLevel.items.length; itemIdx++){
-//         let posS = Math.round(this.vs.getPos(ctx.canvas.width, curLevel.items[itemIdx]._derivedSampleStart));
-//         let posE = Math.round(this.vs.getPos(ctx.canvas.width, curLevel.items[itemIdx]._derivedSampleEnd));
+//         let posS = Math.round(getPixelPositionOfSampleInViewport(
+//            curLevel.items[itemIdx]._derivedSampleStart,
+//            this._viewport_sample_start,
+//            this._viewport_sample_end,
+//            ctx.canvas.width
+//         ));
+//         let posE = Math.round(getPixelPositionOfSampleInViewport(
+//            curLevel.items[itemIdx]._derivedSampleEnd,
+//            this._viewport_sample_start,
+//            this._viewport_sample_end,
+//            ctx.canvas.width
+//         ))
 //         ctx.strokeRect(posS, curStartY , posE - posS, curStartY + levelHeight);
 //
 //         // draw label
@@ -915,8 +971,18 @@ export class LevelComponent implements OnInit {
       }
       if(!this._database_configuration.restrictions.useLargeTextInputField){
           if (type === 'SEGMENT') {
-              start = Math.floor(this.view_state_service.getPos(clientWidth, lastEventClick.sampleStart) + clientOffset);
-              end = Math.ceil(this.view_state_service.getPos(clientWidth, (lastEventClick.sampleStart + lastEventClick.sampleDur + 1)) + clientOffset);
+            start = Math.floor(getPixelPositionOfSampleInViewport(
+                lastEventClick.sampleStart,
+                this._viewport_sample_start,
+                this._viewport_sample_end,
+                clientWidth
+            ) + clientOffset);
+            end = Math.ceil(getPixelPositionOfSampleInViewport(
+                lastEventClick.sampleStart + lastEventClick.sampleDur + 1,
+                this._viewport_sample_start,
+                this._viewport_sample_end,
+                clientWidth
+            ) + clientOffset);
               this.createEditAreaElement(element, start, top, end - start, height, lastEventClick.labels[labelIdx].value, lastEventClick.id);
 
               /*
@@ -935,8 +1001,18 @@ export class LevelComponent implements OnInit {
                                 }
                 */
           } else {
-              start = this.view_state_service.getPos(clientWidth, lastEventClick.samplePoint) + clientOffset - (len / 2);
-              end = this.view_state_service.getPos(clientWidth, lastEventClick.samplePoint) + clientOffset + (len / 2);
+              start = getPixelPositionOfSampleInViewport(
+                  lastEventClick.samplePoint,
+                  this._viewport_sample_start,
+                  this._viewport_sample_end,
+                  clientWidth
+              ) + clientOffset - (len / 2);
+              end = getPixelPositionOfSampleInViewport(
+                  lastEventClick.samplePoint,
+                  this._viewport_sample_start,
+                  this._viewport_sample_end,
+                  clientWidth
+              ) + clientOffset + (len / 2);
               width = end - start;
               if (width < (2 * len)) {
                   width = (2 * len);

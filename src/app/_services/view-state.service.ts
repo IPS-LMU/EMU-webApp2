@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
 import {ILevel} from '../_interfaces/annot-json.interface';
+import {getPixelDistanceBetweenSamples, getPixelPositionOfSampleInViewport} from '../_utilities/view-state-helper-functions';
 
 
 @Injectable({
@@ -737,7 +738,7 @@ setState(nameOrObj) {
    * @param s is current sample to convert to pixel value
    */
   public getPos(w, s) {
-    return (w * (s - this.curViewPort.sS) / (this.curViewPort.eS - this.curViewPort.sS + 1)); // + 1 because of view (displays all samples in view)
+    return getPixelPositionOfSampleInViewport(s, this.curViewPort.sS, this.curViewPort.eS, w);
   };
 
   /**
@@ -745,7 +746,7 @@ setState(nameOrObj) {
    * @param w is width of canvas
    */
   public getSampleDist(w) {
-    return this.getPos(w, this.curViewPort.sS + 1) - this.getPos(w, this.curViewPort.sS);
+    return getPixelDistanceBetweenSamples(this.curViewPort.sS, this.curViewPort.eS, w);
   }
 
 
