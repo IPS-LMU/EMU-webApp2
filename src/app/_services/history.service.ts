@@ -91,9 +91,9 @@ export class HistoryService {
           case 'MOVEEVENT':
             if (applyOldVal) {
               action = true;
-              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.sound_handler_service.audioBuffer.length);
             } else {
-              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'RENAMELABEL':

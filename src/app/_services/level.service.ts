@@ -201,23 +201,6 @@ export class LevelService {
   };
 
   /**
-   * sets element details by passing in level and elemtent id
-   */
-  public static updatePoint (level: ILevel, id, labelname, labelIdx, start) {
-    level.items.forEach((element) => {
-      if (element.id === id) {
-        element.samplePoint = start;
-        if (labelIdx === undefined) {
-          element.labels[0].value = labelname;
-        }
-        else {
-          element.labels[labelIdx].value = labelname;
-        }
-      }
-    });
-  };
-
-  /**
    * gets item details by passing in level and item id's
    */
   public static getItemNeighboursFromLevel (level: ILevel, firstId, lastId) {
@@ -799,32 +782,40 @@ export class LevelService {
   /**
    *
    */
-  public static moveEvent (level: ILevel, id, changeTime, attrDefName: string, audioBufferLength: number) {
-    let orig = LevelService.getItemFromLevelById(level, id);
-    let labelIdx = LevelService.getLabelIdx(attrDefName, orig.labels);
+  public static moveEvent (level: ILevel, id: number, changeTime: number, audioBufferLength: number) {
+    if (level.type !== 'EVENT') {
+      console.error('BUG: Non-events cannot be moved with moveEvent()');
+      return;
+    }
+
+    const event = LevelService.getItemFromLevelById(level, id);
+    if (!event) {
+      console.error('BUG: event doest not exist on level', id, level);
+      return;
+    }
 
     // if (this.link_service.isLinked(id)) {
     if(true){
       console.error("TODO: should check: this.link_service.isLinked(id)");
       let neighbour = LevelService.getItemNeighboursFromLevel(level, id, id);
-      if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= audioBufferLength) { // if within audio
+      if ((event.samplePoint + changeTime) > 0 && (event.samplePoint + changeTime) <= audioBufferLength) { // if within audio
         if (neighbour.left !== undefined && neighbour.right !== undefined) { // if between two events
           // console.log('between two events')
-          if ((orig.samplePoint + changeTime) > (neighbour.left.samplePoint) && (orig.samplePoint + changeTime) < (neighbour.right.samplePoint)) {
-            LevelService.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+          if ((event.samplePoint + changeTime) > (neighbour.left.samplePoint) && (event.samplePoint + changeTime) < (neighbour.right.samplePoint)) {
+            event.samplePoint += changeTime;
           }
         } else if (neighbour.left === undefined && neighbour.right === undefined) { // if only event
           // console.log('only element')
-          LevelService.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+          event.samplePoint += changeTime;
         } else if (neighbour.left === undefined && neighbour.right !== undefined) { // if first event
           // console.log('first event')
-          if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) < (neighbour.right.samplePoint)) {
-            LevelService.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+          if ((event.samplePoint + changeTime) > 0 && (event.samplePoint + changeTime) < (neighbour.right.samplePoint)) {
+            event.samplePoint += changeTime;
           }
         } else if (neighbour.left !== undefined && neighbour.right === undefined) { // if last event
           // console.log('last event')
-          if ((orig.samplePoint + changeTime) > neighbour.left.samplePoint && (orig.samplePoint + changeTime) <= audioBufferLength) {
-            LevelService.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+          if ((event.samplePoint + changeTime) > neighbour.left.samplePoint && (event.samplePoint + changeTime) <= audioBufferLength) {
+            event.samplePoint += changeTime;
           }
         }
       }
@@ -832,8 +823,8 @@ export class LevelService {
     console.error('uncomment else as well!')
     // else {
     //   // console.log('unlinked event')
-    //   if ((orig.samplePoint + changeTime) > 0 && (orig.samplePoint + changeTime) <= audioBufferLength) {
-    //     LevelService.updatePoint(level, orig.id, orig.labels[0].value, labelIdx, (orig.samplePoint + changeTime));
+    //   if ((event.samplePoint + changeTime) > 0 && (event.samplePoint + changeTime) <= audioBufferLength) {
+    //     event.samplePoint += changeTime;
     //   }
     //   //resort Points after moving
     //   level.items.sort(this.view_state_service.sortbystart);
