@@ -14,8 +14,7 @@ export class DrawHelperService {
   constructor(private view_state_service: ViewStateService,
               private sound_handler_service: SoundHandlerService,
               private config_provider_service: ConfigProviderService,
-              private math_helper_service: MathHelperService,
-              private font_scale_service: FontScaleService) { }
+              private math_helper_service: MathHelperService) { }
 
   osciPeaks: any = {};
 
@@ -648,6 +647,7 @@ export class DrawHelperService {
   //     // draw frequency / sample / time
   //     ctx.font = (ConfigProviderService.design.font.small.size + 'px ' + ConfigProviderService.design.font.small.family);
   //     var mouseFreq = this.math_helper_service.roundToNdigitsAfterDecPoint(max - mouseY / ctx.canvas.height * max, 2); // SIC only uses max
+  //     @todo if this block is uncommented, FontScaleService.scaleX and .scaleY must be replaced with .getScaleX(ctx) and .getScaleY(ctx).
   //     var tW = ctx.measureText(mouseFreq + unit).width * fontScaleService.scaleX;
   //     var tH = fontSize * fontScaleService.scaleY;
   //     var s1 = Math.round(viewState.curViewPort.sS + mouseX / ctx.canvas.width * (viewState.curViewPort.eS - viewState.curViewPort.sS));
@@ -741,16 +741,16 @@ export class DrawHelperService {
 
     // draw trackName
     if (trackName !== '') {
-      this.font_scale_service.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2 - fontSize * scaleY / 2, 'HelveticaNeue', true);
+      FontScaleService.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2 - fontSize * scaleY / 2, 'HelveticaNeue', true);
     }
 
     // draw min/max vals
     if (max !== undefined) {
-      this.font_scale_service.drawUndistortedText(ctx, 'max: ' + this.math_helper_service.roundToNdigitsAfterDecPoint(max, round), smallFontSize, 'HelveticaNeue', 5, 5, 'grey', true);
+      FontScaleService.drawUndistortedText(ctx, 'max: ' + this.math_helper_service.roundToNdigitsAfterDecPoint(max, round), smallFontSize, 'HelveticaNeue', 5, 5, 'grey', true);
     }
     // draw min/max vals
     if (min !== undefined) {
-      this.font_scale_service.drawUndistortedText(ctx, 'min: ' + this.math_helper_service.roundToNdigitsAfterDecPoint(min, round), smallFontSize, 'HelveticaNeue', 5, ctx.canvas.height - th - 5, 'grey', true);
+      FontScaleService.drawUndistortedText(ctx, 'min: ' + this.math_helper_service.roundToNdigitsAfterDecPoint(min, round), smallFontSize, 'HelveticaNeue', 5, ctx.canvas.height - th - 5, 'grey', true);
     }
   }
 
@@ -780,9 +780,9 @@ export class DrawHelperService {
       //draw time and sample nr
       sTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.sS / this.sound_handler_service.audioBuffer.sampleRate, 6);
       eTime = this.math_helper_service.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.eS / this.sound_handler_service.audioBuffer.sampleRate, 6);
-      this.font_scale_service.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.sS, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
+      FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.sS, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
       space = this.getScaleWidth(ctx, this.view_state_service.curViewPort.eS, eTime, scaleX);
-      this.font_scale_service.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.eS, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
+      FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.eS, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
     }
   };
 

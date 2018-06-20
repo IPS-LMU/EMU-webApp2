@@ -55,7 +55,6 @@ export class SpectroComponent implements OnInit {
               private config_provider_service: ConfigProviderService,
               private draw_helper_service: DrawHelperService,
               private math_helper_service: MathHelperService,
-              private font_scale_service: FontScaleService,
               private array_buffer_helper_service: ArrayBufferHelperService) {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
@@ -1051,7 +1050,7 @@ export class SpectroComponent implements OnInit {
     this._main_context.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     // draw current viewport selected
     this.draw_helper_service.drawCurViewPortSelected(this._markup_context, false);
-    this.font_scale_service.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
+    FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
     if (this.worker !== null) {
       this.worker.terminate();
       this.worker = null;

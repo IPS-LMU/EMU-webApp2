@@ -39,8 +39,7 @@ export class SsffTrackComponent implements OnInit {
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   // @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
-  constructor(private font_scale_service: FontScaleService,
-              private ssff_data_service: SsffDataService,
+  constructor(private ssff_data_service: SsffDataService,
               private config_provider_service: ConfigProviderService,
               private view_state_service: ViewStateService) { }
 
@@ -333,9 +332,9 @@ export class SsffTrackComponent implements OnInit {
     } else {
       this._main_context.strokeStyle = 'red';
       if (nrOfSamples <= 2) {
-        this.font_scale_service.drawUndistortedTextTwoLines(this._main_context, 'Zoom out to', 'see contour(s)', 12 / 1.05, 'HelveticaNeue', canvas.width / 2 - (this._main_context.measureText('see contour(s)').width * this._main_context.canvas.width / this._main_context.canvas.offsetWidth / 2), 25, 'red', false);
+        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom out to', 'see contour(s)', 12 / 1.05, 'HelveticaNeue', canvas.width / 2 - (this._main_context.measureText('see contour(s)').width * this._main_context.canvas.width / this._main_context.canvas.offsetWidth / 2), 25, 'red', false);
       } else {
-        this.font_scale_service.drawUndistortedTextTwoLines(this._main_context, 'Zoom in to', 'see contour(s)', 12 / 1.05, 'HelveticaNeue', canvas.width / 2 - (this._main_context.measureText('see contour(s)').width * this._main_context.canvas.width / this._main_context.canvas.offsetWidth / 2), 25, 'red', false);
+        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom in to', 'see contour(s)', 12 / 1.05, 'HelveticaNeue', canvas.width / 2 - (this._main_context.measureText('see contour(s)').width * this._main_context.canvas.width / this._main_context.canvas.offsetWidth / 2), 25, 'red', false);
       }
     }
   }

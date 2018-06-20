@@ -80,7 +80,6 @@ export class LevelComponent implements OnInit {
 
 
   constructor(private config_provider_service: ConfigProviderService,
-              private font_scale_service: FontScaleService,
               private view_state_service: ViewStateService,
               private data_service: DataService,
               private history_service: HistoryService,
@@ -571,7 +570,7 @@ export class LevelComponent implements OnInit {
 
     if (this._level_annotation.name === this._attributeDefinition) {
     //   if (isOpen) {
-        this.font_scale_service.drawUndistortedTextTwoLines(ctx, this._level_annotation.name, '(' + this._level_annotation.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, 'black', true);
+        FontScaleService.drawUndistortedTextTwoLines(ctx, this._level_annotation.name, '(' + this._level_annotation.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, 'black', true);
     //   }
     //   else {
     //     fontSize -= 2;
@@ -585,11 +584,11 @@ export class LevelComponent implements OnInit {
 
     // calculate generic max with of single char (m char used)
     //let mTxtImg = fontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, this.config_provider_service.design.color.black);
-    let mTxtImgWidth = ctx.measureText('m').width * this.font_scale_service.scaleX;
+    let mTxtImgWidth = ctx.measureText('m').width * FontScaleService.getScaleX(ctx);
 
     // calculate generic max with of single digit (0 digit used)
     //let zeroTxtImg = fontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, this.config_provider_service.design.color.black);
-    let zeroTxtImgWidth = ctx.measureText('0').width * this.font_scale_service.scaleX;
+    let zeroTxtImgWidth = ctx.measureText('0').width * FontScaleService.getScaleX(ctx)
     if (this._level_annotation.type === 'SEGMENT') {
       ctx.fillStyle = 'black';//this.config_provider_service.design.color.black;
         // draw segments
@@ -628,7 +627,7 @@ export class LevelComponent implements OnInit {
             //check for enough space to stroke text
             if ((curLabVal !== undefined) && posE - posS > (mTxtImgWidth * curLabVal.length)) {
       //         if (isOpen) {
-                this.font_scale_service.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
+                FontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
       //         } else {
       //           fontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - fontSize + 2, this.config_provider_service.design.color.black, false);
       //         }
@@ -661,14 +660,14 @@ export class LevelComponent implements OnInit {
               // draw sampleStart numbers
               //check for enough space to stroke text
               if (posE - posS > zeroTxtImgWidth * item.sampleStart.toString().length) {
-                this.font_scale_service.drawUndistortedText(ctx, item.sampleStart, fontSize - 2, fontFamily, posS + 3, 0, 'grey', true);
+                FontScaleService.drawUndistortedText(ctx, item.sampleStart, fontSize - 2, fontFamily, posS + 3, 0, 'grey', true);
               }
 
               // draw sampleDur numbers.
               let durtext = 'dur: ' + item.sampleDur + ' ';
               //check for enough space to stroke text
               if (posE - posS > zeroTxtImgWidth * durtext.length) {
-                this.font_scale_service.drawUndistortedText(ctx, durtext, fontSize - 2, fontFamily, posE - (ctx.measureText(durtext).width * this.font_scale_service.scaleX), ctx.canvas.height / 4 * 3, 'grey', true);
+                FontScaleService.drawUndistortedText(ctx, durtext, fontSize - 2, fontFamily, posE - (ctx.measureText(durtext).width * FontScaleService.getScaleX(ctx)), ctx.canvas.height / 4 * 3, 'grey', true);
               }
       //       }
           }
@@ -694,9 +693,9 @@ export class LevelComponent implements OnInit {
           ctx.fillRect(perc, 0, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
           ctx.fillRect(perc, ctx.canvas.height / 2 + ctx.canvas.height / 5, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
 
-          this.font_scale_service.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, perc, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
+          FontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, perc, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
     //       if (isOpen) {
-            this.font_scale_service.drawUndistortedText(ctx, item.samplePoint, fontSize - 2, labelFontFamily, perc + 5, 0, 'grey', true);
+            FontScaleService.drawUndistortedText(ctx, item.samplePoint, fontSize - 2, labelFontFamily, perc + 5, 0, 'grey', true);
     //       }
         }
       });
