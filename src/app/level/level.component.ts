@@ -574,20 +574,20 @@ export class LevelComponent implements OnInit {
     //   }
     //   else {
     //     fontSize -= 2;
-    //     fontScaleService.drawUndistortedText(ctx, this.level.name, fontSize, fontFamily, 4, ctx.canvas.height / 2 - (fontSize * scaleY / 2), this.config_provider_service.design.color.black, true);
+    //     FontScaleService.drawUndistortedText(ctx, this.level.name, fontSize, fontFamily, 4, ctx.canvas.height / 2 - (fontSize * scaleY / 2), this.config_provider_service.design.color.black, true);
     //   }
     // } else {
-    //   fontScaleService.drawUndistortedTextTwoLines(ctx, this.level.name + ':' + curAttrDef, '(' + this.level.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, this.config_provider_service.design.color.black, true);
+    //   FontScaleService.drawUndistortedTextTwoLines(ctx, this.level.name + ':' + curAttrDef, '(' + this.level.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, this.config_provider_service.design.color.black, true);
     }
 
     let curID = -1;
 
     // calculate generic max with of single char (m char used)
-    //let mTxtImg = fontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, this.config_provider_service.design.color.black);
+    //let mTxtImg = FontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, this.config_provider_service.design.color.black);
     let mTxtImgWidth = ctx.measureText('m').width * FontScaleService.getScaleX(ctx);
 
     // calculate generic max with of single digit (0 digit used)
-    //let zeroTxtImg = fontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, this.config_provider_service.design.color.black);
+    //let zeroTxtImg = FontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, this.config_provider_service.design.color.black);
     let zeroTxtImgWidth = ctx.measureText('0').width * FontScaleService.getScaleX(ctx)
     if (this._level_annotation.type === 'SEGMENT') {
       ctx.fillStyle = 'black';//this.config_provider_service.design.color.black;
@@ -629,7 +629,7 @@ export class LevelComponent implements OnInit {
       //         if (isOpen) {
                 FontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
       //         } else {
-      //           fontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - fontSize + 2, this.config_provider_service.design.color.black, false);
+      //           FontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - fontSize + 2, this.config_provider_service.design.color.black, false);
       //         }
             }
 
@@ -802,7 +802,7 @@ export class LevelComponent implements OnInit {
 //     let ctx = canvas[0].getContext('2d');
 //     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 //
-//     //let mTxtImgWidth = ctx.measureText('m').width * fontScaleService.scaleX;
+//     //let mTxtImgWidth = ctx.measureText('m').width * FontScaleService.scaleX;
 //
 //     ctx.strokeStyle = this.config_provider_service.design.color.black;
 //
@@ -820,7 +820,7 @@ export class LevelComponent implements OnInit {
 //         ctx.strokeRect(posS, curStartY , posE - posS, curStartY + levelHeight);
 //
 //         // draw label
-//         fontScaleService.drawUndistortedText(ctx, curLevel.items[itemIdx].labels[0].value, fontSize - 2, this.config_provider_service.design.font.small.family, posS + (posE - posS) / 2 - ctx.measureText(curLevel.items[itemIdx].labels[0].value).width / 2 - 2, curStartY + levelHeight / 2, this.config_provider_service.design.color.black, true);
+//         FontScaleService.drawUndistortedText(ctx, curLevel.items[itemIdx].labels[0].value, fontSize - 2, this.config_provider_service.design.font.small.family, posS + (posE - posS) / 2 - ctx.measureText(curLevel.items[itemIdx].labels[0].value).width / 2 - 2, curStartY + levelHeight / 2, this.config_provider_service.design.color.black, true);
 //       }
 //     }
 //
