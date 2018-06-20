@@ -145,6 +145,7 @@
           [external_cursor_sample_position]="view_state_service.lastPcm"
           [audio_buffer]="sound_handler_service.audioBuffer"
           [database_configuration]="config_provider_service.vals"
+          [selected]="level_name === view_state_service.getCurrentClickLevel().name"
         >
 
         </app-level>

@@ -22,6 +22,7 @@ export class LevelComponent implements OnInit {
   private _viewport_sample_end: number;
   private _external_cursor_sample_position: number;
   private _audio_buffer: AudioBuffer;
+  private _selected: boolean;
 
   private lasteditArea: string = null; // holding current edit area
   private lasteditAreaElem: HTMLElement = null; // holding current edit area element
@@ -76,6 +77,9 @@ export class LevelComponent implements OnInit {
     this._audio_buffer = value;
     // console.log("setting _viewport_sample_end");
     // this.drawLevelMarkup();
+  }
+  @Input() set selected(value: boolean) {
+    this._selected = value;
   }
 
 
@@ -526,19 +530,19 @@ export class LevelComponent implements OnInit {
   drawLevelDetails() {
     let labelFontFamily; // font family used for labels only
     let fontFamily = 'HelveticaNeue'; //this.config_provider_service.design.font.small.family; // font family used for everything else
-    if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily === 'undefined'){
+    // if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily === 'undefined'){
       labelFontFamily = 'HelveticaNeue';//this.config_provider_service.design.font.small.family;
-    }else{
-      labelFontFamily = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
-    }
+    // }else{
+    //  labelFontFamily = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
+    // }
 
     let labelFontSize; // font family used for labels only
     let fontSize = 12; //this.config_provider_service.design.font.small.size.slice(0, -2) * 1; // font size used for everything else
-    if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
+    // if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
       labelFontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
-    }else{
-      labelFontSize = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontPxSize;
-    }
+    // }else{
+    //  labelFontSize = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontPxSize;
+    // }
 
 
     // let curAttrDef = this.vs.getCurAttrDef(this.level.name);
@@ -713,7 +717,7 @@ export class LevelComponent implements OnInit {
     // console.log()
     let ctx = this.levelMarkupCanvas.nativeElement.getContext('2d');
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (this._level_annotation.name === this.view_state_service.getCurrentClickLevel().name) {
+    if (this._selected) {
       ctx.fillStyle = 'rgba(22, 22, 22, 0.1)'; //this.config_provider_service.design.color.transparent.grey;
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
@@ -745,11 +749,10 @@ export class LevelComponent implements OnInit {
     let isFirst = this.view_state_service.getcurMouseisFirst();
     let isLast = this.view_state_service.getcurMouseisLast();
     let clickedSegs = this.view_state_service.getcurClickItems();
-    let levelId = this.view_state_service.getCurrentClickLevel().name;
 
     if (clickedSegs !== undefined) {
       // draw clicked on selected areas
-      if (this._level_annotation.name === levelId && clickedSegs.length > 0) {
+      if (this._selected && clickedSegs.length > 0) {
         clickedSegs.forEach((cs) => {
           if (cs !== undefined) {
             // check if segment or event level
