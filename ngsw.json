@@ -8,7 +8,7 @@
       "updateMode": "prefetch",
       "urls": [
         "https://ips-lmu.github.io/EMU-webApp2/index.html",
-        "https://ips-lmu.github.io/EMU-webApp2/main.e68262c4d7bfc348f0fa.js",
+        "https://ips-lmu.github.io/EMU-webApp2/main.113451446b747567d4f3.js",
         "https://ips-lmu.github.io/EMU-webApp2/polyfills.a8e1fcb1caf2b6c7cdae.js",
         "https://ips-lmu.github.io/EMU-webApp2/runtime.a66f828dca56eeb90e02.js",
         "https://ips-lmu.github.io/EMU-webApp2/styles.87da5fcaddb4ec3a75fc.css"
@@ -104,8 +104,8 @@
     "https://ips-lmu.github.io/EMU-webApp2/assets/schemaFiles/designSchema.json": "d1acf515a46e12d1514231c267f838bf488a966d",
     "https://ips-lmu.github.io/EMU-webApp2/assets/schemaFiles/emuwebappConfigSchema.json": "888a6b2124777477f1fd54c28a306b88082ef2d0",
     "https://ips-lmu.github.io/EMU-webApp2/assets/schemaFiles/globalDBschema.json": "1f1a9ade9976e0f2d87f774c2dbf3c5f6eea9830",
-    "https://ips-lmu.github.io/EMU-webApp2/index.html": "c25907eb0b711c022be14611e922b20d51071e8a",
-    "https://ips-lmu.github.io/EMU-webApp2/main.e68262c4d7bfc348f0fa.js": "dde9db2c280dacc025c729f55b73a59f5d03dd9e",
+    "https://ips-lmu.github.io/EMU-webApp2/index.html": "7687a11df407abd24e2d2b4d3e9448a20de78c73",
+    "https://ips-lmu.github.io/EMU-webApp2/main.113451446b747567d4f3.js": "a5f0c979995add281c435134608dc89dd68489b4",
     "https://ips-lmu.github.io/EMU-webApp2/polyfills.a8e1fcb1caf2b6c7cdae.js": "b7e2a904d991459f495b427233e93871eeb45c6b",
     "https://ips-lmu.github.io/EMU-webApp2/runtime.a66f828dca56eeb90e02.js": "078e320cc6fdaf355836c3b1c52b059cdd33fc7e",
     "https://ips-lmu.github.io/EMU-webApp2/styles.87da5fcaddb4ec3a75fc.css": "c1a35d4536ba4e272c22800a6e59c684c3a10b06"
