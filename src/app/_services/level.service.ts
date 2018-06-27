@@ -235,11 +235,11 @@ export class LevelService {
    * - isLast is true if the mouse is after the last item
    *
    */
-  public static getClosestItem (sampleNr, level: ILevel, maximum) {
-    let current;
-    let nearest;
-    let isFirst;
-    let isLast;
+  public static getClosestItem (sampleNr: number, level: ILevel, maximum: number) {
+    let current: IItem;
+    let nearest: IItem;
+    let isFirst: boolean;
+    let isLast: boolean;
 
 
     if (level !== undefined && level !== null && level.items.length > 0) {

@@ -11,6 +11,14 @@ export function getPixelPositionOfSampleInViewport(sample: number,
     // + 1 because of view (displays all samples in view)
 }
 
+export function getSampleAtPixelPositionInViewport(pixel: number,
+                                                   viewportStartSample: number,
+                                                   viewportEndSample: number,
+                                                   canvasWidth: number): number {
+    return viewportStartSample + (viewportEndSample - viewportStartSample) * (pixel / canvasWidth);
+}
+
+
 /**
  * calculate the pixel distance between two samples
  */

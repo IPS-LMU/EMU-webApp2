@@ -1047,7 +1047,17 @@ export class SpectroComponent implements OnInit {
 
   drawSpectMarkup() {
     // draw moving boundary line if moving
-    this.draw_helper_service.drawMovingBoundaryLine(this._markup_context, this._viewport_sample_start, this._viewport_sample_end);
+    if (this.view_state_service.movingBoundary) {
+      this.draw_helper_service.drawMovingBoundaryLine(
+          this._markup_context,
+          this._viewport_sample_start,
+          this._viewport_sample_end,
+          this.view_state_service.movingBoundarySample,
+          this.view_state_service.getcurMouseisLast(),
+          this.view_state_service.getCurrentMouseOverLevel()
+      );
+    }
+
     // draw current viewport selected
     this.draw_helper_service.drawCurViewPortSelected(
         this._markup_context,
@@ -1056,7 +1066,8 @@ export class SpectroComponent implements OnInit {
         this._viewport_sample_end,
         this._selection_sample_start,
         this._selection_sample_end,
-        this._audio_buffer
+        this._audio_buffer,
+        this.view_state_service.getCurrentMouseOverLevel()
     );
     // draw min max vals and name of track
     this.draw_helper_service.drawMinMaxAndName(this._markup_context, '', this.view_state_service.spectroSettings.rangeFrom, this.view_state_service.spectroSettings.rangeTo, 2);
@@ -1076,7 +1087,8 @@ export class SpectroComponent implements OnInit {
         this._viewport_sample_end,
         this._selection_sample_start,
         this._selection_sample_end,
-        this._audio_buffer
+        this._audio_buffer,
+        this.view_state_service.getCurrentMouseOverLevel()
     );
     FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
     if (this.worker !== null) {

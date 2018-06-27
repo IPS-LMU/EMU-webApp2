@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
-import {ILevel} from '../_interfaces/annot-json.interface';
+import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 import {
     calculateSampleTime,
     getMousePositionInCanvasX, getMousePositionInCanvasY,
@@ -88,14 +88,13 @@ export class ViewStateService {
   rightSubmenuOpen;
   curClickItems;
   curMousePosSample;
-  curMouseX;
-  curMouseisFirst;
-  curMouseisLast;
-  curMouseItem;
-  curMouseNeighbours;
+  curMouseX: number;
+  curMouseisFirst: boolean;
+  curMouseisLast: boolean;
+  curMouseItem: IItem;
+  curMouseNeighbours: {left: IItem; right: IItem};
   curMouseTrackName;
-  curMouseLevelName;
-  curMouseLevelType;
+  currentMouseOverLevel: ILevel;
   currentClickLevel: ILevel;
   lastPcm;
   curPreselColumnSample;
@@ -103,7 +102,7 @@ export class ViewStateService {
   start;
   TransitionTime;
   showDropZone;
-  movingBoundary;
+  movingBoundary: boolean;
   movingBoundarySample;
   focusInTextField;
   curTaskPercCompl;
@@ -357,8 +356,7 @@ export class ViewStateService {
     this.curMousePosSample = 0;
     this.curMouseX = 0;
     this.curMouseTrackName = undefined;
-    this.curMouseLevelName = undefined;
-    this.curMouseLevelType = undefined;
+    this.currentMouseOverLevel = undefined;
     this.currentClickLevel = undefined;
     this.lastPcm = undefined;
     this.curPreselColumnSample = 2;
@@ -834,45 +832,22 @@ setState(nameOrObj) {
       return this.currentClickLevel;
   }
 
+  public setCurrentMouseOverLevel(level: ILevel) {
+    this.currentMouseOverLevel = level;
+  }
 
-  /**
+  public getCurrentMouseOverLevel(): ILevel {
+    return this.currentMouseOverLevel;
+  }
+
+
+    /**
    * gets the current (clicked) Level Name
    */
   getcurClickNeighbours() {
     // return this.curClickNeighbours;
   }
 
-
-  /**
-   * sets the current (mousemove) Level Name
-   * @param name is name of level
-   */
-  setcurMouseLevelName (name) {
-    this.curMouseLevelName = name;
-  }
-
-  /**
-   * gets the current (mousemove) Level Name
-   */
-  public getcurMouseLevelName = function () {
-    return this.curMouseLevelName;
-  }
-
-
-  /**
-   * sets the current (mousemove) Level Name
-   * @param name is name of level
-   */
-  setcurMouseLevelType(name) {
-    this.curMouseLevelType = name;
-  }
-
-  /**
-   * gets the current (mousemove) Level Name
-   */
-  getcurMouseLevelType() {
-    return this.curMouseLevelType;
-  }
 
   /**
    * sets the current (mousemove) Item
@@ -882,7 +857,7 @@ setState(nameOrObj) {
    * @param isFirst true if item is the first item on current level
    * @param isLast true if item is last item on current level
    */
-  public setcurMouseItem(item, neighbour, x, isFirst, isLast) {
+  public setcurMouseItem(item: IItem, neighbour: {left: IItem; right: IItem}, x: number, isFirst: boolean, isLast: boolean) {
     this.curMouseItem = item;
     this.curMouseX = x;
     this.curMouseNeighbours = neighbour;
@@ -1272,14 +1247,14 @@ setState(nameOrObj) {
     let isLastSeg = false;
 
     if (seg !== undefined) {
-      const levelData: ILevel = data_service.getLevelDataByName(this.getcurMouseLevelName());
+      const levelData: ILevel = this.getCurrentMouseOverLevel();
       if (this.getcurMouseisFirst()) { // before first element
         seg = levelData.items[0];
       } else if (this.getcurMouseisLast()) {
         seg = levelData.items[levelData.items.length - 1];
         isLastSeg = true;
       }
-      if (this.getcurMouseLevelType() === 'SEGMENT') {
+      if (this.getCurrentMouseOverLevel().type === 'SEGMENT') {
         if (isLastSeg) {
           curMouseMoveItemStart = seg.sampleStart + seg.sampleDur;
         } else {
@@ -1427,7 +1402,7 @@ setState(nameOrObj) {
   /**
    *
    */
-  resetToInitState = function () {
+  public resetToInitState () {
     this.initialize();
   }
 

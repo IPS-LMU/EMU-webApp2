@@ -10,12 +10,17 @@ import { DrawHelperService } from '../_services/draw-helper.service'
 export class OsciComponent implements OnInit {
 
   private _audio_buffer: AudioBuffer;
+  private _channel: number;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
 
   @Input() set audio_buffer(value: AudioBuffer){
     this._audio_buffer = value;
     console.log(value);
+  }
+
+  @Input() set channel(value: number) {
+    this._channel = value;
   }
 
   @Input() set viewport_sample_start(value: number){
@@ -33,7 +38,9 @@ export class OsciComponent implements OnInit {
         this._viewport_sample_end,
       false,
         // @todo make sure this._audio_buffer is set before this._viewport_sample_end
-        this._audio_buffer);
+        this._audio_buffer,
+        this._channel
+      );
     }
   }
 

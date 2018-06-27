@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
 
-import { ViewStateService } from './view-state.service';
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
 import {
     calculateSampleTime,
     getPixelDistanceBetweenSamples,
-    getPixelPositionOfSampleInViewport
+    getPixelPositionOfSampleInViewport,
+    getSampleAtPixelPositionInViewport
 } from '../_utilities/view-state-helper-functions';
+import {ILevel} from '../_interfaces/annot-json.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DrawHelperService {
 
-  constructor(private view_state_service: ViewStateService) { }
+  constructor() { }
 
   osciPeaks: any = {};
 
@@ -306,7 +307,7 @@ export class DrawHelperService {
   /**
    *
    */
-  public freshRedrawDrawOsciOnCanvas(canvas, sS, eS, forceToCalcOsciPeaks, audioBuffer: AudioBuffer) {
+  public freshRedrawDrawOsciOnCanvas(canvas, sS, eS, forceToCalcOsciPeaks, audioBuffer: AudioBuffer, currentChannel: number) {
     // clear canvas
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -361,10 +362,9 @@ export class DrawHelperService {
       yMaxPrev = yMax;
       yMinPrev = yMin;
 
-      let sT, perc, curSample;
+      let sT, curSample;
       for (let curPxIdx = 1; curPxIdx < canvas.width; curPxIdx++) {
-        perc = curPxIdx / canvas.width;
-        curSample = this.view_state_service.getCurrentSample(perc);
+        curSample = getSampleAtPixelPositionInViewport(curPxIdx, sS, eS, canvas.width);
         // calculate cur pixel sample time
         sT = calculateSampleTime(curSample, audioBuffer.sampleRate);
         peakIdx = Math.round(sT * pps);
@@ -390,7 +390,7 @@ export class DrawHelperService {
 
     }else{
       // if winIdx is -1 then calculate the peaks from the channel data
-      allPeakVals = this.calculatePeaks(canvas, audioBuffer.getChannelData(this.view_state_service.osciSettings.curChannel), sS, eS);
+      allPeakVals = this.calculatePeaks(canvas, audioBuffer.getChannelData(currentChannel), sS, eS);
 
       // check if envelope is to be drawn
       if (allPeakVals.minPeaks && allPeakVals.maxPeaks && allPeakVals.samplePerPx >= 1) {
@@ -509,31 +509,34 @@ export class DrawHelperService {
    * drawing method to drawMovingBoundaryLine
    */
 
-  public drawMovingBoundaryLine(ctx: CanvasRenderingContext2D, viewportStartSample: number, viewportEndSample: number) {
+  public drawMovingBoundaryLine(ctx: CanvasRenderingContext2D,
+                                viewportStartSample: number,
+                                viewportEndSample: number,
+                                position: number,
+                                currentMouseItemIsLast: boolean,
+                                currentMouseOverLevel: ILevel) {
 
     let xOffset, sDist;
     sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, ctx.canvas.width);
 
     // calc. offset dependant on type of level of mousemove  -> default is sample exact
-    if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+    if (currentMouseOverLevel.type === 'SEGMENT') {
       xOffset = 0;
     } else {
       xOffset = (sDist / 2);
     }
 
-    if (this.view_state_service.movingBoundary) {
-      ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
-      const p = Math.round(getPixelPositionOfSampleInViewport(
-          this.view_state_service.movingBoundarySample,
-          viewportStartSample,
-          viewportEndSample,
-          ctx.canvas.width
-      ));
-      if (this.view_state_service.getcurMouseisLast()) {
-        ctx.fillRect(p + sDist, 0, 1, ctx.canvas.height);
-      } else {
-        ctx.fillRect(p + xOffset, 0, 1, ctx.canvas.height);
-      }
+    ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
+    const p = Math.round(getPixelPositionOfSampleInViewport(
+        position,
+        viewportStartSample,
+        viewportEndSample,
+        ctx.canvas.width
+    ));
+    if (currentMouseItemIsLast) {
+      ctx.fillRect(p + sDist, 0, 1, ctx.canvas.height);
+    } else {
+      ctx.fillRect(p + xOffset, 0, 1, ctx.canvas.height);
     }
 
   }
@@ -549,15 +552,15 @@ export class DrawHelperService {
                                  viewportEndSample: number,
                                  selectionStartSample: number,
                                  selectionEndSample: number,
-                                 audioBuffer: AudioBuffer) {
+                                 audioBuffer: AudioBuffer,
+                                 currentMouseOverLevel: ILevel) {
 
     let fontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
     let xOffset, sDist, space, scaleX;
     sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, ctx.canvas.width);
 
     // calc. offset dependant on type of level of mousemove  -> default is sample exact
-    // @todo type can never be 'seg', only 'SEGMENT' . was this for some reason intended?
-    if (this.view_state_service.getcurMouseLevelType() === 'seg') {
+    if (currentMouseOverLevel && currentMouseOverLevel.type === 'SEGMENT') {
       xOffset = 0;
     } else {
       xOffset = (sDist / 2);
@@ -801,14 +804,12 @@ export class DrawHelperService {
     let sTime;
     let eTime;
     let space;
-    if (this.view_state_service.curViewPort) {
-      //draw time and sample nr
-      sTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample/ sampleRate, 6);
-      eTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
-      FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
-      space = DrawHelperService.getScaleWidth(ctx, viewportEndSample, eTime, scaleX);
-      FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
-    }
+    //draw time and sample nr
+    sTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 6);
+    eTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
+    space = DrawHelperService.getScaleWidth(ctx, viewportEndSample, eTime, scaleX);
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
   };
 
 }

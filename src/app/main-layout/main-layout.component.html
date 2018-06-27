@@ -107,6 +107,7 @@
         <div class="signal-container" *ngFor="let canvas_name of config_provider_service.vals?.perspectives[view_state_service.curPerspectiveIdx]?.signalCanvases.order">
           <app-osci style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name === 'OSCI'"
                     [audio_buffer] = "sound_handler_service.audioBuffer"
+                    [channel]="view_state_service.osciSettings.curChannel"
                     [viewport_sample_start] = "view_state_service.curViewPort.sS"
                     [viewport_sample_end] = "view_state_service.curViewPort.eS"></app-osci>
 
@@ -149,8 +150,8 @@
           [external_cursor_sample_position]="view_state_service.lastPcm"
           [audio_buffer]="sound_handler_service.audioBuffer"
           [database_configuration]="config_provider_service.vals"
-          [selected]="level_name === view_state_service.getCurrentClickLevel().name"
-          [hovering]="level_name === view_state_service.getcurMouseLevelName()"
+          [selected]="level_name === view_state_service.getCurrentClickLevel()?.name"
+          [hovering]="level_name === view_state_service.getCurrentMouseOverLevel()?.name"
         >
 
         </app-level>

@@ -8,7 +8,7 @@ export interface IAnnotJSON {
 
 export interface ILevel {
     name: string;
-    type: string;
+    type: ILevelType;
     items: IItem[];
 }
 
@@ -45,3 +45,5 @@ export interface IAudioFile {
     duration: number;
     samplerate: number;
 }
+
+export type ILevelType = 'ITEM' | 'SEGMENT' | 'EVENT';

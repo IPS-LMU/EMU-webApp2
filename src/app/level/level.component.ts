@@ -5,7 +5,7 @@ import { ViewStateService } from '../_services/view-state.service';
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
-import {ILevel} from '../_interfaces/annot-json.interface';
+import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 import {
     getMousePositionInCanvasX,
     getPixelDistanceBetweenSamples,
@@ -43,11 +43,11 @@ export class LevelComponent implements OnInit {
 
 
   // mouse handeling lets
-  lastEventClick: any;
-  lastEventMove: any;
-  lastNeighboursMove: any;
-  lastPCM: any;
-  curMouseSampleNrInView: any;
+  lastEventClick: {current: IItem; nearest: IItem; isFirst: boolean; isLast: boolean};
+  lastEventMove: {current: IItem; nearest: IItem; isFirst: boolean; isLast: boolean};
+  lastNeighboursMove: {left: IItem; right: IItem};
+  lastPCM: number;
+  curMouseSampleNrInView: number;
   // order = attr.trackMouseInLevel;
 
   @Input() set database_configuration(value: {restrictions: any, perspectives: any[]}) {
@@ -552,8 +552,7 @@ export class LevelComponent implements OnInit {
         this.view_state_service.setcurMouseItem(this.lastEventMove.nearest, this.lastNeighboursMove, getMousePositionInCanvasX(x), this.lastEventMove.isFirst, this.lastEventMove.isLast);
       }
     }
-    this.view_state_service.setcurMouseLevelName(this._level_annotation.name);
-    this.view_state_service.setcurMouseLevelType(this._level_annotation.type);
+    this.view_state_service.setCurrentMouseOverLevel(this._level_annotation);
     this.lastPCM = this.curMouseSampleNrInView;
     this.view_state_service.setLastPcm(this.lastPCM);
   }
@@ -762,7 +761,16 @@ export class LevelComponent implements OnInit {
     }
 
     // draw moving boundary line if moving
-    this.draw_helper_service.drawMovingBoundaryLine(ctx, this._viewport_sample_start, this._viewport_sample_end);
+    if (this.view_state_service.movingBoundary) {
+      this.draw_helper_service.drawMovingBoundaryLine(
+          ctx,
+          this._viewport_sample_start,
+          this._viewport_sample_end,
+          this.view_state_service.movingBoundarySample,
+          this.view_state_service.getcurMouseisLast(),
+          this.view_state_service.getCurrentMouseOverLevel()
+      );
+    }
 
     // draw current viewport selected
     this.draw_helper_service.drawCurViewPortSelected(
@@ -772,7 +780,8 @@ export class LevelComponent implements OnInit {
         this._viewport_sample_end,
         this._selection_sample_start,
         this._selection_sample_end,
-        this._audio_buffer
+        this._audio_buffer,
+        this.view_state_service.getCurrentMouseOverLevel()
     );
 
 
