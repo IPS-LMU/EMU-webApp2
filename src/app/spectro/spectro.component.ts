@@ -1,6 +1,5 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 
-import { SoundHandlerService } from '../_services/sound-handler.service';
 import { ViewStateService } from '../_services/view-state.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
@@ -15,7 +14,8 @@ import { ArrayBufferHelperService } from '../_services/array-buffer-helper.servi
 })
 export class SpectroComponent implements OnInit {
 
-  private _audio_buffer: any;
+  private _audio_buffer: AudioBuffer;
+  private _channel: number;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
@@ -30,9 +30,13 @@ export class SpectroComponent implements OnInit {
   private alpha: number = 0.16;
   private devicePixelRatio = window.devicePixelRatio || 1;
 
-  @Input() set audio_buffer(value: any){
+  @Input() set audio_buffer(value: AudioBuffer) {
     this._audio_buffer = value;
     console.log(value);
+  }
+
+  @Input() set channel (value: number) {
+      this._channel = value;
   }
 
   @Input() set viewport_sample_start(value: number){
@@ -63,8 +67,7 @@ export class SpectroComponent implements OnInit {
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
-  constructor(private sound_handler_service: SoundHandlerService,
-              private view_state_service: ViewStateService,
+  constructor(private view_state_service: ViewStateService,
               private config_provider_service: ConfigProviderService,
               private array_buffer_helper_service: ArrayBufferHelperService) {
 
@@ -1027,7 +1030,7 @@ export class SpectroComponent implements OnInit {
 
   redraw() {
     this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
-    this.drawSpectro(this.sound_handler_service.audioBuffer.getChannelData(this.view_state_service.osciSettings.curChannel));
+    this.drawSpectro(this._audio_buffer.getChannelData(this._channel));
   }
 
   drawSpectro(buffer) {
@@ -1118,7 +1121,7 @@ export class SpectroComponent implements OnInit {
       this.worker = new Worker(this.workerFunctionURL);
 
       let parseData: any = [];
-      let fftN = MathHelperService.calcClosestPowerOf2Gt(this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs);
+      let fftN = MathHelperService.calcClosestPowerOf2Gt(this._audio_buffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs);
       // fftN must be greater than 512 (leads to better resolution of spectrogram)
       if (fftN < 512) {
         fftN = 512;
@@ -1130,14 +1133,14 @@ export class SpectroComponent implements OnInit {
       let rightPadding: any = [];
 
       // check if any zero padding at LEFT edge is necessary
-      let windowSizeInSamples = this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs;
+      let windowSizeInSamples = this._audio_buffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs;
       if (this.view_state_service.curViewPort.sS < windowSizeInSamples / 2) {
         //should do something here... currently always padding with zeros!
       } else {
         leftPadding = buffer.slice(this.view_state_service.curViewPort.sS - windowSizeInSamples / 2, this.view_state_service.curViewPort.sS);
       }
       // check if zero padding at RIGHT edge is necessary
-      if (this.view_state_service.curViewPort.eS + fftN / 2 - 1 >= this.sound_handler_service.audioBuffer.length) {
+      if (this.view_state_service.curViewPort.eS + fftN / 2 - 1 >= this._audio_buffer.length) {
         //should do something here... currently always padding with zeros!
       } else {
         rightPadding = buffer.slice(this.view_state_service.curViewPort.eS, this.view_state_service.curViewPort.eS + fftN / 2 - 1);
@@ -1169,10 +1172,10 @@ export class SpectroComponent implements OnInit {
         'imgHeight': this.mainCanvas.nativeElement.height,
         'dynRangeInDB': this.view_state_service.spectroSettings.dynamicRange,
         'pixelRatio': this.devicePixelRatio,
-        'sampleRate': this.sound_handler_service.audioBuffer.sampleRate,
+        'sampleRate': this._audio_buffer.sampleRate,
         'transparency': this.config_provider_service.vals.spectrogramSettings.transparency,
         'audioBuffer': paddedSamples.buffer,
-        'audioBufferChannels': this.sound_handler_service.audioBuffer.numberOfChannels,
+        'audioBufferChannels': this._audio_buffer.numberOfChannels,
         'drawHeatMapColors': this.view_state_service.spectroSettings.drawHeatMapColors,
         'preEmphasisFilterFactor': this.view_state_service.spectroSettings.preEmphasisFilterFactor,
         'heatMapColorAnchors': this.view_state_service.spectroSettings.heatMapColorAnchors
