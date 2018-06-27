@@ -220,7 +220,8 @@ innerHandleConnectedToWSserver(data) {
             this.config_provider_service.vals.spectrogramSettings.window,
             this.config_provider_service.vals.spectrogramSettings.drawHeatMapColors,
             this.config_provider_service.vals.spectrogramSettings.preEmphasisFilterFactor,
-            this.config_provider_service.vals.spectrogramSettings.heatMapColorAnchors);
+            this.config_provider_service.vals.spectrogramSettings.heatMapColorAnchors,
+            this.config_provider_service.vals.spectrogramSettings.transparency);
 
           // setting transition values
           // this.view_state_service.setTransitionTime(this.config_provider_service.design.animation.period);

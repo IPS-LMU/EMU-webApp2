@@ -1,11 +1,12 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 
 import { ViewStateService } from '../_services/view-state.service';
-import { ConfigProviderService } from '../_services/config-provider.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
 import { ArrayBufferHelperService } from '../_services/array-buffer-helper.service';
+import {getSamplesPerPixelInViewport} from '../_utilities/view-state-helper-functions';
+import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 
 @Component({
   selector: 'app-spectro',
@@ -20,6 +21,7 @@ export class SpectroComponent implements OnInit {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
+  private _spectrogram_settings: SpectrogramSettings;
   private _main_context;
   private _markup_context;
   private worker;
@@ -29,6 +31,10 @@ export class SpectroComponent implements OnInit {
   // default alpha for Window Function
   private alpha: number = 0.16;
   private devicePixelRatio = window.devicePixelRatio || 1;
+
+  @Input() set spectrogram_settings(value: SpectrogramSettings) {
+    this._spectrogram_settings = value;
+  }
 
   @Input() set audio_buffer(value: AudioBuffer) {
     this._audio_buffer = value;
@@ -68,7 +74,6 @@ export class SpectroComponent implements OnInit {
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
   constructor(private view_state_service: ViewStateService,
-              private config_provider_service: ConfigProviderService,
               private array_buffer_helper_service: ArrayBufferHelperService) {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
@@ -1038,10 +1043,6 @@ export class SpectroComponent implements OnInit {
     this.startSpectroRenderingThread(buffer);
   }
 
-  calcSamplesPerPxl() {
-    return (this.view_state_service.curViewPort.eS + 1 - this.view_state_service.curViewPort.sS) / this.mainCanvas.nativeElement.width;
-  }
-
 //   scope.clearAndDrawSpectMarkup = function () {
 //     scope.markupCtx.clearRect(0, 0, scope.canvas1.width, scope.canvas1.height);
 //     scope.drawSpectMarkup();
@@ -1072,7 +1073,7 @@ export class SpectroComponent implements OnInit {
         this.view_state_service.getCurrentMouseOverLevel()
     );
     // draw min max vals and name of track
-    DrawHelperService.drawMinMaxAndName(this._markup_context, '', this.view_state_service.spectroSettings.rangeFrom, this.view_state_service.spectroSettings.rangeTo, 2);
+    DrawHelperService.drawMinMaxAndName(this._markup_context, '', this._spectrogram_settings.rangeFrom, this._spectrogram_settings.rangeTo, 2);
     // only draw corsshair x line if mouse currently not over canvas
     DrawHelperService.drawCrossHairX(this._markup_context, this.view_state_service.curMouseX);
 
@@ -1103,7 +1104,12 @@ export class SpectroComponent implements OnInit {
     let imageData = this._main_context.createImageData(this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     this.worker.onmessage = (event) => {
       if (event.data.status === undefined) {
-        if (this.calcSamplesPerPxl() === event.data.samplesPerPxl) {
+        const samplesPerPxl = getSamplesPerPixelInViewport(
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            this.mainCanvas.nativeElement
+        );
+        if (samplesPerPxl === event.data.samplesPerPxl) {
           let tmp = new Uint8ClampedArray(event.data.img);
           imageData.data.set(tmp);
           this._main_context.putImageData(imageData, 0, 0);
@@ -1121,29 +1127,29 @@ export class SpectroComponent implements OnInit {
       this.worker = new Worker(this.workerFunctionURL);
 
       let parseData: any = [];
-      let fftN = MathHelperService.calcClosestPowerOf2Gt(this._audio_buffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs);
+      let fftN = MathHelperService.calcClosestPowerOf2Gt(this._audio_buffer.sampleRate * this._spectrogram_settings.windowSizeInSecs);
       // fftN must be greater than 512 (leads to better resolution of spectrogram)
       if (fftN < 512) {
         fftN = 512;
       }
       // extract relavant data
-      parseData = buffer.slice(this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS);
+      parseData = buffer.slice(this._viewport_sample_start, this._viewport_sample_end);
 
       let leftPadding: any = [];
       let rightPadding: any = [];
 
       // check if any zero padding at LEFT edge is necessary
-      let windowSizeInSamples = this._audio_buffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs;
-      if (this.view_state_service.curViewPort.sS < windowSizeInSamples / 2) {
+      let windowSizeInSamples = this._audio_buffer.sampleRate * this._spectrogram_settings.windowSizeInSecs;
+      if (this._viewport_sample_start < windowSizeInSamples / 2) {
         //should do something here... currently always padding with zeros!
       } else {
-        leftPadding = buffer.slice(this.view_state_service.curViewPort.sS - windowSizeInSamples / 2, this.view_state_service.curViewPort.sS);
+        leftPadding = buffer.slice(this._viewport_sample_start - windowSizeInSamples / 2, this._viewport_sample_start);
       }
       // check if zero padding at RIGHT edge is necessary
-      if (this.view_state_service.curViewPort.eS + fftN / 2 - 1 >= this._audio_buffer.length) {
+      if (this._viewport_sample_end + fftN / 2 - 1 >= this._audio_buffer.length) {
         //should do something here... currently always padding with zeros!
       } else {
-        rightPadding = buffer.slice(this.view_state_service.curViewPort.eS, this.view_state_service.curViewPort.eS + fftN / 2 - 1);
+        rightPadding = buffer.slice(this._viewport_sample_end, this._viewport_sample_end + fftN / 2 - 1);
       }
       // add padding
       let paddedSamples = new Float32Array(leftPadding.length + parseData.length + rightPadding.length);
@@ -1161,24 +1167,28 @@ export class SpectroComponent implements OnInit {
       this.setupEvent();
       // console.log(paddedSamples.buffer);
       this.worker.postMessage({
-        'windowSizeInSecs': this.view_state_service.spectroSettings.windowSizeInSecs,
+        'windowSizeInSecs': this._spectrogram_settings.windowSizeInSecs,
         'fftN': fftN,
         'alpha': this.alpha,
-        'upperFreq': this.view_state_service.spectroSettings.rangeTo,
-        'lowerFreq': this.view_state_service.spectroSettings.rangeFrom,
-        'samplesPerPxl': this.calcSamplesPerPxl(),
-        'window': this.view_state_service.spectroSettings.window,
+        'upperFreq': this._spectrogram_settings.rangeTo,
+        'lowerFreq': this._spectrogram_settings.rangeFrom,
+        'samplesPerPxl': getSamplesPerPixelInViewport(
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            this.mainCanvas.nativeElement
+        ),
+        'window': this._spectrogram_settings.window,
         'imgWidth': this.mainCanvas.nativeElement.width,
         'imgHeight': this.mainCanvas.nativeElement.height,
-        'dynRangeInDB': this.view_state_service.spectroSettings.dynamicRange,
+        'dynRangeInDB': this._spectrogram_settings.dynamicRange,
         'pixelRatio': this.devicePixelRatio,
         'sampleRate': this._audio_buffer.sampleRate,
-        'transparency': this.config_provider_service.vals.spectrogramSettings.transparency,
+        'transparency': this._spectrogram_settings.transparency,
         'audioBuffer': paddedSamples.buffer,
         'audioBufferChannels': this._audio_buffer.numberOfChannels,
-        'drawHeatMapColors': this.view_state_service.spectroSettings.drawHeatMapColors,
-        'preEmphasisFilterFactor': this.view_state_service.spectroSettings.preEmphasisFilterFactor,
-        'heatMapColorAnchors': this.view_state_service.spectroSettings.heatMapColorAnchors
+        'drawHeatMapColors': this._spectrogram_settings.drawHeatMapColors,
+        'preEmphasisFilterFactor': this._spectrogram_settings.preEmphasisFilterFactor,
+        'heatMapColorAnchors': this._spectrogram_settings.heatMapColorAnchors
       }, [paddedSamples.buffer]);
     }
   };

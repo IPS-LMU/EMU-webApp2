@@ -112,6 +112,7 @@
                     [viewport_sample_end] = "view_state_service.curViewPort.eS"></app-osci>
 
           <app-spectro style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name === 'SPEC'"
+                       [spectrogram_settings]="view_state_service.spectroSettings"
                        [audio_buffer] = "sound_handler_service.audioBuffer"
                        [channel]="view_state_service.osciSettings.curChannel"
                        [viewport_sample_start] = "view_state_service.curViewPort.sS"

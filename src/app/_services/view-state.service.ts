@@ -9,6 +9,7 @@ import {
     getPixelDistanceBetweenSamples,
     getPixelPositionOfSampleInViewport, getSamplesPerPixelInViewport
 } from '../_utilities/view-state-helper-functions';
+import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 
 
 @Injectable({
@@ -68,7 +69,7 @@ export class ViewStateService {
 
   curViewPort;
 
-  spectroSettings;
+  spectroSettings: SpectrogramSettings;
 
   osciSettings;
 
@@ -151,9 +152,10 @@ export class ViewStateService {
       rangeFrom: -1,
       rangeTo: -1,
       dynamicRange: -1,
-      window: -1,
-      drawHeatMapColors: -1,
-      heatMapColorAnchors: -1,
+      window: "GAUSS",
+      transparency: -1,
+      drawHeatMapColors: false,
+      heatMapColorAnchors: [],
       preEmphasisFilterFactor: -1
     };
 
@@ -526,7 +528,7 @@ setState(nameOrObj) {
   /**
    * setspectroSettings
    */
-  setspectroSettings(len, rfrom, rto, dyn, win, hm, preEmph, hmColorAnchors) {
+  setspectroSettings(len, rfrom, rto, dyn, win, hm, preEmph, hmColorAnchors, transparency) {
     this.spectroSettings.windowSizeInSecs = len;
     this.spectroSettings.rangeFrom = parseInt(rfrom, 10);
     this.spectroSettings.rangeTo = parseInt(rto, 10);
@@ -535,6 +537,7 @@ setState(nameOrObj) {
     this.spectroSettings.drawHeatMapColors = hm;
     this.spectroSettings.preEmphasisFilterFactor = preEmph;
     this.spectroSettings.heatMapColorAnchors = hmColorAnchors;
+    this.spectroSettings.transparency = transparency;
   }
 
   // /**

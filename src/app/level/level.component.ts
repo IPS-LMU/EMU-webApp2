@@ -786,13 +786,13 @@ export class LevelComponent implements OnInit {
 
     let posS, posE, sDist, xOffset, item;
     posS = getPixelPositionOfSampleInViewport(
-        this.view_state_service.curViewPort.selectS,
+        this._selection_sample_start,
         this._viewport_sample_start,
         this._viewport_sample_end,
         ctx.canvas.width
     );
     posE = getPixelPositionOfSampleInViewport(
-        this.view_state_service.curViewPort.selectE,
+        this._selection_sample_end,
         this._viewport_sample_start,
         this._viewport_sample_end,
         ctx.canvas.width
