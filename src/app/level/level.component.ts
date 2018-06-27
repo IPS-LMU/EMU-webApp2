@@ -24,6 +24,8 @@ export class LevelComponent implements OnInit {
   private _attributeDefinition: string;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
+  private _selection_sample_start: number;
+  private _selection_sample_end: number;
   private _external_cursor_sample_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
@@ -66,12 +68,22 @@ export class LevelComponent implements OnInit {
   @Input() set viewport_sample_start(value: number){
     this._viewport_sample_start = value;
     // console.log("setting _viewport_sample_start");
-    // this.redraw();
+    this.redraw();
   }
   @Input() set viewport_sample_end(value: number){
     this._viewport_sample_end = value;
     // console.log("setting _viewport_sample_end");
     this.redraw();
+  }
+  @Input() set selection_sample_start(value: number){
+      this._selection_sample_start = value;
+      // console.log("setting _viewport_sample_start");
+      // this.redraw();
+  }
+  @Input() set selection_sample_end(value: number){
+      this._selection_sample_end = value;
+      // console.log("setting _viewport_sample_end");
+      // this.redraw();
   }
   @Input() set external_cursor_sample_position(value: number){
     this._external_cursor_sample_position = value;
@@ -758,6 +770,8 @@ export class LevelComponent implements OnInit {
         false,
         this._viewport_sample_start,
         this._viewport_sample_end,
+        this._selection_sample_start,
+        this._selection_sample_end,
         this._audio_buffer
     );
 

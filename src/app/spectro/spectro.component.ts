@@ -18,6 +18,8 @@ export class SpectroComponent implements OnInit {
   private _audio_buffer: any;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
+  private _selection_sample_start: number;
+  private _selection_sample_end: number;
   private _main_context;
   private _markup_context;
   private worker;
@@ -45,7 +47,18 @@ export class SpectroComponent implements OnInit {
       this.redraw()
     }
   }
-
+  @Input() set selection_sample_start(value: number){
+      this._selection_sample_start = value;
+      console.log("setting _selection_sample_start");
+      // this.redraw();
+  }
+  @Input() set selection_sample_end(value: number){
+      this._selection_sample_end = value;
+      console.log("setting _selection_sample_end");
+      if(this._selection_sample_end !== 0){ // SIC this has to be done better!
+       //   this.redraw();
+      }
+  }
 
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
@@ -1041,6 +1054,8 @@ export class SpectroComponent implements OnInit {
         false,
         this._viewport_sample_start,
         this._viewport_sample_end,
+        this._selection_sample_start,
+        this._selection_sample_end,
         this._audio_buffer
     );
     // draw min max vals and name of track
@@ -1059,6 +1074,8 @@ export class SpectroComponent implements OnInit {
         false,
         this._viewport_sample_start,
         this._viewport_sample_end,
+        this._selection_sample_start,
+        this._selection_sample_end,
         this._audio_buffer
     );
     FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);

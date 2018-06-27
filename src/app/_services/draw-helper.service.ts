@@ -543,7 +543,13 @@ export class DrawHelperService {
    * drawing method to drawCurViewPortSelected
    */
 
-  public drawCurViewPortSelected(ctx, drawTimeAndSamples, viewportStartSample: number, viewportEndSample: number, audioBuffer: AudioBuffer) {
+  public drawCurViewPortSelected(ctx: CanvasRenderingContext2D,
+                                 drawTimeAndSamples: boolean,
+                                 viewportStartSample: number,
+                                 viewportEndSample: number,
+                                 selectionStartSample: number,
+                                 selectionEndSample: number,
+                                 audioBuffer: AudioBuffer) {
 
     let fontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
     let xOffset, sDist, space, scaleX;
@@ -558,13 +564,13 @@ export class DrawHelperService {
     }
 
     const posS = getPixelPositionOfSampleInViewport(
-        this.view_state_service.curViewPort.selectS,
+        selectionStartSample,
         viewportStartSample,
         viewportEndSample,
         ctx.canvas.width
     );
     const posE = getPixelPositionOfSampleInViewport(
-        this.view_state_service.curViewPort.selectE,
+        selectionEndSample,
         viewportStartSample,
         viewportEndSample,
         ctx.canvas.width
@@ -576,10 +582,10 @@ export class DrawHelperService {
       ctx.fillRect(posS + xOffset, 0, 2, ctx.canvas.height);
 
       if (drawTimeAndSamples) {
-        if (viewportStartSample !== this.view_state_service.curViewPort.selectS && this.view_state_service.curViewPort.selectS !== -1) {
+        if (viewportStartSample !== selectionStartSample && selectionStartSample !== -1) {
           scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-          space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / audioBuffer.sampleRate, 6), scaleX);
-          // FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
+          space = DrawHelperService.getScaleWidth(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6), scaleX);
+          // FontScaleService.drawUndistortedTextTwoLines(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
         }
       }
     } else {
@@ -597,18 +603,18 @@ export class DrawHelperService {
       if (drawTimeAndSamples) {
         // start values
         scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-        space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / audioBuffer.sampleRate, 6), scaleX);
-        // FontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
+        space = DrawHelperService.getScaleWidth(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6), scaleX);
+        // FontScaleService.drawUndistortedTextTwoLines(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
 
         // end values
         // FontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectE, MathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
         // dur values
         // check if space
-        space = DrawHelperService.getScale(ctx, MathHelperService.roundToNdigitsAfterDecPoint((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / audioBuffer.sampleRate, 6), scaleX);
+        space = DrawHelperService.getScale(ctx, MathHelperService.roundToNdigitsAfterDecPoint((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate, 6), scaleX);
 
         if (posE - posS > space) {
-          let str1 = this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS - 1;
-          let str2 = MathHelperService.roundToNdigitsAfterDecPoint(((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / audioBuffer.sampleRate), 6);
+          let str1 = selectionEndSample - selectionStartSample - 1;
+          let str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate), 6);
           space = DrawHelperService.getScaleWidth(ctx, str1, str2, scaleX);
           // FontScaleService.drawUndistortedTextTwoLines(ctx, str1, str2, fontSize, ConfigProviderService.design.font.small.family, posS + (posE - posS) / 2 - space / 2, 0, ConfigProviderService.design.color.black, false);
         }
