@@ -21,21 +21,6 @@ export class ViewStateService {
     this.initialize();
   }
 
-
-  // window functions enum for spectro
-  myWindow = {
-    BARTLETT: 1,
-    BARTLETTHANN: 2,
-    BLACKMAN: 3,
-    COSINE: 4,
-    GAUSS: 5,
-    HAMMING: 6,
-    HANN: 7,
-    LANCZOS: 8,
-    RECTANGULAR: 9,
-    TRIANGULAR: 10
-  };
-
   // communication modes enum
   myMode = {
     DEMO: 1,
@@ -152,7 +137,7 @@ export class ViewStateService {
       rangeFrom: -1,
       rangeTo: -1,
       dynamicRange: -1,
-      window: "GAUSS",
+      window: 'BARTLETTHANN',
       transparency: -1,
       drawHeatMapColors: false,
       heatMapColorAnchors: [],
@@ -533,7 +518,7 @@ setState(nameOrObj) {
     this.spectroSettings.rangeFrom = parseInt(rfrom, 10);
     this.spectroSettings.rangeTo = parseInt(rto, 10);
     this.spectroSettings.dynamicRange = parseInt(dyn, 10);
-    this.setWindowFunction(win);
+    this.spectroSettings.window = win;
     this.spectroSettings.drawHeatMapColors = hm;
     this.spectroSettings.preEmphasisFilterFactor = preEmph;
     this.spectroSettings.heatMapColorAnchors = hmColorAnchors;
@@ -629,48 +614,6 @@ setState(nameOrObj) {
     }
   }
 
-
-  /**
-   * set the window Function for the Spectrogram
-   * @param name of Window Function
-   */
-  setWindowFunction = function (name) {
-    switch (name) {
-      case 'BARTLETT':
-        this.spectroSettings.window = this.myWindow.BARTLETT;
-        break;
-      case 'BARTLETTHANN':
-        this.spectroSettings.window = this.myWindow.BARTLETTHANN;
-        break;
-      case 'BLACKMAN':
-        this.spectroSettings.window = this.myWindow.BLACKMAN;
-        break;
-      case 'COSINE':
-        this.spectroSettings.window = this.myWindow.COSINE;
-        break;
-      case 'GAUSS':
-        this.spectroSettings.window = this.myWindow.GAUSS;
-        break;
-      case 'HAMMING':
-        this.spectroSettings.window = this.myWindow.HAMMING;
-        break;
-      case 'HANN':
-        this.spectroSettings.window = this.myWindow.HANN;
-        break;
-      case 'LANCZOS':
-        this.spectroSettings.window = this.myWindow.LANCZOS;
-        break;
-      case 'RECTANGULAR':
-        this.spectroSettings.window = this.myWindow.RECTANGULAR;
-        break;
-      case 'TRIANGULAR':
-        this.spectroSettings.window = this.myWindow.TRIANGULAR;
-        break;
-      default:
-        this.spectroSettings.window = this.myWindow.BARTLETTHANN;
-        break;
-    }
-  }
   //
   // /**
   //  * @returns myWindow object

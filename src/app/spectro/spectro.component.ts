@@ -7,6 +7,7 @@ import { FontScaleService } from '../_services/font-scale.service';
 import { ArrayBufferHelperService } from '../_services/array-buffer-helper.service';
 import {getSamplesPerPixelInViewport} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
+import {WindowType} from '../_interfaces/window-type.type';
 
 @Component({
   selector: 'app-spectro',
@@ -118,18 +119,6 @@ export class SpectroComponent implements OnInit {
     selfAny.TWO_PI = 6.283185307179586; // value : 2 * Math.PI
     selfAny.totalMax = 0;
     selfAny.dynRangeInDB = 50;
-    selfAny.myWindow = {
-      BARTLETT: 1,
-      BARTLETTHANN: 2,
-      BLACKMAN: 3,
-      COSINE: 4,
-      GAUSS: 5,
-      HAMMING: 6,
-      HANN: 7,
-      LANCZOS: 8,
-      RECTANGULAR: 9,
-      TRIANGULAR: 10
-    };
     selfAny.imgWidth = 0;
     selfAny.imgHeight = 0;
     selfAny.upperFreq = 0;
@@ -232,11 +221,11 @@ export class SpectroComponent implements OnInit {
        * to only apply function to non-zero-padded values of magnitude spectrum.
        * @return the windowed/pre-emphasised buffer
        */
-      this.applyWindowFuncAndPreemph = function (type, alpha, buffer, length) {
+      this.applyWindowFuncAndPreemph = function (type: WindowType, alpha, buffer, length) {
         // var length = buffer.length;
         this.alpha = alpha;
         switch (type) {
-          case selfAny.myWindow.BARTLETT:
+          case 'BARTLETT':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -244,7 +233,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionBartlett(length, i);
             }
             break;
-          case selfAny.myWindow.BARTLETTHANN:
+          case 'BARTLETTHANN':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -252,7 +241,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionBartlettHann(length, i);
             }
             break;
-          case selfAny.myWindow.BLACKMAN:
+          case 'BLACKMAN':
             this.alpha = this.alpha || 0.16;
             for (i = 0; i < length; i++) {
               if (i > 0) {
@@ -261,7 +250,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionBlackman(length, i, alpha);
             }
             break;
-          case selfAny.myWindow.COSINE:
+          case 'COSINE':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -269,7 +258,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionCosine(length, i);
             }
             break;
-          case selfAny.myWindow.GAUSS:
+          case 'GAUSS':
             this.alpha = this.alpha || 0.25;
             for (i = 0; i < length; i++) {
               if (i > 0) {
@@ -278,7 +267,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionGauss(length, i, alpha);
             }
             break;
-          case selfAny.myWindow.HAMMING:
+          case 'HAMMING':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -286,7 +275,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionHamming(length, i);
             }
             break;
-          case selfAny.myWindow.HANN:
+          case 'HANN':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -294,7 +283,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionHann(length, i);
             }
             break;
-          case selfAny.myWindow.LANCZOS:
+          case 'LANCZOS':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -302,7 +291,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionLanczos(length, i);
             }
             break;
-          case selfAny.myWindow.RECTANGULAR:
+          case 'RECTANGULAR':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -310,7 +299,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionRectangular(length, i);
             }
             break;
-          case selfAny.myWindow.TRIANGULAR:
+          case 'TRIANGULAR':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -730,38 +719,7 @@ export class SpectroComponent implements OnInit {
           render = false;
         }
         if (data.window !== undefined) {
-          switch (data.window) {
-            case 1:
-              selfAny.wFunction = selfAny.myWindow.BARTLETT;
-              break;
-            case 2:
-              selfAny.wFunction = selfAny.myWindow.BARTLETTHANN;
-              break;
-            case 3:
-              selfAny.wFunction = selfAny.myWindow.BLACKMAN;
-              break;
-            case 4:
-              selfAny.wFunction = selfAny.myWindow.COSINE;
-              break;
-            case 5:
-              selfAny.wFunction = selfAny.myWindow.GAUSS;
-              break;
-            case 6:
-              selfAny.wFunction = selfAny.myWindow.HAMMING;
-              break;
-            case 7:
-              selfAny.wFunction = selfAny.myWindow.HANN;
-              break;
-            case 8:
-              selfAny.wFunction = selfAny.myWindow.LANCZOS;
-              break;
-            case 9:
-              selfAny.wFunction = selfAny.myWindow.RECTANGULAR;
-              break;
-            case 10:
-              selfAny.wFunction = selfAny.myWindow.TRIANGULAR;
-              break;
-          }
+          selfAny.wFunction = data.window;
         } else {
           renderError = 'window';
           render = false;
