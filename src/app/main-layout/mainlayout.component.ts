@@ -1126,7 +1126,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                 lastEventMove = LevelService.getClosestItem(this.view_state_service.getLasPcm() + this.view_state_service.curViewPort.sS, levelName, this.sound_handler_service.audioBuffer.length);
     //                 if (lastEventMove.current !== undefined && lastEventMove.nearest !== undefined) {
     //                   lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
-    //                   this.view_state_service.setcurMouseItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
+    //                   this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                 }
     //                 this.view_state_service.setcurClickItem(deletedSegment.clickSeg);
     //               } else {
@@ -1145,10 +1145,10 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   lastEventMove = LevelService.getClosestItem(this.view_state_service.getLasPcm() + this.view_state_service.curViewPort.sS, levelName, this.sound_handler_service.audioBuffer.length);
     //                   if (lastEventMove.current !== undefined && lastEventMove.nearest !== undefined) {
     //                     lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
-    //                     this.view_state_service.setcurMouseItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
+    //                     this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                   }
     //                 } else {
-    //                   this.view_state_service.setcurMouseItem(undefined, undefined, undefined, undefined, undefined);
+    //                   this.view_state_service.preselectItem(undefined, undefined, undefined, undefined, undefined);
     //                 }
     //               }
     //             }
@@ -1178,7 +1178,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                 lastEventMove = LevelService.getClosestItem(this.view_state_service.getLasPcm() + this.view_state_service.curViewPort.sS, levelName, this.sound_handler_service.audioBuffer.length);
     //                 if (lastEventMove.current !== undefined && lastEventMove.nearest !== undefined) {
     //                   lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
-    //                   this.view_state_service.setcurMouseItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
+    //                   this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                 }
     //                 this.view_state_service.setcurClickItem(deletedSegment.clickSeg);
     //               } else {

@@ -10,6 +10,7 @@ import {
     getPixelPositionOfSampleInViewport, getSamplesPerPixelInViewport
 } from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
+import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 
 
 @Injectable({
@@ -74,11 +75,8 @@ export class ViewStateService {
   rightSubmenuOpen;
   curClickItems;
   curMousePosSample;
-  curMouseX: number;
-  curMouseisFirst: boolean;
-  curMouseisLast: boolean;
-  curMouseItem: IItem;
-  curMouseNeighbours: {left: IItem; right: IItem};
+  curMouseX;
+  preselectedItemInfo: PreselectedItemInfo;
   curMouseTrackName;
   currentMouseOverLevel: ILevel;
   currentClickLevel: ILevel;
@@ -341,6 +339,7 @@ export class ViewStateService {
     this.rightSubmenuOpen = false;
     this.curClickItems = [];
     this.curMousePosSample = 0;
+    this.preselectedItemInfo = undefined;
     this.curMouseX = 0;
     this.curMouseTrackName = undefined;
     this.currentMouseOverLevel = undefined;
@@ -796,43 +795,28 @@ setState(nameOrObj) {
 
 
   /**
-   * sets the current (mousemove) Item
+   * Preselects an item (usually called upon MouseMove)
+   *
    * @param item Object representing the current mouse item
-   * @param neighbour Objects of left and right neighbours of the current mouse item
+   * @param neighbours Objects of left and right neighbours of the current mouse item
    * @param x current horizontal mouse pointer position
    * @param isFirst true if item is the first item on current level
    * @param isLast true if item is last item on current level
    */
-  public setcurMouseItem(item: IItem, neighbour: {left: IItem; right: IItem}, x: number, isFirst: boolean, isLast: boolean) {
-    this.curMouseItem = item;
-    this.curMouseX = x;
-    this.curMouseNeighbours = neighbour;
-    this.curMouseisFirst = isFirst;
-    this.curMouseisLast = isLast;
-  };
+  public preselectItem(item: IItem,
+                       neighbours: {left: IItem; right: IItem},
+                       isFirst: boolean,
+                       isLast: boolean) {
+      this.preselectedItemInfo = {
+          item: item,
+          neighbours: neighbours,
+          isFirst: isFirst,
+          isLast: isLast
+      };
+  }
 
-  /**
-   * Getter for current Mouse Item
-   * @return Object representing the current mouse item
-   */
-  public getcurMouseItem() {
-    return this.curMouseItem;
-  };
-
-  /**
-   * Getter for isFirst
-   * @return true if item is first item on level
-   */
-  public getcurMouseisFirst() {
-    return this.curMouseisFirst;
-  };
-
-  /**
-   * Getter for isLast
-   * @return true if item is last item on level
-   */
-  public getcurMouseisLast() {
-    return this.curMouseisLast;
+  public getPreselectedItemInfo() {
+      return this.preselectedItemInfo;
   }
 
   // /**
@@ -1187,16 +1171,16 @@ setState(nameOrObj) {
    */
   zoomViewPort(zoomIn, data_service: DataService) {
     let newStartS, newEndS, curMouseMoveItemStart;
-    let seg = this.getcurMouseItem();
+    let seg = this.getPreselectedItemInfo().item;
     let d = this.curViewPort.eS - this.curViewPort.sS;
 
     let isLastSeg = false;
 
     if (seg !== undefined) {
       const levelData: ILevel = this.getCurrentMouseOverLevel();
-      if (this.getcurMouseisFirst()) { // before first element
+      if (this.getPreselectedItemInfo().isFirst) { // before first element
         seg = levelData.items[0];
-      } else if (this.getcurMouseisLast()) {
+      } else if (this.getPreselectedItemInfo().isLast) {
         seg = levelData.items[levelData.items.length - 1];
         isLastSeg = true;
       }

@@ -8,6 +8,7 @@ import { ArrayBufferHelperService } from '../_services/array-buffer-helper.servi
 import {getSamplesPerPixelInViewport} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
+import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 
 @Component({
   selector: 'app-spectro',
@@ -22,6 +23,7 @@ export class SpectroComponent implements OnInit {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
+  private _preselected_item: PreselectedItemInfo;
   private _spectrogram_settings: SpectrogramSettings;
   private _main_context;
   private _markup_context;
@@ -69,6 +71,10 @@ export class SpectroComponent implements OnInit {
       if(this._selection_sample_end !== 0){ // SIC this has to be done better!
        //   this.redraw();
       }
+  }
+
+  @Input() set preselected_item (value: PreselectedItemInfo) {
+    this._preselected_item = value;
   }
 
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
@@ -1014,7 +1020,7 @@ export class SpectroComponent implements OnInit {
           this._viewport_sample_start,
           this._viewport_sample_end,
           this.view_state_service.movingBoundarySample,
-          this.view_state_service.getcurMouseisLast(),
+          this._preselected_item.isLast,
           this.view_state_service.getCurrentMouseOverLevel()
       );
     }
@@ -1032,7 +1038,6 @@ export class SpectroComponent implements OnInit {
     );
     // draw min max vals and name of track
     DrawHelperService.drawMinMaxAndName(this._markup_context, '', this._spectrogram_settings.rangeFrom, this._spectrogram_settings.rangeTo, 2);
-    // only draw corsshair x line if mouse currently not over canvas
     DrawHelperService.drawCrossHairX(this._markup_context, this.view_state_service.curMouseX);
 
   }

@@ -388,7 +388,7 @@ export class LevelService {
       // nothing left to do level empty now
       /*
       @todo the viewState must be handled elsewhere - probably as an @Output in LevelComponent
-      this.view_state_service.setcurMouseItem(undefined, undefined, undefined, undefined, undefined);
+      this.view_state_service.preselectItem(undefined, undefined, undefined, undefined, undefined);
       */
     } else {
       LevelService.updateSegment(level, neighbours.left.id, undefined, undefined, neighbours.left.sampleStart, (neighbours.left.sampleDur + timeLeft));

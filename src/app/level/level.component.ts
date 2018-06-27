@@ -11,6 +11,7 @@ import {
     getPixelDistanceBetweenSamples,
     getPixelPositionOfSampleInViewport, getSamplesPerPixelInViewport
 } from '../_utilities/view-state-helper-functions';
+import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 
 @Component({
   selector: 'app-level',
@@ -19,7 +20,8 @@ import {
 })
 export class LevelComponent implements OnInit {
 
-  private _database_configuration: {restrictions: any, perspectives: any[]}
+  private _database_configuration: {restrictions: any, perspectives: any[]};
+  private _preselected_item: PreselectedItemInfo;
   private _level_annotation: ILevel;
   private _attributeDefinition: string;
   private _viewport_sample_start: number;
@@ -84,6 +86,9 @@ export class LevelComponent implements OnInit {
       this._selection_sample_end = value;
       // console.log("setting _viewport_sample_end");
       // this.redraw();
+  }
+  @Input() set preselected_item(value: PreselectedItemInfo) {
+    this._preselected_item = value;
   }
   @Input() set external_cursor_sample_position(value: number){
     this._external_cursor_sample_position = value;
@@ -263,7 +268,7 @@ export class LevelComponent implements OnInit {
 //
 //   // on mouse leave reset this.view_state_service.
 //   element.bind('mouseleave', function () {
-//     this.vs.setcurMouseItem(undefined, undefined, undefined);
+//     this.vs.preselectItem(undefined, undefined, undefined);
 //     this.drawLevelMarkup();
 //   });
 
@@ -337,19 +342,20 @@ export class LevelComponent implements OnInit {
           break;
         default:
           if (!this.view_state_service.getdragBarActive()) {
-            let curMouseItem = this.view_state_service.getcurMouseItem();
             let seg;
             if (this._database_configuration.restrictions.editItemSize && event.shiftKey) {
               this.deleteEditArea();
-              if (curMouseItem !== undefined) {
+              if (this._preselected_item) {
+                const curMouseItem = this._preselected_item.item;
+
                 this.view_state_service.movingBoundary = true;
                 if (this._level_annotation.type === 'SEGMENT') {
-                  if (this.view_state_service.getcurMouseisFirst() || this.view_state_service.getcurMouseisLast()) {
+                  if (this._preselected_item.isFirst || this._preselected_item.isLast) {
                     // before first segment
-                    if (this.view_state_service.getcurMouseisFirst()) {
+                    if (this._preselected_item.isFirst) {
                       seg = this._level_annotation.items[0];
                       this.view_state_service.movingBoundarySample = seg.sampleStart + moveBy;
-                    } else if (this.view_state_service.getcurMouseisLast()) {
+                    } else if (this._preselected_item.isLast) {
                       seg = this._level_annotation.items[this._level_annotation.items.length - 1];
                       this.view_state_service.movingBoundarySample = seg.sampleStart + seg.sampleDur + moveBy;
                     }
@@ -361,8 +367,8 @@ export class LevelComponent implements OnInit {
                     this._level_annotation,
                     seg.id,
                     moveBy,
-                    this.view_state_service.getcurMouseisFirst(),
-                    this.view_state_service.getcurMouseisLast(),
+                    this._preselected_item.isFirst,
+                    this._preselected_item.isLast,
                     this._audio_buffer.length
                   );
                   this.history_service.updateCurChangeObj({
@@ -371,8 +377,8 @@ export class LevelComponent implements OnInit {
                     'name': this._level_annotation.name,
                     'id': seg.id,
                     'movedBy': moveBy,
-                    'isFirst': this.view_state_service.getcurMouseisFirst(),
-                    'isLast': this.view_state_service.getcurMouseisLast()
+                    'isFirst': this._preselected_item.isFirst,
+                    'isLast': this._preselected_item.isLast
                   });
 
                 } else {
@@ -436,6 +442,7 @@ export class LevelComponent implements OnInit {
           break;
       }
       if (!this.view_state_service.getdragBarActive()) {
+        this.view_state_service.curMouseX = getMousePositionInCanvasX(event);
         this.setLastMove(event, moveLine);
       }
     }
@@ -548,7 +555,7 @@ export class LevelComponent implements OnInit {
     if (doChange) {
       if (this.lastEventMove.current !== undefined && this.lastEventMove.nearest !== undefined) {
         this.lastNeighboursMove = LevelService.getItemNeighboursFromLevel(this._level_annotation, this.lastEventMove.nearest.id, this.lastEventMove.nearest.id);
-        this.view_state_service.setcurMouseItem(this.lastEventMove.nearest, this.lastNeighboursMove, getMousePositionInCanvasX(x), this.lastEventMove.isFirst, this.lastEventMove.isLast);
+        this.view_state_service.preselectItem(this.lastEventMove.nearest, this.lastNeighboursMove, this.lastEventMove.isFirst, this.lastEventMove.isLast);
       }
     }
     this.view_state_service.setCurrentMouseOverLevel(this._level_annotation);
@@ -766,7 +773,7 @@ export class LevelComponent implements OnInit {
           this._viewport_sample_start,
           this._viewport_sample_end,
           this.view_state_service.movingBoundarySample,
-          this.view_state_service.getcurMouseisLast(),
+          this._preselected_item.isLast,
           this.view_state_service.getCurrentMouseOverLevel()
       );
     }
@@ -800,9 +807,6 @@ export class LevelComponent implements OnInit {
     sDist = getPixelDistanceBetweenSamples(this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
 
 
-    let segMId = this.view_state_service.getcurMouseItem();
-    let isFirst = this.view_state_service.getcurMouseisFirst();
-    let isLast = this.view_state_service.getcurMouseisLast();
     let clickedSegs = this.view_state_service.getcurClickItems();
 
     if (clickedSegs !== undefined) {
@@ -844,12 +848,13 @@ export class LevelComponent implements OnInit {
 
 
     // draw preselected boundary
-    item = this.view_state_service.getcurMouseItem();
-    if (this._level_annotation.items.length > 0 && item !== undefined && segMId !== undefined && this._hovering) {
+
+    if (this._level_annotation.items.length > 0 && this._preselected_item && this._hovering) {
+      item = this._preselected_item.item;
       ctx.fillStyle = '#4fc3f7'; //this.config_provider_service.design.color.blue;
-      if (isFirst === true) { // before first segment
+      if (this._preselected_item.isFirst === true) { // before first segment
         if (this._level_annotation.type === 'SEGMENT') {
-          item = this._level_annotation.items[0];
+          item = this._level_annotation.items[0]; // @todo this is superfluous
           posS = Math.round(getPixelPositionOfSampleInViewport(
              item.sampleStart,
              this._viewport_sample_start,
@@ -858,7 +863,7 @@ export class LevelComponent implements OnInit {
           ));
           ctx.fillRect(posS, 0, 3, ctx.canvas.height);
         }
-      } else if (isLast === true) { // after last segment
+      } else if (this._preselected_item.isLast === true) { // after last segment
         if (this._level_annotation.type === 'SEGMENT') {
           item = this._level_annotation.items[this._level_annotation.items.length - 1];
           posS = Math.round(getPixelPositionOfSampleInViewport(
