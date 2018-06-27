@@ -14,8 +14,11 @@ export class OsciComponent implements OnInit {
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
 
+  private osciPeaks;
+
   @Input() set audio_buffer(value: AudioBuffer){
     this._audio_buffer = value;
+    this.osciPeaks = DrawHelperService.calculateOsciPeaks(this._audio_buffer);
     console.log(value);
   }
 
@@ -32,11 +35,11 @@ export class OsciComponent implements OnInit {
     this._viewport_sample_end = value;
     console.log("setting _viewport_sample_end");
     if(this._viewport_sample_end !== 0){ // SIC this has to be done better!
-      this.draw_helper_service.freshRedrawDrawOsciOnCanvas(
+      DrawHelperService.freshRedrawDrawOsciOnCanvas(
         this.mainCanvas.nativeElement,
         this._viewport_sample_start,
         this._viewport_sample_end,
-      false,
+        this.osciPeaks,
         // @todo make sure this._audio_buffer is set before this._viewport_sample_end
         this._audio_buffer,
         this._channel
@@ -47,8 +50,6 @@ export class OsciComponent implements OnInit {
 
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   // @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
-
-  constructor(private draw_helper_service: DrawHelperService) { }
 
   ngOnInit() {
   }

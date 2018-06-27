@@ -66,7 +66,6 @@ export class SpectroComponent implements OnInit {
   constructor(private sound_handler_service: SoundHandlerService,
               private view_state_service: ViewStateService,
               private config_provider_service: ConfigProviderService,
-              private draw_helper_service: DrawHelperService,
               private array_buffer_helper_service: ArrayBufferHelperService) {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
@@ -1048,7 +1047,7 @@ export class SpectroComponent implements OnInit {
   drawSpectMarkup() {
     // draw moving boundary line if moving
     if (this.view_state_service.movingBoundary) {
-      this.draw_helper_service.drawMovingBoundaryLine(
+      DrawHelperService.drawMovingBoundaryLine(
           this._markup_context,
           this._viewport_sample_start,
           this._viewport_sample_end,
@@ -1059,7 +1058,7 @@ export class SpectroComponent implements OnInit {
     }
 
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(
+    DrawHelperService.drawCurViewPortSelected(
         this._markup_context,
         false,
         this._viewport_sample_start,
@@ -1070,9 +1069,9 @@ export class SpectroComponent implements OnInit {
         this.view_state_service.getCurrentMouseOverLevel()
     );
     // draw min max vals and name of track
-    this.draw_helper_service.drawMinMaxAndName(this._markup_context, '', this.view_state_service.spectroSettings.rangeFrom, this.view_state_service.spectroSettings.rangeTo, 2);
+    DrawHelperService.drawMinMaxAndName(this._markup_context, '', this.view_state_service.spectroSettings.rangeFrom, this.view_state_service.spectroSettings.rangeTo, 2);
     // only draw corsshair x line if mouse currently not over canvas
-    this.draw_helper_service.drawCrossHairX(this._markup_context, this.view_state_service.curMouseX);
+    DrawHelperService.drawCrossHairX(this._markup_context, this.view_state_service.curMouseX);
 
   }
 
@@ -1080,7 +1079,7 @@ export class SpectroComponent implements OnInit {
     this._main_context.fillStyle = 'lightgrey'; //ConfigProviderService.design.color.lightGrey;
     this._main_context.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(
+    DrawHelperService.drawCurViewPortSelected(
         this._markup_context,
         false,
         this._viewport_sample_start,

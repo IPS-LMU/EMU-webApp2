@@ -111,7 +111,6 @@ export class LevelComponent implements OnInit {
 
   constructor(private view_state_service: ViewStateService,
               private history_service: HistoryService,
-              private draw_helper_service: DrawHelperService,
               private element_ref: ElementRef) { }
 
   ngOnInit() {
@@ -762,7 +761,7 @@ export class LevelComponent implements OnInit {
 
     // draw moving boundary line if moving
     if (this.view_state_service.movingBoundary) {
-      this.draw_helper_service.drawMovingBoundaryLine(
+      DrawHelperService.drawMovingBoundaryLine(
           ctx,
           this._viewport_sample_start,
           this._viewport_sample_end,
@@ -773,7 +772,7 @@ export class LevelComponent implements OnInit {
     }
 
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(
+    DrawHelperService.drawCurViewPortSelected(
         ctx,
         false,
         this._viewport_sample_start,
@@ -896,7 +895,7 @@ export class LevelComponent implements OnInit {
     }
 
     // draw cursor
-    this.draw_helper_service.drawCrossHairX(ctx, this.view_state_service.curMouseX);
+    DrawHelperService.drawCrossHairX(ctx, this.view_state_service.curMouseX);
   }
 
 //   /**

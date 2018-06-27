@@ -1,5 +1,3 @@
-import { Injectable } from '@angular/core';
-
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
 import {
@@ -10,14 +8,7 @@ import {
 } from '../_utilities/view-state-helper-functions';
 import {ILevel} from '../_interfaces/annot-json.interface';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class DrawHelperService {
-
-  constructor() { }
-
-  osciPeaks: any = {};
 
   private static getScale(ctx, str, scale) {
     return ctx.measureText(str).width * scale;
@@ -34,7 +25,7 @@ export class DrawHelperService {
   /**
    *
    */
-  public calculateOsciPeaks(audioBuffer: AudioBuffer) {
+  public static calculateOsciPeaks(audioBuffer: AudioBuffer) {
     let sampleRate = audioBuffer.sampleRate;
     let numberOfChannels = audioBuffer.numberOfChannels;
 
@@ -49,7 +40,7 @@ export class DrawHelperService {
     let winSize2 = sampleRate / 1;
 
     // set initial result values
-    this.osciPeaks = {
+    const osciPeaks = {
       'numberOfChannels': numberOfChannels,
       'sampleRate': sampleRate,
       'winSizes': [winSize0, winSize1, winSize2],
@@ -163,12 +154,14 @@ export class DrawHelperService {
         curWindowIdxCounterWinSize2 += 1;
       }
 
-      this.osciPeaks.channelOsciPeaks[channelIdx] = {
+      osciPeaks.channelOsciPeaks[channelIdx] = {
         'maxPeaks': [curChannelMaxPeaksWinSize0, curChannelMaxPeaksWinSize1, curChannelMaxPeaksWinSize2],
         'minPeaks': [curChannelMinPeaksWinSize0, curChannelMinPeaksWinSize1, curChannelMinPeaksWinSize2]
       };
 
     }
+
+    return osciPeaks;
   }
 
 
@@ -181,7 +174,7 @@ export class DrawHelperService {
    * @param sS start sample
    * @param eS end sample
    */
-  public calculatePeaks = function (canvas, data, sS, eS) {
+  public static calculatePeaks = function (canvas, data, sS, eS) {
 
     let samplePerPx = (eS + 1 - sS) / canvas.width; // samples per pixel + one to correct for subtraction
     // var numberOfChannels = 1; // hardcode for now...
@@ -272,13 +265,13 @@ export class DrawHelperService {
   };
 
 
-  public findMinMaxPeaks(sS, eS, winIdx, audioBuffer: AudioBuffer) {
+  public static findMinMaxPeaks(sS, eS, winIdx, audioBuffer: AudioBuffer, osciPeaks) {
 
     const ssT = calculateSampleTime(sS, audioBuffer.sampleRate);
     const esT = calculateSampleTime(eS, audioBuffer.sampleRate);
 
     // calc exact peaks per second value (should be very close to or exactly 400|10|1 depending on  winSize)
-    let pps = this.osciPeaks.sampleRate / this.osciPeaks.winSizes[winIdx];
+    let pps = osciPeaks.sampleRate / osciPeaks.winSizes[winIdx];
 
     let startPeakWinIdx = ssT * pps;
     let endPeakWinIdx = esT * pps;
@@ -287,11 +280,11 @@ export class DrawHelperService {
     let maxMaxPeak = -Infinity;
 
     for(let i = Math.round(startPeakWinIdx); i < Math.round(endPeakWinIdx); i++){
-      if (this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i] > maxMaxPeak) {
-        maxMaxPeak = this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i];
+      if (osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i] > maxMaxPeak) {
+        maxMaxPeak = osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i];
       }
-      if (this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i] < minMinPeak) {
-        minMinPeak = this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i];
+      if (osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i] < minMinPeak) {
+        minMinPeak = osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i];
       }
     }
 
@@ -307,20 +300,10 @@ export class DrawHelperService {
   /**
    *
    */
-  public freshRedrawDrawOsciOnCanvas(canvas, sS, eS, forceToCalcOsciPeaks, audioBuffer: AudioBuffer, currentChannel: number) {
+  public static freshRedrawDrawOsciOnCanvas(canvas, sS, eS, osciPeaks, audioBuffer: AudioBuffer, currentChannel: number) {
     // clear canvas
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if(forceToCalcOsciPeaks){
-      this.osciPeaks = {};
-    }
-
-    // calc osciPeaks if these have not been calculated yet
-    // if(Object.keys(this.osciPeaks).length === 0 && this.osciPeaks.constructor === Object){
-    if(true){
-      this.calculateOsciPeaks(audioBuffer);
-    }
 
     // samples per pixel + one to correct for subtraction
     let samplesPerPx = (eS + 1 - sS) / canvas.width;
@@ -329,8 +312,8 @@ export class DrawHelperService {
 
     // find current peaks array window size by checking if
     let winIdx = -1;
-    for (i = 0; i < this.osciPeaks.winSizes.length; i++) {
-      if(samplesPerPx > this.osciPeaks.winSizes[i]){
+    for (i = 0; i < osciPeaks.winSizes.length; i++) {
+      if(samplesPerPx > osciPeaks.winSizes[i]){
         winIdx = i;
       }
     }
@@ -342,12 +325,12 @@ export class DrawHelperService {
 
     if(winIdx !== -1){
       // use pre calcuated peaks
-      allPeakVals = this.findMinMaxPeaks(sS, eS, winIdx, audioBuffer);
+      allPeakVals = DrawHelperService.findMinMaxPeaks(sS, eS, winIdx, audioBuffer, osciPeaks);
 
       let ssT = calculateSampleTime(sS, audioBuffer.sampleRate);
 
       // calc exact peaks per second value (should be very close to or exactly 400|10|1 depending on  winSize)
-      let pps = this.osciPeaks.sampleRate / this.osciPeaks.winSizes[winIdx];
+      let pps = osciPeaks.sampleRate / osciPeaks.winSizes[winIdx];
 
       let startPeakWinIdx = ssT * pps;
 
@@ -355,8 +338,8 @@ export class DrawHelperService {
 
       let peakIdx = Math.round(startPeakWinIdx);
       ctx.beginPath();
-      yMax = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
-      yMin = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+      yMax = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+      yMin = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
       ctx.moveTo(0, yMax);
       // ctx.lineTo(0, yMin);
       yMaxPrev = yMax;
@@ -368,8 +351,8 @@ export class DrawHelperService {
         // calculate cur pixel sample time
         sT = calculateSampleTime(curSample, audioBuffer.sampleRate);
         peakIdx = Math.round(sT * pps);
-        yMax = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
-        yMin = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+        yMax = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+        yMin = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
         // draw connection to previous peaks (neccesary to avoid gaps in osci when maxMaxPeak === minMinPeak)
         ctx.moveTo(curPxIdx - 1, yMaxPrev);
         ctx.lineTo(curPxIdx - 1, yMax);
@@ -390,7 +373,7 @@ export class DrawHelperService {
 
     }else{
       // if winIdx is -1 then calculate the peaks from the channel data
-      allPeakVals = this.calculatePeaks(canvas, audioBuffer.getChannelData(currentChannel), sS, eS);
+      allPeakVals = DrawHelperService.calculatePeaks(canvas, audioBuffer.getChannelData(currentChannel), sS, eS);
 
       // check if envelope is to be drawn
       if (allPeakVals.minPeaks && allPeakVals.maxPeaks && allPeakVals.samplePerPx >= 1) {
@@ -509,7 +492,7 @@ export class DrawHelperService {
    * drawing method to drawMovingBoundaryLine
    */
 
-  public drawMovingBoundaryLine(ctx: CanvasRenderingContext2D,
+  public static drawMovingBoundaryLine(ctx: CanvasRenderingContext2D,
                                 viewportStartSample: number,
                                 viewportEndSample: number,
                                 position: number,
@@ -546,7 +529,7 @@ export class DrawHelperService {
    * drawing method to drawCurViewPortSelected
    */
 
-  public drawCurViewPortSelected(ctx: CanvasRenderingContext2D,
+  public static drawCurViewPortSelected(ctx: CanvasRenderingContext2D,
                                  drawTimeAndSamples: boolean,
                                  viewportStartSample: number,
                                  viewportEndSample: number,
@@ -633,7 +616,7 @@ export class DrawHelperService {
    * this is used to draw a red line at the current mouse position
    * on canvases where the mouse is currently not hovering over
    */
-  public drawCrossHairX(ctx, mouseX){
+  public static drawCrossHairX(ctx, mouseX){
     ctx.strokeStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
     ctx.fillStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
     ctx.beginPath();
@@ -742,7 +725,7 @@ export class DrawHelperService {
    * @param round value to round to for min/max values (== digits after comma)
    */
 
-  drawMinMaxAndName(ctx, trackName, min, max, round) {
+  public static drawMinMaxAndName(ctx, trackName, min, max, round) {
     // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.fillStyle = 'black';// ConfigProviderService.design.color.black;
@@ -782,7 +765,7 @@ export class DrawHelperService {
   /**
    *
    */
-  drawViewPortTimes(ctx: CanvasRenderingContext2D,
+  public static drawViewPortTimes(ctx: CanvasRenderingContext2D,
                     viewportStartSample: number,
                     viewportEndSample: number,
                     sampleRate: number) {
