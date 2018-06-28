@@ -387,6 +387,7 @@ export class LevelComponent implements OnInit {
                     'isFirst': this._preselected_item.isFirst,
                     'isLast': this._preselected_item.isLast
                   });
+                  this.drawLevelDetails();
 
                 } else {
                   seg = curMouseItem;
@@ -399,6 +400,7 @@ export class LevelComponent implements OnInit {
                     'id': seg.id,
                     'movedBy': moveBy
                   });
+                  this.drawLevelDetails();
                 }
                 this.lastPCM = this.curMouseSampleNrInView;
                 this.view_state_service.selectBoundary();
@@ -419,6 +421,7 @@ export class LevelComponent implements OnInit {
                     'movedBy': moveBy
                   });
                 }
+                this.drawLevelDetails();
                 this.lastPCM = this.curMouseSampleNrInView;
                 this.view_state_service.selectBoundary();
               }
@@ -434,6 +437,7 @@ export class LevelComponent implements OnInit {
                       'id': s.id,
                       'movedBy': moveBy
                     });
+                    this.drawLevelDetails();
                   });
                 }
                 this.lastPCM = this.curMouseSampleNrInView;
@@ -446,7 +450,6 @@ export class LevelComponent implements OnInit {
           break;
       }
       if (!this.view_state_service.getdragBarActive()) {
-        this.crosshair_move.emit(getMousePositionInCanvasX(event));
         this.setLastMove(event, moveLine);
       }
     }
@@ -547,6 +550,10 @@ export class LevelComponent implements OnInit {
    *
    */
   setLastMove (x: MouseEvent, doChange) {
+    if (!x.shiftKey && !x.altKey) {
+        this.crosshair_move.emit(getMousePositionInCanvasX(x));
+    }
+
     this.curMouseSampleNrInView = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
         this._viewport_sample_start,
         this._viewport_sample_end,
