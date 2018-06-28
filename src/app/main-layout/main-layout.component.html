@@ -121,7 +121,9 @@
                        [viewport_sample_end] = "view_state_service.curViewPort.eS"
                        [selection_sample_start]="view_state_service.curViewPort.selectS"
                        [selection_sample_end]="view_state_service.curViewPort.selectE"
-                       [preselected_item]="view_state_service.getPreselectedItemInfo()"></app-spectro>
+                       [preselected_item]="view_state_service.getPreselectedItemInfo()"
+                       [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
+          ></app-spectro>
 
           <app-ssff-track style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name !== 'OSCI' && canvas_name !== 'SPEC'"
                           [name]="canvas_name"
@@ -159,6 +161,7 @@
           [database_configuration]="config_provider_service.vals"
           [selected]="level_name === view_state_service.getCurrentClickLevel()?.name"
           [hovering]="level_name === view_state_service.getCurrentMouseOverLevel()?.name"
+          [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
           (moving_boundary_move)="view_state_service.movingBoundarySample = $event"
           (crosshair_move)="view_state_service.crosshairPosition = $event"
         >

@@ -1,6 +1,5 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 
-import { ViewStateService } from '../_services/view-state.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
@@ -9,6 +8,7 @@ import {getSamplesPerPixelInViewport} from '../_utilities/view-state-helper-func
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
+import {ILevel} from '../_interfaces/annot-json.interface';
 
 @Component({
   selector: 'app-spectro',
@@ -27,6 +27,7 @@ export class SpectroComponent implements OnInit {
   private _crosshair_position: number;
   private _moving_boundary_position: number;
   private _spectrogram_settings: SpectrogramSettings;
+  private _mouseover_level: ILevel;
   private _main_context;
   private _markup_context: CanvasRenderingContext2D;
   private worker;
@@ -93,11 +94,14 @@ export class SpectroComponent implements OnInit {
     this._preselected_item = value;
   }
 
+  @Input() set mouseover_level (value: ILevel) {
+    this._mouseover_level = value;
+  }
+
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
-  constructor(private view_state_service: ViewStateService,
-              private array_buffer_helper_service: ArrayBufferHelperService) {
+  constructor(private array_buffer_helper_service: ArrayBufferHelperService) {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
     this.workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
@@ -1039,7 +1043,7 @@ export class SpectroComponent implements OnInit {
           this._viewport_sample_end,
           this._moving_boundary_position,
           this._preselected_item.isLast,
-          this.view_state_service.getCurrentMouseOverLevel()
+          this._mouseover_level
       );
     }
 
@@ -1052,7 +1056,7 @@ export class SpectroComponent implements OnInit {
         this._selection_sample_start,
         this._selection_sample_end,
         this._audio_buffer,
-        this.view_state_service.getCurrentMouseOverLevel()
+        this._mouseover_level
     );
     // draw min max vals and name of track
     DrawHelperService.drawMinMaxAndName(this._markup_context, '', this._spectrogram_settings.rangeFrom, this._spectrogram_settings.rangeTo, 2);
@@ -1072,7 +1076,7 @@ export class SpectroComponent implements OnInit {
         this._selection_sample_start,
         this._selection_sample_end,
         this._audio_buffer,
-        this.view_state_service.getCurrentMouseOverLevel()
+        this._mouseover_level
     );
     FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
     if (this.worker !== null) {

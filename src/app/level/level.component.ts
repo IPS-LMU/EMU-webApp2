@@ -33,6 +33,7 @@ export class LevelComponent implements OnInit {
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
   private _hovering: boolean;
+  private _mouseover_level: ILevel;
 
   private lasteditArea: string = null; // holding current edit area
   private lasteditAreaElem: HTMLElement = null; // holding current edit area element
@@ -109,6 +110,9 @@ export class LevelComponent implements OnInit {
   }
   @Input() set hovering(value: boolean) {
     this._hovering = value;
+  }
+  @Input() set mouseover_level(value: ILevel) {
+    this._mouseover_level = value;
   }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
@@ -780,7 +784,7 @@ export class LevelComponent implements OnInit {
           this._viewport_sample_end,
           this._moving_boundary_position,
           this._preselected_item.isLast,
-          this.view_state_service.getCurrentMouseOverLevel()
+          this._mouseover_level
       );
     }
 
@@ -793,7 +797,7 @@ export class LevelComponent implements OnInit {
         this._selection_sample_start,
         this._selection_sample_end,
         this._audio_buffer,
-        this.view_state_service.getCurrentMouseOverLevel()
+        this._mouseover_level
     );
 
 
