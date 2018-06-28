@@ -3,7 +3,6 @@ import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
-import { ArrayBufferHelperService } from '../_services/array-buffer-helper.service';
 import {getSamplesPerPixelInViewport} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
@@ -101,7 +100,7 @@ export class SpectroComponent implements OnInit {
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
-  constructor(private array_buffer_helper_service: ArrayBufferHelperService) {
+  constructor() {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
     this.workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
@@ -1144,10 +1143,10 @@ export class SpectroComponent implements OnInit {
 
       // if (this.view_state_service.curViewPort.sS >= fftN / 2) {
       //   // pass in half a window extra at the front and a full window extra at the back so everything can be drawn/calculated this also fixes alignment issue
-      //   parseData = this.array_buffer_helper_service.subarray(buffer,this.view_state_service.curViewPort.sS - fftN / 2, this.view_state_service.curViewPort.eS + fftN);
+      //   parseData = ArrayBufferHelperService.subarray(buffer,this.view_state_service.curViewPort.sS - fftN / 2, this.view_state_service.curViewPort.eS + fftN);
       // } else {
       //   // tolerate window/2 alignment issue if at beginning of file
-      //   parseData = this.array_buffer_helper_service.subarray(buffer, this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS + fftN);
+      //   parseData = ArrayBufferHelperService.subarray(buffer, this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS + fftN);
       // }
       this.setupEvent();
       // console.log(paddedSamples.buffer);

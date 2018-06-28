@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject, from } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { ArrayBufferHelperService } from './array-buffer-helper.service'
 
@@ -16,7 +16,7 @@ declare global{
 })
 export class WavParserService {
 
-  constructor(private array_buffer_helper_service: ArrayBufferHelperService) { }
+  constructor() { }
 
   // var defer;
   //
@@ -48,7 +48,7 @@ export class WavParserService {
 
     // ChunkId == RIFF CHECK
     curBinIdx = 0;
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 4);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 4);
     curBufferView = new Uint8Array(curBuffer);
     headerInfos.ChunkID = this.ab2str(curBufferView);
 
@@ -65,13 +65,13 @@ export class WavParserService {
 
     // ChunkSize
     curBinIdx = 4;
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 4);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 4);
     curBufferView = new Uint32Array(curBuffer);
     headerInfos.ChunkSize = curBufferView[0];
 
     // Format == WAVE CHECK
     curBinIdx = 8;
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 4);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 4);
     curBufferView = new Uint8Array(curBuffer);
     headerInfos.Format = this.ab2str(curBufferView);
     if (headerInfos.Format !== 'WAVE') {
@@ -88,7 +88,7 @@ export class WavParserService {
     let foundChunk = false;
     let fmtBinIdx = 12; // 12 if first sub-chunk
     while(!foundChunk){
-      curBuffer = this.array_buffer_helper_service.subarray(buf, fmtBinIdx, 4);
+      curBuffer = ArrayBufferHelperService.subarray(buf, fmtBinIdx, 4);
       curBufferView = new Uint8Array(curBuffer);
       let cur4chars = this.ab2str(curBufferView);
       if(cur4chars === 'fmt '){
@@ -112,13 +112,13 @@ export class WavParserService {
 
     // FmtSubchunkSize parsing
     curBinIdx = fmtBinIdx + 4; // 16
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 4);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 4);
     curBufferView = new Uint32Array(curBuffer);
     headerInfos.FmtSubchunkSize = curBufferView[0];
 
     // AudioFormat == 1  CHECK
     curBinIdx = fmtBinIdx + 8; // 20
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 2);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 2);
     curBufferView = new Uint16Array(curBuffer);
     headerInfos.AudioFormat = curBufferView[0];
     if ([0, 1].indexOf(headerInfos.AudioFormat) === -1) {
@@ -133,7 +133,7 @@ export class WavParserService {
 
     // NumChannels == 1  CHECK
     curBinIdx = fmtBinIdx + 10; // 22
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 2);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 2);
     curBufferView = new Uint16Array(curBuffer);
     headerInfos.NumChannels = curBufferView[0];
     if (headerInfos.NumChannels < 1) {
@@ -147,25 +147,25 @@ export class WavParserService {
 
     // SampleRate
     curBinIdx = fmtBinIdx + 12; // 24
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 4);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 4);
     curBufferView = new Uint32Array(curBuffer);
     headerInfos.SampleRate = curBufferView[0];
 
     // ByteRate
     curBinIdx = fmtBinIdx + 16; // 28
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 4);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 4);
     curBufferView = new Uint32Array(curBuffer);
     headerInfos.ByteRate = curBufferView[0];
 
     // BlockAlign
     curBinIdx = fmtBinIdx + 20; // 32
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 2);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 2);
     curBufferView = new Uint16Array(curBuffer);
     headerInfos.BlockAlign = curBufferView[0];
 
     // BitsPerSample
     curBinIdx = fmtBinIdx + 12; // 34
-    curBuffer = this.array_buffer_helper_service.subarray(buf, curBinIdx, 2);
+    curBuffer = ArrayBufferHelperService.subarray(buf, curBinIdx, 2);
     curBufferView = new Uint16Array(curBuffer);
     headerInfos.BitsPerSample = curBufferView[0];
 
@@ -175,12 +175,12 @@ export class WavParserService {
     foundChunk = false;
     let dataBinIdx = fmtBinIdx + 14; // 36
     while(!foundChunk){
-      curBuffer = this.array_buffer_helper_service.subarray(buf, dataBinIdx, 4);
+      curBuffer = ArrayBufferHelperService.subarray(buf, dataBinIdx, 4);
       curBufferView = new Uint8Array(curBuffer);
       let cur4chars = this.ab2str(curBufferView);
       if(cur4chars === 'data'){
         foundChunk = true;
-        curBuffer = this.array_buffer_helper_service.subarray(buf, dataBinIdx + 4, 4);
+        curBuffer = ArrayBufferHelperService.subarray(buf, dataBinIdx + 4, 4);
         curBufferView = new Uint32Array(curBuffer);
         headerInfos.dataChunkSize = curBufferView[0];
       }else{
