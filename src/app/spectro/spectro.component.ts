@@ -25,6 +25,7 @@ export class SpectroComponent implements OnInit {
   private _selection_sample_end: number;
   private _preselected_item: PreselectedItemInfo;
   private _crosshair_position: number;
+  private _moving_boundary_position: number;
   private _spectrogram_settings: SpectrogramSettings;
   private _main_context;
   private _markup_context: CanvasRenderingContext2D;
@@ -78,6 +79,13 @@ export class SpectroComponent implements OnInit {
     this._crosshair_position = value;
     if (this._markup_context) {
         this.drawSpectMarkup();
+    }
+  }
+
+  @Input() set moving_boundary_position (value: number) {
+    this._moving_boundary_position = value;
+    if (this._markup_context) {
+      this.drawSpectMarkup();
     }
   }
 
@@ -1024,12 +1032,12 @@ export class SpectroComponent implements OnInit {
     this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
     // draw moving boundary line if moving
-    if (this.view_state_service.movingBoundary) {
+    if (this._moving_boundary_position) {
       DrawHelperService.drawMovingBoundaryLine(
           this._markup_context,
           this._viewport_sample_start,
           this._viewport_sample_end,
-          this.view_state_service.movingBoundarySample,
+          this._moving_boundary_position,
           this._preselected_item.isLast,
           this.view_state_service.getCurrentMouseOverLevel()
       );

@@ -85,7 +85,6 @@ export class ViewStateService {
   start;
   TransitionTime;
   showDropZone;
-  movingBoundary: boolean;
   movingBoundarySample: number;
   focusInTextField;
   curTaskPercCompl;
@@ -348,8 +347,7 @@ export class ViewStateService {
     this.start = null;
     this.TransitionTime = undefined;
     this.showDropZone = true;
-    this.movingBoundary = false;
-    this.movingBoundarySample = undefined;
+    this.movingBoundarySample = null;
     this.focusInTextField = false;
     this.curTaskPercCompl = 0;
     this.curPerspectiveIdx = -1;

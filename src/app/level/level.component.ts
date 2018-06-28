@@ -355,7 +355,6 @@ export class LevelComponent implements OnInit {
               if (this._preselected_item) {
                 const curMouseItem = this._preselected_item.item;
 
-                this.view_state_service.movingBoundary = true;
                 if (this._level_annotation.type === 'SEGMENT') {
                   if (this._preselected_item.isFirst || this._preselected_item.isLast) {
                     // before first segment
@@ -444,7 +443,7 @@ export class LevelComponent implements OnInit {
                 this.view_state_service.selectBoundary();
               }
             } else {
-              this.view_state_service.movingBoundary = false;
+              this.moving_boundary_move.emit(null);
             }
           }
           break;
@@ -774,7 +773,7 @@ export class LevelComponent implements OnInit {
     }
 
     // draw moving boundary line if moving
-    if (this.view_state_service.movingBoundary) {
+    if (this._moving_boundary_position) {
       DrawHelperService.drawMovingBoundaryLine(
           ctx,
           this._viewport_sample_start,
