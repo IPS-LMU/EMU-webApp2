@@ -57,7 +57,7 @@ main {
 .signals-resize-container{
   display: flex;
   flex-direction: column;
-  min-height: 128px;
+  min-height: 256px;
   //background: red;
   resize: vertical;
   overflow: auto;
