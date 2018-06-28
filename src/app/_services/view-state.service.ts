@@ -75,19 +75,18 @@ export class ViewStateService {
   rightSubmenuOpen;
   curClickItems;
   curMousePosSample;
-  curMouseX;
+  crosshairPosition: number;
   preselectedItemInfo: PreselectedItemInfo;
   curMouseTrackName;
   currentMouseOverLevel: ILevel;
   currentClickLevel: ILevel;
-  lastPcm;
   curPreselColumnSample;
   curCorrectionToolNr;
   start;
   TransitionTime;
   showDropZone;
   movingBoundary: boolean;
-  movingBoundarySample;
+  movingBoundarySample: number;
   focusInTextField;
   curTaskPercCompl;
   curPerspectiveIdx;
@@ -340,11 +339,10 @@ export class ViewStateService {
     this.curClickItems = [];
     this.curMousePosSample = 0;
     this.preselectedItemInfo = undefined;
-    this.curMouseX = 0;
+    this.crosshairPosition = 0;
     this.curMouseTrackName = undefined;
     this.currentMouseOverLevel = undefined;
     this.currentClickLevel = undefined;
-    this.lastPcm = undefined;
     this.curPreselColumnSample = 2;
     this.curCorrectionToolNr = undefined;
     this.start = null;
@@ -1000,21 +998,6 @@ setState(nameOrObj) {
   setEditing(n) {
     this.editing = n;
   }
-
-  /**
-   *
-   */
-  getLasPcm() {
-    return this.lastPcm;
-  };
-
-  /**
-   *
-   */
-  setLastPcm(n) {
-    this.lastPcm = n;
-  }
-
 
   /**
    *

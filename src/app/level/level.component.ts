@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import {Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
 
 import { FontScaleService } from '../_services/font-scale.service';
 import { ViewStateService } from '../_services/view-state.service';
@@ -28,7 +28,8 @@ export class LevelComponent implements OnInit {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
-  private _external_cursor_sample_position: number;
+  private _moving_boundary_position: number;
+  private _crosshair_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
   private _hovering: boolean;
@@ -90,9 +91,12 @@ export class LevelComponent implements OnInit {
   @Input() set preselected_item(value: PreselectedItemInfo) {
     this._preselected_item = value;
   }
-  @Input() set external_cursor_sample_position(value: number){
-    this._external_cursor_sample_position = value;
-    // console.log("setting _viewport_sample_end");
+  @Input() set moving_boundary_position(value: number) {
+    this._moving_boundary_position = value;
+    this.drawLevelMarkup();
+  }
+  @Input() set crosshair_position(value: number) {
+    this._crosshair_position = value;
     this.drawLevelMarkup();
   }
   @Input() set audio_buffer(value: AudioBuffer){
@@ -106,6 +110,9 @@ export class LevelComponent implements OnInit {
   @Input() set hovering(value: boolean) {
     this._hovering = value;
   }
+
+  @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+  @Output() moving_boundary_move: EventEmitter<number> = new EventEmitter<number>();
 
 
 
@@ -354,13 +361,13 @@ export class LevelComponent implements OnInit {
                     // before first segment
                     if (this._preselected_item.isFirst) {
                       seg = this._level_annotation.items[0];
-                      this.view_state_service.movingBoundarySample = seg.sampleStart + moveBy;
+                      this.moving_boundary_move.emit(seg.sampleStart + moveBy);
                     } else if (this._preselected_item.isLast) {
                       seg = this._level_annotation.items[this._level_annotation.items.length - 1];
-                      this.view_state_service.movingBoundarySample = seg.sampleStart + seg.sampleDur + moveBy;
+                      this.moving_boundary_move.emit(seg.sampleStart + seg.sampleDur + moveBy);
                     }
                   } else {
-                    this.view_state_service.movingBoundarySample = curMouseItem.sampleStart + moveBy;
+                    this.moving_boundary_move.emit(curMouseItem.sampleStart + moveBy);
                     seg = curMouseItem;
                   }
                   LevelService.moveBoundary(
@@ -383,7 +390,7 @@ export class LevelComponent implements OnInit {
 
                 } else {
                   seg = curMouseItem;
-                  this.view_state_service.movingBoundarySample = curMouseItem.samplePoint + moveBy;
+                  this.moving_boundary_move.emit(curMouseItem.samplePoint + moveBy);
                   LevelService.moveEvent(this._level_annotation, seg.id, moveBy, this._audio_buffer.length);
                   this.history_service.updateCurChangeObj({
                     'type': 'ANNOT',
@@ -394,7 +401,6 @@ export class LevelComponent implements OnInit {
                   });
                 }
                 this.lastPCM = this.curMouseSampleNrInView;
-                this.view_state_service.setLastPcm(this.lastPCM);
                 this.view_state_service.selectBoundary();
                 moveLine = false;
               }
@@ -414,7 +420,6 @@ export class LevelComponent implements OnInit {
                   });
                 }
                 this.lastPCM = this.curMouseSampleNrInView;
-                this.view_state_service.setLastPcm(this.lastPCM);
                 this.view_state_service.selectBoundary();
               }
               else if (this._level_annotation.type === 'EVENT') {
@@ -432,7 +437,6 @@ export class LevelComponent implements OnInit {
                   });
                 }
                 this.lastPCM = this.curMouseSampleNrInView;
-                this.view_state_service.setLastPcm(this.lastPCM);
                 this.view_state_service.selectBoundary();
               }
             } else {
@@ -442,7 +446,7 @@ export class LevelComponent implements OnInit {
           break;
       }
       if (!this.view_state_service.getdragBarActive()) {
-        this.view_state_service.curMouseX = getMousePositionInCanvasX(event);
+        this.crosshair_move.emit(getMousePositionInCanvasX(event));
         this.setLastMove(event, moveLine);
       }
     }
@@ -468,7 +472,6 @@ export class LevelComponent implements OnInit {
       this.view_state_service.selectBoundary();
     }
     this.lastPCM = this.curMouseSampleNrInView;
-    this.view_state_service.setLastPcm(this.lastPCM);
   }
 
   /**
@@ -493,7 +496,6 @@ export class LevelComponent implements OnInit {
       this.view_state_service.selectBoundary();
     }
     this.lastPCM = this.curMouseSampleNrInView;
-    this.view_state_service.setLastPcm(this.lastPCM);
     // this.$apply();
   };
 
@@ -539,7 +541,6 @@ export class LevelComponent implements OnInit {
       }
     }
     this.lastPCM = this.curMouseSampleNrInView;
-    this.view_state_service.setLastPcm(this.lastPCM);
   };
 
   /**
@@ -560,7 +561,6 @@ export class LevelComponent implements OnInit {
     }
     this.view_state_service.setCurrentMouseOverLevel(this._level_annotation);
     this.lastPCM = this.curMouseSampleNrInView;
-    this.view_state_service.setLastPcm(this.lastPCM);
   }
 
 
@@ -772,7 +772,7 @@ export class LevelComponent implements OnInit {
           ctx,
           this._viewport_sample_start,
           this._viewport_sample_end,
-          this.view_state_service.movingBoundarySample,
+          this._moving_boundary_position,
           this._preselected_item.isLast,
           this.view_state_service.getCurrentMouseOverLevel()
       );
@@ -900,7 +900,7 @@ export class LevelComponent implements OnInit {
     }
 
     // draw cursor
-    DrawHelperService.drawCrossHairX(ctx, this.view_state_service.curMouseX);
+    DrawHelperService.drawCrossHairX(ctx, this._crosshair_position);
   }
 
 //   /**

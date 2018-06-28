@@ -24,9 +24,10 @@ export class SpectroComponent implements OnInit {
   private _selection_sample_start: number;
   private _selection_sample_end: number;
   private _preselected_item: PreselectedItemInfo;
+  private _crosshair_position: number;
   private _spectrogram_settings: SpectrogramSettings;
   private _main_context;
-  private _markup_context;
+  private _markup_context: CanvasRenderingContext2D;
   private worker;
   private workerFunctionURL;
 
@@ -56,8 +57,8 @@ export class SpectroComponent implements OnInit {
   @Input() set viewport_sample_end(value: number){
     this._viewport_sample_end = value;
     console.log("setting _viewport_sample_end");
-    if(this._viewport_sample_end !== 0){ // SIC this has to be done better!
-      this.redraw()
+    if (this._markup_context) {
+      this.redraw();
     }
   }
   @Input() set selection_sample_start(value: number){
@@ -71,6 +72,13 @@ export class SpectroComponent implements OnInit {
       if(this._selection_sample_end !== 0){ // SIC this has to be done better!
        //   this.redraw();
       }
+  }
+
+  @Input() set crosshair_position (value: number) {
+    this._crosshair_position = value;
+    if (this._markup_context) {
+        this.drawSpectMarkup();
+    }
   }
 
   @Input() set preselected_item (value: PreselectedItemInfo) {
@@ -998,7 +1006,7 @@ export class SpectroComponent implements OnInit {
   // bindings
 
   redraw() {
-    this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
+    this.drawSpectMarkup();
     this.drawSpectro(this._audio_buffer.getChannelData(this._channel));
   }
 
@@ -1013,6 +1021,8 @@ export class SpectroComponent implements OnInit {
 //   };
 
   drawSpectMarkup() {
+    this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
+
     // draw moving boundary line if moving
     if (this.view_state_service.movingBoundary) {
       DrawHelperService.drawMovingBoundaryLine(
@@ -1038,7 +1048,7 @@ export class SpectroComponent implements OnInit {
     );
     // draw min max vals and name of track
     DrawHelperService.drawMinMaxAndName(this._markup_context, '', this._spectrogram_settings.rangeFrom, this._spectrogram_settings.rangeTo, 2);
-    DrawHelperService.drawCrossHairX(this._markup_context, this.view_state_service.curMouseX);
+    DrawHelperService.drawCrossHairX(this._markup_context, this._crosshair_position);
 
   }
 
