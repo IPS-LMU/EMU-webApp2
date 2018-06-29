@@ -287,7 +287,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //       });
     //       LevelService.deleteEditArea();
     //       this.view_state_service.setEditing(false);
-    //       this.view_state_service.setcurClickItem(LevelService.getItemFromLevelById(this.view_state_service.getcurClickLevelName(), LevelService.getlastID()));
+    //       this.view_state_service.selectItems(LevelService.getItemFromLevelById(this.view_state_service.getcurClickLevelName(), LevelService.getlastID()));
     //     }
     //     // escape from text if esc
     //     if (code === this.config_provider_service.vals.keyMappings.esc) {
@@ -796,11 +796,11 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //         if (this.view_state_service.getcurClickLevelName() === undefined) {
     //           modalService.open('views/error.html', 'Selection Error : Please select a Level first');
     //         } else {
-    //           this.view_state_service.curClickItems = [];
+    //           this.view_state_service.selectedItems = [];
     //           var prev = null;
     //           angular.forEach(this.view_state_service.getItemsInSelection(DataService.data.levels), function (item) {
     //             if(prev === null) {
-    //               this.view_state_service.setcurClickItem(item);
+    //               this.view_state_service.selectItems(item);
     //             }
     //             else {
     //               this.view_state_service.setcurClickItemMultiple(item, prev);
@@ -826,7 +826,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.left, neighbours.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -838,7 +838,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.left, neighbours.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -865,7 +865,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.right, neighbours.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -877,7 +877,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.right, neighbours.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -900,13 +900,13 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //               if (lastNeighboursMove.left.sampleStart !== undefined) {
     //                 // check if in view
     //                 if (lastNeighboursMove.left.sampleStart >= this.view_state_service.curViewPort.sS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //               } else {
     //                 // check if in view
     //                 if (lastNeighboursMove.left.samplePoint >= this.view_state_service.curViewPort.sS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left, lastNeighboursMove.left.id);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left, lastNeighboursMove.left.id);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //               }
@@ -916,13 +916,13 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //               if (lastNeighboursMove.right.sampleStart !== undefined) {
     //                 // check if in view
     //                 if (lastNeighboursMove.right.sampleStart + lastNeighboursMove.right.sampleDur <= this.view_state_service.curViewPort.eS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //               } else {
     //                 // check if in view
     //                 if (lastNeighboursMove.right.samplePoint < this.view_state_service.curViewPort.eS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //               }
@@ -1128,7 +1128,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
     //                   this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                 }
-    //                 this.view_state_service.setcurClickItem(deletedSegment.clickSeg);
+    //                 this.view_state_service.selectItems(deletedSegment.clickSeg);
     //               } else {
     //                 var deletedPoint = LevelService.deleteEvent(levelName, seg.id);
     //                 if (deletedPoint !== false) {
@@ -1180,7 +1180,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
     //                   this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                 }
-    //                 this.view_state_service.setcurClickItem(deletedSegment.clickSeg);
+    //                 this.view_state_service.selectItems(deletedSegment.clickSeg);
     //               } else {
     //                 modalService.open('views/error.html', 'Delete Error: You can not delete Segments on Point Levels.');
     //               }

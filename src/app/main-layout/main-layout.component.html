@@ -155,7 +155,7 @@
                 [selection_sample_start]="view_state_service.curViewPort.selectS"
                 [selection_sample_end]="view_state_service.curViewPort.selectE"
                 [preselected_item]="view_state_service.getPreselectedItemInfo()"
-                [selected_items]="view_state_service.getcurClickItems()"
+                [selected_items]="view_state_service.selectedItems"
                 [moving_boundary_position]="view_state_service.movingBoundarySample"
                 [crosshair_position]="view_state_service.crosshairPosition"
                 [audio_buffer]="sound_handler_service.audioBuffer"
@@ -168,7 +168,7 @@
                 (mouseenter)="view_state_service.setCurrentMouseOverLevel(data_service.getLevelDataByName(level_name))"
                 (mouseleave)="view_state_service.setCurrentMouseOverLevel(null); view_state_service.removePreselection();"
                 (select_level)="view_state_service.setCurrentClickLevel(data_service.getLevelDataByName(level_name))"
-                (select_items)="view_state_service.setcurClickItem($event)"
+                (select_items)="view_state_service.selectItems($event)"
                 (preselect_item)="view_state_service.preselectItem($event)"
         >
 

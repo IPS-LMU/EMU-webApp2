@@ -42,7 +42,7 @@ export class DbObjLoadSaveService {
   loadBundle(bndl) {
     let subj = new Subject();
     // check if bndl has to be saved
-    this.view_state_service.setcurClickItem([]);
+    this.view_state_service.selectItems([]);
     if ((this.history_service.movesAwayFromLastSave !== 0 &&
       this.config_provider_service.vals.main.comMode !== 'DEMO' &&
       this.config_provider_service.vals.activeButtons.saveBundle)) {
@@ -141,7 +141,7 @@ export class DbObjLoadSaveService {
         this.view_state_service.resetSelect();
       }
       this.view_state_service.curTimeAnchorIdx = -1;
-      this.view_state_service.curClickItems = []; // used to be curClickSegment
+      this.view_state_service.selectedItems = []; // used to be curClickSegment
       this.view_state_service.currentClickLevel = undefined;
 
       this.sound_handler_service.audioBuffer = audioBuffer;

@@ -72,7 +72,7 @@ export class ViewStateService {
   saving;
   submenuOpen;
   rightSubmenuOpen;
-  curClickItems;
+  selectedItems: IItem[];
   curMousePosSample;
   crosshairPosition: number;
   preselectedItemInfo: PreselectedItemInfo;
@@ -333,7 +333,7 @@ export class ViewStateService {
     this.saving = true;
     this.submenuOpen = false;
     this.rightSubmenuOpen = false;
-    this.curClickItems = [];
+    this.selectedItems = [];
     this.curMousePosSample = 0;
     this.preselectedItemInfo = null;
     this.crosshairPosition = 0;
@@ -581,7 +581,7 @@ setState(nameOrObj) {
     if (idxOfNow === undefined) {
       curLev = data_service.getLevelDataByName(order[0]);
       this.setCurrentClickLevel(curLev);
-      this.curClickItems = [];
+      this.selectedItems = [];
       this.selectBoundary();
     }
     else {
@@ -590,7 +590,7 @@ setState(nameOrObj) {
           curLev = data_service.getLevelDataByName(order[idxOfNow + 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow + 1]);
           this.setCurrentClickLevel(curLev);
-          this.curClickItems = [];
+          this.selectedItems = [];
           this.selectBoundary();
           //sServObj.resetSelect();
         }
@@ -599,7 +599,7 @@ setState(nameOrObj) {
           curLev = data_service.getLevelDataByName(order[idxOfNow - 1]);
           // sServObj.setcurClickLevelName(order[idxOfNow - 1]);
           this.setCurrentClickLevel(curLev);
-          this.curClickItems = [];
+          this.selectedItems = [];
           this.selectBoundary();
           //sServObj.resetSelect();
         }
@@ -838,9 +838,8 @@ setState(nameOrObj) {
    * Setter for the current (click) Item
    * @param item Object representing the currently clicked item
    */
-  setcurClickItem(items) {
-    console.log("setcurClickItem()");
-    this.curClickItems = items;
+  selectItems(items) {
+    this.selectedItems = items;
     this.selectBoundary();
   }
 
@@ -849,21 +848,21 @@ setState(nameOrObj) {
    * Selects the current Boundary
    */
   selectBoundary() {
-    if (this.curClickItems.length > 0) {
+    if (this.selectedItems.length > 0) {
       let left, right;
-      if (typeof this.curClickItems[0].samplePoint === 'undefined') {
-        left = this.curClickItems[0].sampleStart;
+      if (typeof this.selectedItems[0].samplePoint === 'undefined') {
+        left = this.selectedItems[0].sampleStart;
       }else{
-        left = this.curClickItems[0].samplePoint;
+        left = this.selectedItems[0].samplePoint;
       }
 
-      if( typeof this.curClickItems[0].samplePoint === 'undefined') {
-        right = this.curClickItems[this.curClickItems.length - 1].sampleStart + this.curClickItems[this.curClickItems.length - 1].sampleDur;
+      if( typeof this.selectedItems[0].samplePoint === 'undefined') {
+        right = this.selectedItems[this.selectedItems.length - 1].sampleStart + this.selectedItems[this.selectedItems.length - 1].sampleDur;
       }else{
-        right = this.curClickItems[0].samplePoint;
+        right = this.selectedItems[0].samplePoint;
       }
 
-      this.curClickItems.forEach((entry) => {
+      this.selectedItems.forEach((entry) => {
         if (entry.sampleStart <= left) {
           left = entry.sampleStart;
         }
@@ -881,21 +880,21 @@ setState(nameOrObj) {
   //  * @return Object with Start and End values in samples
   //  */
   // sServObj.getselectedRange = function () {
-  //   if (this.curClickItems.length > 1) {
+  //   if (this.selectedItems.length > 1) {
   //     return {
-  //       start: this.curClickItems[0].sampleStart,
-  //       end: (this.curClickItems[this.curClickItems.length - 1].sampleStart + this.curClickItems[this.curClickItems.length - 1].sampleDur)
+  //       start: this.selectedItems[0].sampleStart,
+  //       end: (this.selectedItems[this.selectedItems.length - 1].sampleStart + this.selectedItems[this.selectedItems.length - 1].sampleDur)
   //     };
-  //   } else if (this.curClickItems.length === 1) {
-  //     if (this.curClickItems[0].sampleStart !== undefined) {
+  //   } else if (this.selectedItems.length === 1) {
+  //     if (this.selectedItems[0].sampleStart !== undefined) {
   //       return {
-  //         start: this.curClickItems[0].sampleStart,
-  //         end: (this.curClickItems[0].sampleStart + this.curClickItems[0].sampleDur)
+  //         start: this.selectedItems[0].sampleStart,
+  //         end: (this.selectedItems[0].sampleStart + this.selectedItems[0].sampleDur)
   //       };
   //     } else {
   //       return {
-  //         start: this.curClickItems[0].samplePoint,
-  //         end: this.curClickItems[0].samplePoint
+  //         start: this.selectedItems[0].samplePoint,
+  //         end: this.selectedItems[0].samplePoint
   //       };
   //     }
   //
@@ -906,22 +905,6 @@ setState(nameOrObj) {
   //     };
   //   }
   // };
-
-  /**
-   * Getter for the currently (clicked) items
-   */
-  public getcurClickItems = function () {
-    return this.curClickItems;
-  };
-
-
-  /**
-   *
-   */
-  public getselected = function () {
-    return this.curClickItems;
-  };
-
 
   /**
    *
@@ -949,13 +932,6 @@ setState(nameOrObj) {
    */
   public setSavingAllowed (n) {
     this.saving = n;
-  }
-
-  /**
-   *
-   */
-  public countSelected () {
-    return this.curClickItems.length;
   }
 
   /**
