@@ -68,7 +68,6 @@ export class ViewStateService {
   somethingInProgress;
   somethingInProgressTxt;
   historyActionTxt;
-  editing;
   cursorInTextField;
   saving;
   submenuOpen;
@@ -330,7 +329,6 @@ export class ViewStateService {
     this.somethingInProgress = false;
     this.somethingInProgressTxt = '';
     this.historyActionTxt = '';
-    this.editing = false;
     this.cursorInTextField = false;
     this.saving = true;
     this.submenuOpen = false;
@@ -987,19 +985,6 @@ setState(nameOrObj) {
     return this.curClickItems;
   }
 
-  /**
-   *
-   */
-  public isEditing = function () {
-    return this.editing;
-  }
-
-  /**
-   *
-   */
-  setEditing(n) {
-    this.editing = n;
-  }
 
   /**
    *
