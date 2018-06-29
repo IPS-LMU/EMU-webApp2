@@ -34,9 +34,7 @@ export class LevelComponent implements OnInit {
   private _mouseover_level: ILevel;
 
   // mouse handeling lets
-  lastEventClick: {current: IItem; nearest: IItem; isFirst: boolean; isLast: boolean};
-  lastPCM: number;
-  curMouseSampleNrInView: number;
+  sampleNumberAtLastMousePosition: number;
   // order = attr.trackMouseInLevel;
 
   @Input() set database_configuration(value: {restrictions: any, perspectives: any[]}) {
@@ -307,29 +305,29 @@ export class LevelComponent implements OnInit {
             event.target as HTMLCanvasElement
         );
 
-        const curMouseSampleNrInView = getMousePositionInCanvasX(event) * samplesPerPixel;
+        const sampleNumberAtCurrentMousePosition = getMousePositionInCanvasX(event) * samplesPerPixel;
 
         if (samplesPerPixel <= 1) {
-          let zoomEventMove = LevelService.getClosestItem(curMouseSampleNrInView + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
+          let itemNearCursor = LevelService.getClosestItem(sampleNumberAtCurrentMousePosition + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
           // absolute movement in pcm below 1 pcm per pixel
           if (this._level_annotation.type === 'SEGMENT') {
-            if (zoomEventMove.isFirst === true && zoomEventMove.isLast === false) { // before first elem
-              moveBy = Math.ceil((curMouseSampleNrInView + this._viewport_sample_start) - this._level_annotation.items[0].sampleStart);
-            } else if (zoomEventMove.isFirst === false && zoomEventMove.isLast === true) { // after last elem
+            if (itemNearCursor.isFirst === true && itemNearCursor.isLast === false) { // before first elem
+              moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - this._level_annotation.items[0].sampleStart);
+            } else if (itemNearCursor.isFirst === false && itemNearCursor.isLast === true) { // after last elem
               let lastItem = this._level_annotation.items[this._level_annotation.items.length - 1];
-              moveBy = Math.ceil((curMouseSampleNrInView + this._viewport_sample_start) - lastItem.sampleStart - lastItem.sampleDur);
+              moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - lastItem.sampleStart - lastItem.sampleDur);
             } else {
-              moveBy = Math.ceil((curMouseSampleNrInView + this._viewport_sample_start) - zoomEventMove.nearest.sampleStart);
+              moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - itemNearCursor.nearest.sampleStart);
             }
           } else {
-            moveBy = Math.ceil((curMouseSampleNrInView + this._viewport_sample_start) - zoomEventMove.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
+            moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
           }
         } else {
           // relative movement in pcm above 1 pcm per pixel
-          moveBy = Math.round(curMouseSampleNrInView - this.lastPCM);
+          moveBy = Math.round(sampleNumberAtCurrentMousePosition - this.sampleNumberAtLastMousePosition);
         }
 
-        this.lastPCM = curMouseSampleNrInView;
+        this.sampleNumberAtLastMousePosition = sampleNumberAtCurrentMousePosition;
 
       let mbutton = 0;
       if (event.buttons === undefined) {
@@ -446,15 +444,15 @@ export class LevelComponent implements OnInit {
   setLastClick (x: MouseEvent) {
     this.select_level.emit();
 
-    this.lastPCM = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
+    this.sampleNumberAtLastMousePosition = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
         this._viewport_sample_start,
         this._viewport_sample_end,
         x.target as HTMLCanvasElement
     );
 
-    this.lastEventClick = LevelService.getClosestItem(this.lastPCM + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
-    if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
-      this.select_items.emit([this.lastEventClick.current]);
+    const lastEventClick = LevelService.getClosestItem(this.sampleNumberAtLastMousePosition + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
+    if (lastEventClick.current !== undefined && lastEventClick.nearest !== undefined) {
+      this.select_items.emit([lastEventClick.current]);
     }
   }
 
@@ -464,15 +462,15 @@ export class LevelComponent implements OnInit {
   setLastRightClick (x: MouseEvent) {
     this.select_level.emit();
 
-    this.lastPCM = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
+    this.sampleNumberAtLastMousePosition = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
         this._viewport_sample_start,
         this._viewport_sample_end,
         x.target as HTMLCanvasElement
     );
 
-    this.lastEventClick = LevelService.getClosestItem(this.lastPCM + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
-    if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined) {
-      this.addToSelection(this.lastEventClick.current);
+    const lastEventClick = LevelService.getClosestItem(this.sampleNumberAtLastMousePosition + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
+    if (lastEventClick.current !== undefined && lastEventClick.nearest !== undefined) {
+      this.addToSelection(lastEventClick.current);
     }
     // this.$apply();
   };
@@ -482,8 +480,8 @@ export class LevelComponent implements OnInit {
         return;
       }
 
-      const leftNeighbour = LevelService.getItemInTime(this._level_annotation, this.lastEventClick.current.id, false);
-      const rightNeighbour = LevelService.getItemInTime(this._level_annotation, this.lastEventClick.current.id, true);
+      const leftNeighbour = LevelService.getItemInTime(this._level_annotation, item.id, false);
+      const rightNeighbour = LevelService.getItemInTime(this._level_annotation, item.id, true);
 
       if (this._selected_items.includes(leftNeighbour) || this._selected_items.includes(rightNeighbour)) {
           const items = [...this._selected_items, item];
@@ -497,23 +495,23 @@ export class LevelComponent implements OnInit {
    */
   setLastDblClick (x: MouseEvent) {
     /*
-    this.curMouseSampleNrInView = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
+    const curMouseSampleNrInView = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
         this._viewport_sample_start,
         this._viewport_sample_end,
         x.target as HTMLCanvasElement
     );
-    this.lastEventClick = LevelService.getClosestItem(this.curMouseSampleNrInView + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
+    const lastEventClick = LevelService.getClosestItem(curMouseSampleNrInView + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
     // let isOpen = this.element_ref.nativeElement.parentElement.css('height') === '25px' ? false : true;
     // expand to full size on dbl click if level is in small size
     // if (!isOpen) {
     //   this.element_ref.nativeElement.parentElement.find('div')[3].click();
     // }
-    if (this.lastEventClick.current !== undefined && this.lastEventClick.nearest !== undefined && this.view_state_service.getPermission('labelAction')) {
+    if (lastEventClick.current !== undefined && lastEventClick.nearest !== undefined && this.view_state_service.getPermission('labelAction')) {
       if (this._level_annotation.type === 'SEGMENT') {
-        if (this.lastEventClick.current.sampleStart >= this._viewport_sample_start) {
-          if ((this.lastEventClick.current.sampleStart + this.lastEventClick.current.sampleDur) <= this._viewport_sample_end) {
+        if (lastEventClick.current.sampleStart >= this._viewport_sample_start) {
+          if ((lastEventClick.current.sampleStart + lastEventClick.current.sampleDur) <= this._viewport_sample_end) {
             this.select_level.emit();
-            this.select_items.emit([this.lastEventClick.current]);
+            this.select_items.emit([lastEventClick.current]);
           } else {
             //console.log('Editing out of right bound !');
           }
@@ -522,10 +520,10 @@ export class LevelComponent implements OnInit {
         }
       } else {
         this.select_level.emit();
-        this.select_items.emit([this.lastEventClick.current]);
+        this.select_items.emit([lastEventClick.current]);
       }
     }
-    this.lastPCM = this.curMouseSampleNrInView;
+    this.sampleNumberAtLastMousePosition = curMouseSampleNrInView;
     */
   };
 
@@ -537,14 +535,14 @@ export class LevelComponent implements OnInit {
         this.crosshair_move.emit(getMousePositionInCanvasX(x));
     }
 
-    this.lastPCM = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
+    this.sampleNumberAtLastMousePosition = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
         this._viewport_sample_start,
         this._viewport_sample_end,
         x.target as HTMLCanvasElement
     );
 
     if (changePreselection) {
-      let itemNearCursor = LevelService.getClosestItem(this.lastPCM + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
+      let itemNearCursor = LevelService.getClosestItem(this.sampleNumberAtLastMousePosition + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
 
       if (itemNearCursor.current && itemNearCursor.nearest) {
         this.preselect_item.emit({
