@@ -123,8 +123,7 @@ export class LevelComponent implements OnInit {
   @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
 
 
-  constructor(private view_state_service: ViewStateService,
-              private history_service: HistoryService) { }
+  constructor(private history_service: HistoryService) { }
 
   ngOnInit() {
   }
@@ -308,8 +307,8 @@ export class LevelComponent implements OnInit {
   mousemove(event: MouseEvent){
     // console.log(event);
     let moveLine, moveBy;
-    if (this.view_state_service.focusOnEmuWebApp) {
-      if (!this.view_state_service.getdragBarActive()) {
+
+    // if (this.view_state_service.focusOnEmuWebApp) {
         moveLine = true;
         const samplesPerPixel = getSamplesPerPixelInViewport(
             this._viewport_sample_start,
@@ -337,7 +336,6 @@ export class LevelComponent implements OnInit {
           // relative movement in pcm above 1 pcm per pixel
           moveBy = Math.round(this.curMouseSampleNrInView - this.lastPCM);
         }
-      }
 
       let mbutton = 0;
       if (event.buttons === undefined) {
@@ -356,7 +354,6 @@ export class LevelComponent implements OnInit {
           //console.log('Right mouse button pressed');
           break;
         default:
-          if (!this.view_state_service.getdragBarActive()) {
             let seg;
             if (this._database_configuration.restrictions.editItemSize && event.shiftKey) {
               if (this._preselected_item) {
@@ -448,13 +445,11 @@ export class LevelComponent implements OnInit {
             } else {
               this.moving_boundary_move.emit(null);
             }
-          }
+
+            this.setLastMove(event, moveLine);
           break;
       }
-      if (!this.view_state_service.getdragBarActive()) {
-        this.setLastMove(event, moveLine);
-      }
-    }
+    // }
   }
 
   /**
@@ -515,6 +510,7 @@ export class LevelComponent implements OnInit {
    *
    */
   setLastDblClick (x: MouseEvent) {
+    /*
     this.curMouseSampleNrInView = getMousePositionInCanvasX(x) * getSamplesPerPixelInViewport(
         this._viewport_sample_start,
         this._viewport_sample_end,
@@ -544,6 +540,7 @@ export class LevelComponent implements OnInit {
       }
     }
     this.lastPCM = this.curMouseSampleNrInView;
+    */
   };
 
   /**
