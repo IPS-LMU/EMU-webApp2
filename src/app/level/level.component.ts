@@ -571,7 +571,6 @@ export class LevelComponent implements OnInit {
         this.view_state_service.preselectItem(this.lastEventMove.nearest, this.lastNeighboursMove, this.lastEventMove.isFirst, this.lastEventMove.isLast);
       }
     }
-    this.view_state_service.setCurrentMouseOverLevel(this._level_annotation);
     this.lastPCM = this.curMouseSampleNrInView;
   }
 

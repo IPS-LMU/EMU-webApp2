@@ -337,7 +337,7 @@ export class ViewStateService {
     this.rightSubmenuOpen = false;
     this.curClickItems = [];
     this.curMousePosSample = 0;
-    this.preselectedItemInfo = undefined;
+    this.preselectedItemInfo = null;
     this.crosshairPosition = 0;
     this.curMouseTrackName = undefined;
     this.currentMouseOverLevel = undefined;
@@ -815,6 +815,10 @@ setState(nameOrObj) {
       return this.preselectedItemInfo;
   }
 
+  public removePreselection() {
+    this.preselectedItemInfo = null;
+  }
+
   // /**
   //  * Getter for current Mouse Item Neighbours (left and right)
   //  * @return Object representing the current mouse item neighbours
@@ -1148,34 +1152,26 @@ setState(nameOrObj) {
    * @param zoomIn bool to specify zooming direction
    * if set to true -> zoom in
    * if set to false -> zoom out
-   * @param data_service pass in DataService to avoid circular dependencies
    */
-  zoomViewPort(zoomIn, data_service: DataService) {
-    let newStartS, newEndS, curMouseMoveItemStart;
-    let seg = this.getPreselectedItemInfo().item;
-    let d = this.curViewPort.eS - this.curViewPort.sS;
+  zoomViewPort(zoomIn) {
+    let newStartS, newEndS;
+    const d = this.curViewPort.eS - this.curViewPort.sS;
 
-    let isLastSeg = false;
+    if (this.getPreselectedItemInfo()) {
+      let zoomAnchor;
+      const preselectSegment = this.getPreselectedItemInfo().item;
 
-    if (seg !== undefined) {
-      const levelData: ILevel = this.getCurrentMouseOverLevel();
-      if (this.getPreselectedItemInfo().isFirst) { // before first element
-        seg = levelData.items[0];
-      } else if (this.getPreselectedItemInfo().isLast) {
-        seg = levelData.items[levelData.items.length - 1];
-        isLastSeg = true;
-      }
       if (this.getCurrentMouseOverLevel().type === 'SEGMENT') {
-        if (isLastSeg) {
-          curMouseMoveItemStart = seg.sampleStart + seg.sampleDur;
+        if (this.getPreselectedItemInfo().isLast) {
+          zoomAnchor = preselectSegment.sampleStart + preselectSegment.sampleDur;
         } else {
-          curMouseMoveItemStart = seg.sampleStart;
+          zoomAnchor = preselectSegment.sampleStart;
         }
       } else {
-        curMouseMoveItemStart = seg.samplePoint;
+        zoomAnchor = preselectSegment.samplePoint;
       }
-      let d1 = curMouseMoveItemStart - this.curViewPort.sS;
-      let d2 = this.curViewPort.eS - curMouseMoveItemStart;
+      let d1 = zoomAnchor - this.curViewPort.sS;
+      let d2 = this.curViewPort.eS - zoomAnchor;
 
       if (zoomIn) {
         newStartS = this.curViewPort.sS + d1 * 0.5;
@@ -1193,7 +1189,6 @@ setState(nameOrObj) {
         newEndS = this.curViewPort.eS + ~~(d / 4);
 
       }
-
     }
     this.setViewPort(newStartS, newEndS);
   };

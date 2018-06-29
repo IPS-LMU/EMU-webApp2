@@ -164,6 +164,8 @@
           [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
           (moving_boundary_move)="view_state_service.movingBoundarySample = $event"
           (crosshair_move)="view_state_service.crosshairPosition = $event"
+          (mouseenter)="view_state_service.setCurrentMouseOverLevel(data_service.getLevelDataByName(level_name))"
+          (mouseleave)="view_state_service.setCurrentMouseOverLevel(null); view_state_service.removePreselection();"
         >
 
         </app-level>
