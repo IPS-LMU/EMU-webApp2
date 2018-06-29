@@ -790,23 +790,9 @@ setState(nameOrObj) {
 
   /**
    * Preselects an item (usually called upon MouseMove)
-   *
-   * @param item Object representing the current mouse item
-   * @param neighbours Objects of left and right neighbours of the current mouse item
-   * @param x current horizontal mouse pointer position
-   * @param isFirst true if item is the first item on current level
-   * @param isLast true if item is last item on current level
    */
-  public preselectItem(item: IItem,
-                       neighbours: {left: IItem; right: IItem},
-                       isFirst: boolean,
-                       isLast: boolean) {
-      this.preselectedItemInfo = {
-          item: item,
-          neighbours: neighbours,
-          isFirst: isFirst,
-          isLast: isLast
-      };
+  public preselectItem(info: PreselectedItemInfo) {
+      this.preselectedItemInfo = info;
   }
 
   public getPreselectedItemInfo() {
@@ -844,7 +830,7 @@ setState(nameOrObj) {
   //       });
   //     }
   //   });
-  //   return itemsInRange.sort(sServObj.sortbystart);
+  //   return itemsInRange.sort(LevelService.sortItemsByStart);
   // };
 
 
@@ -852,14 +838,10 @@ setState(nameOrObj) {
    * Setter for the current (click) Item
    * @param item Object representing the currently clicked item
    */
-  setcurClickItem(item) {
-    if (item !== null && item !== undefined) {
-      this.curClickItems = [];
-      this.curClickItems.push(item);
-      this.selectBoundary();
-    } else {
-      this.curClickItems = [];
-    }
+  setcurClickItem(items) {
+    console.log("setcurClickItem()");
+    this.curClickItems = items;
+    this.selectBoundary();
   }
 
 
@@ -891,51 +873,6 @@ setState(nameOrObj) {
       });
       // sServObj.select(left, right + 1);
     }
-  }
-
-  /**
-   * adds an item to the currently selected items if the left or right one of current selected items
-   * @param item representing the Object to be added to selection
-   * @param neighbour left or right neighbor to add to selection
-   */
-  setcurClickItemMultiple (item, neighbour) {
-
-    // if nothing is in curClickItems
-    if (this.curClickItems.length === 0 || this.curClickItems === undefined || this.curClickItems === null) {
-      this.curClickItems = [];
-      this.curClickItems.push(item);
-    }
-    // if there is something in curClickItems
-    else {
-      // if item is not yet in curClickItems
-      if (this.curClickItems.indexOf(item) === -1) {
-        if ( this.curClickItems.indexOf(neighbour) < 0 ) {
-          this.curClickItems = [];
-        }
-        this.curClickItems.push(item);
-        this.curClickItems.sort(this.sortbystart);
-      }
-      // if item is in curClickItems reset and add
-      else {
-        this.curClickItems = [];
-        this.curClickItems.push(item);
-      }
-    }
-  };
-
-
-  /**
-   *
-   */
-  public sortbystart (a, b) {
-    //Compare "a" and "b" in some fashion, and return -1, 0, or 1
-    if (a.sampleStart > b.sampleStart || a.samplePoint > b.samplePoint) {
-      return 1;
-    }
-    if (a.sampleStart < b.sampleStart || a.samplePoint < b.samplePoint) {
-      return -1;
-    }
-    return 0;
   }
 
   // /**
@@ -975,7 +912,7 @@ setState(nameOrObj) {
    */
   public getcurClickItems = function () {
     return this.curClickItems;
-  }
+  };
 
 
   /**
@@ -983,7 +920,7 @@ setState(nameOrObj) {
    */
   public getselected = function () {
     return this.curClickItems;
-  }
+  };
 
 
   /**
@@ -1288,7 +1225,7 @@ setState(nameOrObj) {
    */
   getY = function (e) {
     return getMousePositionInCanvasY(e);
-  }
+  };
 
   /**
    *

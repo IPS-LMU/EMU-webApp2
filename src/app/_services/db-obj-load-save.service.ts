@@ -42,7 +42,7 @@ export class DbObjLoadSaveService {
   loadBundle(bndl) {
     let subj = new Subject();
     // check if bndl has to be saved
-    this.view_state_service.setcurClickItem(null);
+    this.view_state_service.setcurClickItem([]);
     if ((this.history_service.movesAwayFromLastSave !== 0 &&
       this.config_provider_service.vals.main.comMode !== 'DEMO' &&
       this.config_provider_service.vals.activeButtons.saveBundle)) {

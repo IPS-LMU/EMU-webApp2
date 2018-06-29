@@ -1,5 +1,10 @@
 <!--<div class="wrapper">-->
-  <div class="emuwebapp-level-container" (mousemove)="mousemove($event)" (click)="mouseclick($event)" (dblclick)="mousedblclick($event)">
+  <div class="emuwebapp-level-container"
+       (mousemove)="mousemove($event)"
+       (click)="mouseclick($event)"
+       (dblclick)="mousedblclick($event)"
+       (contextmenu)="mouserightclick($event)"
+  >
     <canvas #levelCanvas class="emuwebapp-level-canvas" id="levelCanvas" width="2048" height="128"></canvas>
     <!--<canvas class="emuwebapp-level-markup" id="levelMarkupCanvas" width="2048" height="64" track-mouse-in-level="{{idx}}" level-name="level.name" level-type="level.type"></canvas>-->
     <canvas #levelMarkupCanvas class="emuwebapp-level-markup" id="levelMarkupCanvas" width="2048" height="128"></canvas>

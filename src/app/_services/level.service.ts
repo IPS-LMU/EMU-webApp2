@@ -821,8 +821,22 @@ export class LevelService {
     //     event.samplePoint += changeTime;
     //   }
     //   //resort Points after moving
-    //   level.items.sort(this.view_state_service.sortbystart);
+    //   level.items.sort(LevelService.sortItemsByStart);
     // }
+  }
+
+  /**
+   *
+   */
+  public static sortItemsByStart (a, b) {
+      //Compare "a" and "b" in some fashion, and return -1, 0, or 1
+      if (a.sampleStart > b.sampleStart || a.samplePoint > b.samplePoint) {
+          return 1;
+      }
+      if (a.sampleStart < b.sampleStart || a.samplePoint < b.samplePoint) {
+          return -1;
+      }
+      return 0;
   }
 
   /**
