@@ -320,10 +320,10 @@ export class LevelComponent implements OnInit {
               let lastItem = this._level_annotation.items[this._level_annotation.items.length - 1];
               moveBy = Math.ceil((this.curMouseSampleNrInView + this._viewport_sample_start) - lastItem.sampleStart - lastItem.sampleDur);
             } else {
-              moveBy = Math.ceil((this.curMouseSampleNrInView + this._viewport_sample_start) - LevelService.getItemFromLevelById(this._level_annotation, zoomEventMove.nearest.id).sampleStart);
+              moveBy = Math.ceil((this.curMouseSampleNrInView + this._viewport_sample_start) - zoomEventMove.nearest.sampleStart);
             }
           } else {
-            moveBy = Math.ceil((this.curMouseSampleNrInView + this._viewport_sample_start) - LevelService.getItemFromLevelById(this._level_annotation, zoomEventMove.nearest.id).samplePoint - 0.5); // 0.5 to break between samples not on
+            moveBy = Math.ceil((this.curMouseSampleNrInView + this._viewport_sample_start) - zoomEventMove.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
           }
         } else {
           // relative movement in pcm above 1 pcm per pixel
