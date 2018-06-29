@@ -1,17 +1,15 @@
 import {Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
 
-import { FontScaleService } from '../_services/font-scale.service';
-import { ViewStateService } from '../_services/view-state.service';
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
-import { DrawHelperService } from '../_services/draw-helper.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 import {
     getMousePositionInCanvasX,
-    getPixelDistanceBetweenSamples,
-    getPixelPositionOfSampleInViewport, getSamplesPerPixelInViewport
+    getSamplesPerPixelInViewport
 } from '../_utilities/view-state-helper-functions';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
+import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
+import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.function';
 
 @Component({
   selector: 'app-level',
@@ -574,335 +572,37 @@ export class LevelComponent implements OnInit {
   /**
    * draw level details
    */
-  drawLevelDetails() {
-    let labelFontFamily; // font family used for labels only
-    let fontFamily = 'HelveticaNeue'; //this.config_provider_service.design.font.small.family; // font family used for everything else
-    // if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily === 'undefined'){
-      labelFontFamily = 'HelveticaNeue';//this.config_provider_service.design.font.small.family;
-    // }else{
-    //  labelFontFamily = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontFamily;
-    // }
-
-    let labelFontSize; // font family used for labels only
-    let fontSize = 12; //this.config_provider_service.design.font.small.size.slice(0, -2) * 1; // font size used for everything else
-    // if(typeof this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.fontPxSize === 'undefined') {
-      labelFontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
-    // }else{
-    //  labelFontSize = this._database_configuration.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.labelFontPxSize;
-    // }
-
-
-    // let curAttrDef = this.vs.getCurAttrDef(this.level.name);
-    // let isOpen = element.parent().css('height') !== '25px';// ? false : true;
-    // if ($.isEmptyObject(this.level)) {
-    //   //console.log('undef levelDetails');
-    //   return;
-    // }
-    // if ($.isEmptyObject(this.vs)) {
-    //   //console.log('undef this.view_state_service');
-    //   return;
-    // }
-    // if ($.isEmptyObject(this.cps)) {
-    //   //console.log('undef config');
-    //   return;
-    // }
-    //
-    // // draw hierarchy if canvas is displayed
-    // if(this.drawHierarchy){
-    //   this.drawHierarchyDetails();
-    // }
-
-    let ctx = this.levelCanvas.nativeElement.getContext('2d');
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    // predef lets
-    let sDist, posS, posE;
-
-    sDist = getPixelDistanceBetweenSamples(this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
-
-    // draw name of level and type
-    let scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
-
-    if (this._level_annotation.name === this._attributeDefinition) {
-    //   if (isOpen) {
-        FontScaleService.drawUndistortedTextTwoLines(ctx, this._level_annotation.name, '(' + this._level_annotation.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, 'black', true);
-    //   }
-    //   else {
-    //     fontSize -= 2;
-    //     FontScaleService.drawUndistortedText(ctx, this.level.name, fontSize, fontFamily, 4, ctx.canvas.height / 2 - (fontSize * scaleY / 2), this.config_provider_service.design.color.black, true);
-    //   }
-    // } else {
-    //   FontScaleService.drawUndistortedTextTwoLines(ctx, this.level.name + ':' + curAttrDef, '(' + this.level.type + ')', fontSize, fontFamily, 4, ctx.canvas.height / 2 - fontSize * scaleY, this.config_provider_service.design.color.black, true);
-    }
-
-    let curID = -1;
-
-    // calculate generic max with of single char (m char used)
-    //let mTxtImg = FontScaleService.drawUndistortedText(ctx, 'm', fontSize - 2, labelFontFamily, this.config_provider_service.design.color.black);
-    let mTxtImgWidth = ctx.measureText('m').width * FontScaleService.getScaleX(ctx);
-
-    // calculate generic max with of single digit (0 digit used)
-    //let zeroTxtImg = FontScaleService.drawUndistortedText(ctx, '0', fontSize - 4, labelFontFamily, this.config_provider_service.design.color.black);
-    let zeroTxtImgWidth = ctx.measureText('0').width * FontScaleService.getScaleX(ctx);
-    if (this._level_annotation.type === 'SEGMENT') {
-      ctx.fillStyle = 'black';//this.config_provider_service.design.color.black;
-        // draw segments
-
-        this._level_annotation.items.forEach((item) => {
-          ++curID;
-
-          if (item.sampleStart >= this._viewport_sample_start &&
-            item.sampleStart <= this._viewport_sample_end || //within segment
-            item.sampleStart + item.sampleDur > this._viewport_sample_start &&
-            item.sampleStart + item.sampleDur < this._viewport_sample_end || //end in segment
-            item.sampleStart < this._viewport_sample_start &&
-            item.sampleStart + item.sampleDur > this._viewport_sample_end // within sample
-          ) {
-            // get label
-            let curLabVal;
-            item.labels.forEach((lab) => {
-              if (lab.name === this._attributeDefinition) {
-                curLabVal = lab.value;
-              }
-            });
-
-            // draw segment start
-            posS = getPixelPositionOfSampleInViewport(item.sampleStart, this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
-            posE = getPixelPositionOfSampleInViewport(item.sampleStart + item.sampleDur + 1, this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
-
-            ctx.fillStyle = 'black';//this.config_provider_service.design.color.black;
-            ctx.fillRect(posS, 0, 2, ctx.canvas.height / 2);
-
-            //draw segment end
-            ctx.fillStyle = 'grey'; //this.config_provider_service.design.color.grey;
-            ctx.fillRect(posE, ctx.canvas.height / 2, 2, ctx.canvas.height);
-
-            ctx.font = (fontSize - 2 + 'px' + ' ' + labelFontFamily);
-
-            //check for enough space to stroke text
-            if ((curLabVal !== undefined) && posE - posS > (mTxtImgWidth * curLabVal.length)) {
-      //         if (isOpen) {
-                FontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
-      //         } else {
-      //           FontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2) - fontSize + 2, this.config_provider_service.design.color.black, false);
-      //         }
-            }
-
-            //draw helper lines
-            if (true && curLabVal !== undefined && curLabVal.length !== 0) { // only draw if label is not empty; NOTE true used to be this.open
-              let labelCenter = posS + (posE - posS) / 2;
-
-              let hlY = ctx.canvas.height / 4;
-              // start helper line
-              ctx.strokeStyle = 'black'; // this.config_provider_service.design.color.black;
-              ctx.beginPath();
-              ctx.moveTo(posS, hlY);
-              ctx.lineTo(labelCenter, hlY);
-              ctx.lineTo(labelCenter, hlY + 5);
-              ctx.stroke();
-
-              hlY = ctx.canvas.height / 4 * 3;
-              // end helper line
-              ctx.strokeStyle = 'grey'; //this.config_provider_service.design.color.grey;
-              ctx.beginPath();
-              ctx.moveTo(posE, hlY);
-              ctx.lineTo(labelCenter, hlY);
-              ctx.lineTo(labelCenter, hlY - 5);
-              ctx.stroke();
-            }
-      //
-      //       if (this.open){
-              // draw sampleStart numbers
-              //check for enough space to stroke text
-              if (posE - posS > zeroTxtImgWidth * item.sampleStart.toString().length) {
-                FontScaleService.drawUndistortedText(ctx, item.sampleStart, fontSize - 2, fontFamily, posS + 3, 0, 'grey', true);
-              }
-
-              // draw sampleDur numbers.
-              let durtext = 'dur: ' + item.sampleDur + ' ';
-              //check for enough space to stroke text
-              if (posE - posS > zeroTxtImgWidth * durtext.length) {
-                FontScaleService.drawUndistortedText(ctx, durtext, fontSize - 2, fontFamily, posE - (ctx.measureText(durtext).width * FontScaleService.getScaleX(ctx)), ctx.canvas.height / 4 * 3, 'grey', true);
-              }
-      //       }
-          }
-        });
-
-    }else if (this._level_annotation.type === 'EVENT') {
-      ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
-      // predef. lets
-      let perc;
-
-      this._level_annotation.items.forEach((item) => {
-        if (item.samplePoint > this._viewport_sample_start && item.samplePoint < this._viewport_sample_end) {
-          let pos = getPixelPositionOfSampleInViewport(item.samplePoint, this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
-          perc = Math.round(pos + (sDist / 2));
-          // get label
-          let curLabVal;
-          item.labels.forEach((lab) => {
-            if (lab.name === this._attributeDefinition) {
-              curLabVal = lab.value;
-            }
-          });
-
-          ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
-          ctx.fillRect(perc, 0, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
-          ctx.fillRect(perc, ctx.canvas.height / 2 + ctx.canvas.height / 5, 1, ctx.canvas.height / 2 - ctx.canvas.height / 5);
-
-          FontScaleService.drawUndistortedText(ctx, curLabVal, labelFontSize - 2, labelFontFamily, perc, (ctx.canvas.height / 2) - (fontSize - 2) + 2, 'black', false);
-    //       if (isOpen) {
-            FontScaleService.drawUndistortedText(ctx, item.samplePoint, fontSize - 2, labelFontFamily, perc + 5, 0, 'grey', true);
-    //       }
-        }
-      });
-    }
+  private drawLevelDetails() {
+      const context = this.levelCanvas.nativeElement.getContext('2d');
+      drawLevelDetails(
+          context,
+          this._level_annotation,
+          this._attributeDefinition,
+          this._viewport_sample_start,
+          this._viewport_sample_end
+      );
   }
 
   /**
    *
    */
-  drawLevelMarkup() {
-    // console.log()
-    let ctx = this.levelMarkupCanvas.nativeElement.getContext('2d');
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (this._selected) {
-      ctx.fillStyle = 'rgba(22, 22, 22, 0.1)'; //this.config_provider_service.design.color.transparent.grey;
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    }
-
-    // draw moving boundary line if moving
-    if (this._moving_boundary_position) {
-      DrawHelperService.drawMovingBoundaryLine(
-          ctx,
+  private drawLevelMarkup() {
+      const context = this.levelMarkupCanvas.nativeElement.getContext('2d');
+      drawLevelMarkup(
+          context,
+          this._level_annotation,
           this._viewport_sample_start,
           this._viewport_sample_end,
+          this._selection_sample_start,
+          this._selection_sample_end,
+          this._selected,
+          this._selected_items,
+          this._preselected_item,
+          this._crosshair_position,
           this._moving_boundary_position,
-          this._preselected_item.isLast,
+          this._audio_buffer,
           this._mouseover_level
       );
-    }
-
-    // draw current viewport selected
-    DrawHelperService.drawCurViewPortSelected(
-        ctx,
-        false,
-        this._viewport_sample_start,
-        this._viewport_sample_end,
-        this._selection_sample_start,
-        this._selection_sample_end,
-        this._audio_buffer,
-        this._mouseover_level
-    );
-
-
-    let posS, posE, sDist, xOffset;
-    posS = getPixelPositionOfSampleInViewport(
-        this._selection_sample_start,
-        this._viewport_sample_start,
-        this._viewport_sample_end,
-        ctx.canvas.width
-    );
-    posE = getPixelPositionOfSampleInViewport(
-        this._selection_sample_end,
-        this._viewport_sample_start,
-        this._viewport_sample_end,
-        ctx.canvas.width
-    );
-    sDist = getPixelDistanceBetweenSamples(this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
-
-
-    if (this._selected_items !== undefined) {
-      // draw clicked on selected areas
-      if (this._selected && this._selected_items.length > 0) {
-        for (let item of this._selected_items) {
-          if (item !== undefined) {
-            // check if segment or event level
-            if (item.sampleStart !== undefined) {
-              posS = Math.round(getPixelPositionOfSampleInViewport(
-                 item.sampleStart,
-                 this._viewport_sample_start,
-                 this._viewport_sample_end,
-                 ctx.canvas.width
-              ));
-              posE = Math.round(getPixelPositionOfSampleInViewport(
-                  item.sampleStart + item.sampleDur + 1,
-                  this._viewport_sample_start,
-                  this._viewport_sample_end,
-                  ctx.canvas.width
-              ));
-            } else {
-              posS = Math.round(getPixelPositionOfSampleInViewport(
-                  item.samplePoint,
-                  this._viewport_sample_start,
-                  this._viewport_sample_end,
-                  ctx.canvas.width
-              ) + sDist / 2);
-              posS = posS - 5;
-              posE = posS + 10;
-            }
-            ctx.fillStyle = 'rgba(255, 255, 22, 0.35)';//this.config_provider_service.design.color.transparent.yellow;
-            ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
-            ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
-          }
-        }
-      }
-    }
-
-
-    // draw preselected boundary
-
-    if (this._level_annotation.items.length > 0 && this._preselected_item && this._mouseover_level.name === this._level_annotation.name) {
-      let item = this._preselected_item.item;
-      ctx.fillStyle = '#4fc3f7'; //this.config_provider_service.design.color.blue;
-      if (this._preselected_item.isFirst === true) { // before first segment
-        if (this._level_annotation.type === 'SEGMENT') {
-          item = this._level_annotation.items[0]; // @todo this is superfluous
-          posS = Math.round(getPixelPositionOfSampleInViewport(
-             item.sampleStart,
-             this._viewport_sample_start,
-             this._viewport_sample_end,
-             ctx.canvas.width
-          ));
-          ctx.fillRect(posS, 0, 3, ctx.canvas.height);
-        }
-      } else if (this._preselected_item.isLast === true) { // after last segment
-        if (this._level_annotation.type === 'SEGMENT') {
-          item = this._level_annotation.items[this._level_annotation.items.length - 1];
-          posS = Math.round(getPixelPositionOfSampleInViewport(
-             item.sampleStart + item.sampleDur + 1, // +1 because boundaries are drawn on sampleStart
-             this._viewport_sample_start,
-             this._viewport_sample_end,
-             ctx.canvas.width
-          ));
-          ctx.fillRect(posS, 0, 3, ctx.canvas.height);
-        }
-      } else { // in the middle
-        if (this._level_annotation.type === 'SEGMENT') {
-          posS = Math.round(getPixelPositionOfSampleInViewport(
-              item.sampleStart,
-              this._viewport_sample_start,
-              this._viewport_sample_end,
-              ctx.canvas.width
-          ));
-          ctx.fillRect(posS, 0, 3, ctx.canvas.height);
-        } else {
-          posS = Math.round(getPixelPositionOfSampleInViewport(
-              item.samplePoint,
-              this._viewport_sample_start,
-              this._viewport_sample_end,
-              ctx.canvas.width
-          ));
-          xOffset = (sDist / 2);
-          ctx.fillRect(posS + xOffset, 0, 3, ctx.canvas.height);
-
-        }
-      }
-      ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
-
-    }
-
-    // draw cursor
-    DrawHelperService.drawCrossHairX(ctx, this._crosshair_position);
   }
 
 //   /**
