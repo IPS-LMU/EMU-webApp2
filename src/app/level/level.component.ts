@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
 
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
@@ -16,7 +16,7 @@ import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.functio
   templateUrl: './level.component.html',
   styleUrls: ['./level.component.scss']
 })
-export class LevelComponent implements OnInit {
+export class LevelComponent {
 
   private _database_configuration: {restrictions: any, perspectives: any[]};
   private _preselected_item: PreselectedItemInfo;
@@ -33,8 +33,8 @@ export class LevelComponent implements OnInit {
   private _selected: boolean;
   private _mouseover_level: ILevel;
 
-  // mouse handeling lets
-  sampleNumberAtLastMousePosition: number;
+  // mouse handling vars
+  private sampleNumberAtLastMousePosition: number;
   // order = attr.trackMouseInLevel;
 
   @Input() set database_configuration(value: {restrictions: any, perspectives: any[]}) {
@@ -116,159 +116,10 @@ export class LevelComponent implements OnInit {
 
   constructor(private history_service: HistoryService) { }
 
-  ngOnInit() {
-  }
-
-//   // select the needed DOM items from the template
-//   let canvas = element.find('canvas');
-//   this.open = true; // attr.open; // not using attr.open any more because minification changes open="true" to open
-//   this.vs = this.view_state_service;
-//   this.hists = HistoryService;
-//   this.cps = ConfigProviderService;
-//   this.modal = modalService;
-//   this.lmds = loadedMetaDataService;
-//   this.hls = HierarchyLayoutService;
-//   this.ds = DataService;
-//   this.ls = this.level_service;
-//
-//   let levelCanvasContainer = element.find('div');
-//   this.levelDef = ConfigProviderService.getLevelDefinition(this.level.name);
-//   this.backgroundCanvas = {
-//     'background': ConfigProviderService.design.color.lightGrey
-//   };
-//
-//   this.drawHierarchy = false; //
-//
-//   ///////////////
-//   // watches
-//
-//   this.$watch('vs.lastUpdate', function (newValue, oldValue) {
-//     if (newValue !== oldValue) {
-//       this.redraw();
-//     }
-//   });
-//
-//   //
-//   this.$watch('vs.curViewPort', function (newValue, oldValue) {
-//     if (oldValue.sS !== newValue.sS || oldValue.eS !== newValue.eS || oldValue.windowWidth !== newValue.windowWidth) {
-//       this.drawLevelDetails();
-//       this.drawLevelMarkup();
-//     } else {
-//       this.drawLevelMarkup();
-//     }
-//   }, true);
-//
-//   //
-//   this.$watch('vs.curMouseX', function () {
-//     this.drawLevelMarkup();
-//   }, true);
-//
-//   //
-//   this.$watch('vs.curClickLevelName', function (newValue) {
-//     if (newValue !== undefined) {
-//       this.drawLevelMarkup();
-//     }
-//   }, true);
-//
-//   //
-//   this.$watch('vs.movingBoundarySample', function () {
-//     if (this.level.name === this.vs.curMouseLevelName) {
-//       this.drawLevelDetails();
-//     }
-//     this.drawLevelMarkup();
-//   }, true);
-//
-//   //
-//   this.$watch('vs.movingBoundary', function () {
-//     this.drawLevelMarkup();
-//   }, true);
-//
-//   //
-//   this.$watch('hists.movesAwayFromLastSave', function () {
-//     this.drawLevelDetails();
-//     this.drawLevelMarkup();
-//
-//   }, true);
-//
-//   //
-//   this.$watch('vs.curPerspectiveIdx', function () {
-//     this.drawLevelDetails();
-//     this.drawLevelMarkup();
-//   }, true);
-//
-//   //
-//   this.$watch('lmds.getCurBndl()', function (newValue, oldValue) {
-//     if (newValue.name !== oldValue.name || newValue.session !== oldValue.session) {
-//       this.drawLevelDetails();
-//       this.drawLevelMarkup();
-//     }
-//   }, true);
-//
-
-  //
-  /////////////////
-
   redraw() {
     this.drawLevelDetails();
     this.drawLevelMarkup();
   }
-
-//   /**
-//    *
-//    */
-//   this.changeCurAttrDef = function (attrDefName, index) {
-//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
-//     if (curAttrDef !== attrDefName) {
-//       // curAttrDef = attrDefName;
-//       this.vs.setCurAttrDef(this.level.name, attrDefName, index);
-//
-//       if (!element.hasClass('emuwebapp-level-animation')) {
-//         this.vs.setEditing(false);
-//         this.deleteEditArea();
-//         $animate.addClass(levelCanvasContainer, 'emuwebapp-level-animation').then(function () {
-//           $animate.removeClass(levelCanvasContainer, 'emuwebapp-level-animation');
-//           // redraw
-//           this.drawLevelDetails();
-//           this.drawLevelMarkup();
-//         });
-//       }
-//     }
-//   };
-//
-//   /**
-//    *
-//    */
-//   this.getAttrDefBtnColor = function (attrDefName) {
-//     let curColor;
-//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
-//     if (attrDefName === curAttrDef) {
-//       curColor = {
-//         'background': '-webkit-radial-gradient(50% 50%, closest-corner, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 60%)'
-//       };
-//     } else {
-//       curColor = {
-//         'background-color': 'white'
-//       };
-//     }
-//     return curColor;
-//   };
-//
-//   this.updateView = function () {
-//     if ($.isEmptyObject(this.cps)) {
-//       return;
-//     }
-//     this.drawLevelDetails();
-//   };
-//
-//
-//   ///////////////
-//   // bindings
-//
-//   // on mouse leave reset this.view_state_service.
-//   element.bind('mouseleave', function () {
-//     this.vs.preselectItem(undefined, undefined, undefined);
-//     this.drawLevelMarkup();
-//   });
 
   /////////////////////
   // handle mouse events
@@ -513,7 +364,7 @@ export class LevelComponent implements OnInit {
       }
   }
 
-  // end mouse handeling
+  // end mouse handling
   /////////////////
 
 
@@ -600,6 +451,48 @@ export class LevelComponent implements OnInit {
 //
 // }
 // };
+
+
+//   /**
+//    *
+//    */
+//   this.changeCurAttrDef = function (attrDefName, index) {
+//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
+//     if (curAttrDef !== attrDefName) {
+//       // curAttrDef = attrDefName;
+//       this.vs.setCurAttrDef(this.level.name, attrDefName, index);
+//
+//       if (!element.hasClass('emuwebapp-level-animation')) {
+//         this.vs.setEditing(false);
+//         this.deleteEditArea();
+//         $animate.addClass(levelCanvasContainer, 'emuwebapp-level-animation').then(function () {
+//           $animate.removeClass(levelCanvasContainer, 'emuwebapp-level-animation');
+//           // redraw
+//           this.drawLevelDetails();
+//           this.drawLevelMarkup();
+//         });
+//       }
+//     }
+//   };
+//
+//   /**
+//    *
+//    */
+//   this.getAttrDefBtnColor = function (attrDefName) {
+//     let curColor;
+//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
+//     if (attrDefName === curAttrDef) {
+//       curColor = {
+//         'background': '-webkit-radial-gradient(50% 50%, closest-corner, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 60%)'
+//       };
+//     } else {
+//       curColor = {
+//         'background-color': 'white'
+//       };
+//     }
+//     return curColor;
+//   };
+//
 
   /**
    * Create a Text Selection in a html Textarea
