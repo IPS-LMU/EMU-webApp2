@@ -124,8 +124,7 @@ export class LevelComponent implements OnInit {
 
 
   constructor(private view_state_service: ViewStateService,
-              private history_service: HistoryService,
-              private element_ref: ElementRef) { }
+              private history_service: HistoryService) { }
 
   ngOnInit() {
   }
