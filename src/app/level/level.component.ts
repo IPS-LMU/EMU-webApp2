@@ -33,7 +33,6 @@ export class LevelComponent implements OnInit {
   private _crosshair_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
-  private _hovering: boolean;
   private _mouseover_level: ILevel;
 
   // mouse handeling lets
@@ -102,10 +101,6 @@ export class LevelComponent implements OnInit {
   }
   @Input() set selected(value: boolean) {
     this._selected = value;
-    this.drawLevelMarkup();
-  }
-  @Input() set hovering(value: boolean) {
-    this._hovering = value;
     this.drawLevelMarkup();
   }
   @Input() set mouseover_level(value: ILevel) {
@@ -856,7 +851,7 @@ export class LevelComponent implements OnInit {
 
     // draw preselected boundary
 
-    if (this._level_annotation.items.length > 0 && this._preselected_item && this._hovering) {
+    if (this._level_annotation.items.length > 0 && this._preselected_item && this._mouseover_level.name === this._level_annotation.name) {
       let item = this._preselected_item.item;
       ctx.fillStyle = '#4fc3f7'; //this.config_provider_service.design.color.blue;
       if (this._preselected_item.isFirst === true) { // before first segment

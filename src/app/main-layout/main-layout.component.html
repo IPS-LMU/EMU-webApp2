@@ -161,7 +161,6 @@
                 [audio_buffer]="sound_handler_service.audioBuffer"
                 [database_configuration]="config_provider_service.vals"
                 [selected]="level_name === view_state_service.getCurrentClickLevel()?.name"
-                [hovering]="level_name === view_state_service.getCurrentMouseOverLevel()?.name"
                 [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
                 (moving_boundary_move)="view_state_service.movingBoundarySample = $event"
                 (crosshair_move)="view_state_service.crosshairPosition = $event"
