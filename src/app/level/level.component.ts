@@ -623,7 +623,7 @@ export class LevelComponent implements OnInit {
     // predef lets
     let sDist, posS, posE;
 
-    sDist = this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start + 1) - this.getPixelPosition(ctx.canvas.width, this._viewport_sample_start); // used to be this.vs.getSampleDist(ctx.canvas.width);
+    sDist = getPixelDistanceBetweenSamples(this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
 
     // draw name of level and type
     let scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
@@ -672,8 +672,8 @@ export class LevelComponent implements OnInit {
             });
 
             // draw segment start
-            posS = this.getPixelPosition(ctx.canvas.width, item.sampleStart);
-            posE = this.getPixelPosition(ctx.canvas.width, item.sampleStart + item.sampleDur + 1);
+            posS = getPixelPositionOfSampleInViewport(item.sampleStart, this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
+            posE = getPixelPositionOfSampleInViewport(item.sampleStart + item.sampleDur + 1, this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
 
             ctx.fillStyle = 'black';//this.config_provider_service.design.color.black;
             ctx.fillRect(posS, 0, 2, ctx.canvas.height / 2);
@@ -740,7 +740,8 @@ export class LevelComponent implements OnInit {
 
       this._level_annotation.items.forEach((item) => {
         if (item.samplePoint > this._viewport_sample_start && item.samplePoint < this._viewport_sample_end) {
-          perc = Math.round(this.getPixelPosition(ctx.canvas.width, item.samplePoint) + (sDist / 2));
+          let pos = getPixelPositionOfSampleInViewport(item.samplePoint, this._viewport_sample_start, this._viewport_sample_end, ctx.canvas.width);
+          perc = Math.round(pos + (sDist / 2));
           // get label
           let curLabVal;
           item.labels.forEach((lab) => {
@@ -956,16 +957,6 @@ export class LevelComponent implements OnInit {
 //
 // }
 // };
-
-  /**
-   * get pixel position in current viewport given the canvas width
-   * NOTE: duplicate of viewport! Good idea?
-   * @param w is width of canvas
-   * @param s is current sample to convert to pixel value
-   */
-  getPixelPosition(w, s) {
-    return (w * (s - this._viewport_sample_start) / (this._viewport_sample_end - this._viewport_sample_start + 1)); // + 1 because of view (displays all samples in view)
-  }
 
   /**
    * Create a Text Selection in a html Textarea
