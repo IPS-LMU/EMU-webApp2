@@ -107,9 +107,11 @@ export class LevelComponent implements OnInit {
   }
   @Input() set selected(value: boolean) {
     this._selected = value;
+    this.drawLevelMarkup();
   }
   @Input() set hovering(value: boolean) {
     this._hovering = value;
+    this.drawLevelMarkup();
   }
   @Input() set mouseover_level(value: ILevel) {
     this._mouseover_level = value;
