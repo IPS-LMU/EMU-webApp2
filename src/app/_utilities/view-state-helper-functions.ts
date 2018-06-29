@@ -44,6 +44,16 @@ export function getSamplesPerPixelInViewport(viewportStartSample: number,
     return (viewportEndSample - viewportStartSample) / canvas.width;
 }
 
+export function getSampleNumberAtCanvasMouseEvent(event: MouseEvent,
+                                                  viewportStartSample: number,
+                                                  viewportEndSample: number) {
+    return viewportStartSample + getMousePositionInCanvasX(event) * getSamplesPerPixelInViewport(
+        viewportStartSample,
+        viewportEndSample,
+        event.target as HTMLCanvasElement
+    );
+}
+
 export function calculateSampleTime(sample: number, sampleRate: number): number {
     return (sample + 0.5) / sampleRate;
 }
