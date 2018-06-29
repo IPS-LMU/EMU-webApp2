@@ -164,11 +164,10 @@
                 [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
                 (moving_boundary_move)="view_state_service.movingBoundarySample = $event"
                 (crosshair_move)="view_state_service.crosshairPosition = $event"
-                (mouseenter)="view_state_service.setCurrentMouseOverLevel(data_service.getLevelDataByName(level_name))"
-                (mouseleave)="view_state_service.setCurrentMouseOverLevel(null); view_state_service.removePreselection();"
-                (select_level)="view_state_service.setCurrentClickLevel(data_service.getLevelDataByName(level_name))"
-                (select_items)="view_state_service.selectItems($event)"
+                (preselect_level)="view_state_service.setCurrentMouseOverLevel($event)"
+                (select_level)="view_state_service.setCurrentClickLevel($event)"
                 (preselect_item)="view_state_service.preselectItem($event)"
+                (select_items)="view_state_service.selectItems($event)"
         >
 
         </app-level>

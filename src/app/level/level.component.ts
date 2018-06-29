@@ -103,9 +103,11 @@ export class LevelComponent implements OnInit {
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
   @Output() moving_boundary_move: EventEmitter<number> = new EventEmitter<number>();
-  @Output() select_level: EventEmitter<null> = new EventEmitter<null>();
-  @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
+
+  @Output() preselect_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
+  @Output() select_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
   @Output() preselect_item: EventEmitter<PreselectedItemInfo> = new EventEmitter<PreselectedItemInfo>();
+  @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
 
 
   @ViewChild('levelCanvas') levelCanvas: ElementRef;
@@ -274,7 +276,7 @@ export class LevelComponent implements OnInit {
   mouseclick(event: MouseEvent){
     event.preventDefault();
 
-    this.select_level.emit();
+    this.select_level.emit(this._level_annotation);
 
     const clickedSample = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
 
@@ -321,7 +323,7 @@ export class LevelComponent implements OnInit {
       event.preventDefault();
 
       if (!this._selected) {
-          this.select_level.emit();
+          this.select_level.emit(this._level_annotation);
           this.select_items.emit([]);
       }
 
@@ -331,6 +333,15 @@ export class LevelComponent implements OnInit {
       if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined) {
           this.addToSelection(itemNearCursor.current);
       }
+  }
+
+  mouseenter(event: MouseEvent) {
+    this.preselect_level.emit(this._level_annotation);
+  }
+
+  mouseleave(event: MouseEvent) {
+    this.preselect_item.emit(null);
+    this.preselect_level.emit(null);
   }
 
 
