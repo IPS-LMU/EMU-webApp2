@@ -236,8 +236,6 @@ export class LevelComponent {
   }
 
   private calculateMoveDistance(event: MouseEvent): number {
-      let moveBy;
-
       const sampleNumberAtCurrentMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
       const samplesPerPixel = getSamplesPerPixelInViewport(
           this._viewport_sample_start,
@@ -250,22 +248,20 @@ export class LevelComponent {
           // absolute movement in pcm below 1 pcm per pixel
           if (this._level_annotation.type === 'SEGMENT') {
               if (itemNearCursor.isFirst === true && itemNearCursor.isLast === false) { // before first elem
-                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - this._level_annotation.items[0].sampleStart);
+                  return Math.ceil((sampleNumberAtCurrentMousePosition) - this._level_annotation.items[0].sampleStart);
               } else if (itemNearCursor.isFirst === false && itemNearCursor.isLast === true) { // after last elem
                   let lastItem = this._level_annotation.items[this._level_annotation.items.length - 1];
-                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - lastItem.sampleStart - lastItem.sampleDur);
+                  return Math.ceil((sampleNumberAtCurrentMousePosition) - lastItem.sampleStart - lastItem.sampleDur);
               } else {
-                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.sampleStart);
+                  return Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.sampleStart);
               }
           } else {
-              moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
+              return Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
           }
       } else {
           // relative movement in pcm above 1 pcm per pixel
-          moveBy = Math.round(sampleNumberAtCurrentMousePosition - this.sampleNumberAtLastMousePosition);
+          return Math.round(sampleNumberAtCurrentMousePosition - this.sampleNumberAtLastMousePosition);
       }
-
-      return moveBy;
   }
 
   private moveSegments(segments: IItem[], moveBy: number) {
