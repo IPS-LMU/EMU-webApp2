@@ -220,7 +220,7 @@ export class LevelComponent {
                   this.moving_boundary_move.emit(null);
                   this.crosshair_move.emit(getMousePositionInCanvasX(event));
 
-                  let itemNearCursor = LevelService.getClosestItem(this.sampleNumberAtLastMousePosition + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
+                  let itemNearCursor = LevelService.getClosestItem(this.sampleNumberAtLastMousePosition, this._level_annotation, this._audio_buffer.length);
                   if (itemNearCursor.current && itemNearCursor.nearest) {
                       this.preselect_item.emit({
                           item: itemNearCursor.nearest,
@@ -246,19 +246,19 @@ export class LevelComponent {
       );
 
       if (samplesPerPixel <= 1) {
-          let itemNearCursor = LevelService.getClosestItem(sampleNumberAtCurrentMousePosition + this._viewport_sample_start, this._level_annotation, this._audio_buffer.length);
+          let itemNearCursor = LevelService.getClosestItem(sampleNumberAtCurrentMousePosition, this._level_annotation, this._audio_buffer.length);
           // absolute movement in pcm below 1 pcm per pixel
           if (this._level_annotation.type === 'SEGMENT') {
               if (itemNearCursor.isFirst === true && itemNearCursor.isLast === false) { // before first elem
-                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - this._level_annotation.items[0].sampleStart);
+                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - this._level_annotation.items[0].sampleStart);
               } else if (itemNearCursor.isFirst === false && itemNearCursor.isLast === true) { // after last elem
                   let lastItem = this._level_annotation.items[this._level_annotation.items.length - 1];
-                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - lastItem.sampleStart - lastItem.sampleDur);
+                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - lastItem.sampleStart - lastItem.sampleDur);
               } else {
-                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - itemNearCursor.nearest.sampleStart);
+                  moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.sampleStart);
               }
           } else {
-              moveBy = Math.ceil((sampleNumberAtCurrentMousePosition + this._viewport_sample_start) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
+              moveBy = Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
           }
       } else {
           // relative movement in pcm above 1 pcm per pixel
