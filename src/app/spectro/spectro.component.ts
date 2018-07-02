@@ -3,11 +3,15 @@ import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} f
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
-import {getMousePositionInCanvasX, getSamplesPerCanvasWidthUnit} from '../_utilities/view-state-helper-functions';
+import {
+    getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent,
+    getSamplesPerCanvasWidthUnit
+} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {ILevel} from '../_interfaces/annot-json.interface';
+import {adjustSelection} from '../_utilities/adjust-selection.function';
 
 @Component({
   selector: 'app-spectro',
@@ -64,14 +68,12 @@ export class SpectroComponent implements OnInit {
   }
   @Input() set selection_sample_start(value: number){
       this._selection_sample_start = value;
-      console.log("setting _selection_sample_start");
-      // this.redraw();
+      this.drawSpectMarkup();
   }
   @Input() set selection_sample_end(value: number){
       this._selection_sample_end = value;
-      console.log("setting _selection_sample_end");
-      if(this._selection_sample_end !== 0){ // SIC this has to be done better!
-       //   this.redraw();
+        if(this._selection_sample_end !== 0){ // SIC this has to be done better!
+        this.drawSpectMarkup();
       }
   }
 
@@ -98,6 +100,7 @@ export class SpectroComponent implements OnInit {
   }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+  @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
 
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
@@ -126,8 +129,47 @@ export class SpectroComponent implements OnInit {
 
   }
 
+  public mousedown(event: MouseEvent) {
+      const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+          event,
+          this._viewport_sample_start,
+          this._viewport_sample_end
+      );
+
+      if (event.shiftKey && this._selection_sample_start !== null) {
+          this.selection_change.emit(adjustSelection(
+              sampleAtMousePosition,
+              this._selection_sample_start,
+              this._selection_sample_end
+          ));
+      } else {
+          this.selection_change.emit({start:sampleAtMousePosition, end: sampleAtMousePosition});
+      }
+  }
+
   public mousemove(event: MouseEvent){
     this.crosshair_move.emit(getMousePositionInCanvasX(event));
+
+    let mouseButton: number;
+    if (event.buttons === undefined) {
+        mouseButton = event.which;
+    } else {
+        mouseButton = event.buttons;
+    }
+
+    if (mouseButton === 1) {
+        const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+            event,
+            this._viewport_sample_start,
+            this._viewport_sample_end
+        );
+
+        this.selection_change.emit(adjustSelection(
+            sampleAtMousePosition,
+            this._selection_sample_start,
+            this._selection_sample_end
+        ));
+    }
   }
 
   workerFunction() {
@@ -1037,6 +1079,10 @@ export class SpectroComponent implements OnInit {
 //   };
 
   drawSpectMarkup() {
+    if (!this._markup_context) {
+      return;
+    }
+
     this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
     // draw moving boundary line if moving

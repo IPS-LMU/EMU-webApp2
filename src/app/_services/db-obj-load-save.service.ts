@@ -138,7 +138,7 @@ export class DbObjLoadSaveService {
         this.view_state_service.curViewPort.selectS = bndl.timeAnchors[0].sample_start;
         this.view_state_service.curViewPort.selectE = bndl.timeAnchors[0].sample_end;
       }else {
-        this.view_state_service.resetSelect();
+        this.view_state_service.resetSelection();
       }
       this.view_state_service.curTimeAnchorIdx = -1;
       this.view_state_service.selectedItems = []; // used to be curClickSegment

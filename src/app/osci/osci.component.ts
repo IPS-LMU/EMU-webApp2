@@ -1,8 +1,9 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 import {DrawHelperService} from '../_services/draw-helper.service';
-import {getMousePositionInCanvasX} from '../_utilities/view-state-helper-functions';
+import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
 import {drawOsciMarkup} from '../_utilities/drawing/draw-osci-markup.function';
+import {adjustSelection} from '../_utilities/adjust-selection.function';
 
 @Component({
     selector: 'app-osci',
@@ -15,6 +16,8 @@ export class OsciComponent implements OnInit {
     private _channel: number;
     private _moving_boundary_position: number;
     private _crosshair_position: number;
+    private _selection_sample_start: number;
+    private _selection_sample_end: number;
     private _viewport_sample_start: number;
     private _viewport_sample_end: number;
 
@@ -37,7 +40,8 @@ export class OsciComponent implements OnInit {
         this.drawOsci();
     }
 
-    @Input() set moving_boundary_position (value: number) {
+    @Input()
+    set moving_boundary_position(value: number) {
         this._moving_boundary_position = value;
         this.drawOsciMarkup();
     }
@@ -60,7 +64,21 @@ export class OsciComponent implements OnInit {
         this.drawOsci();
     }
 
+    @Input()
+    set selection_sample_start(value: number) {
+        this._selection_sample_start = value;
+        this.drawOsciMarkup();
+    }
+
+    @Input()
+    set selection_sample_end(value: number) {
+        this._selection_sample_end = value;
+        this.drawOsciMarkup();
+    }
+
+
     @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+    @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
 
     @ViewChild('mainCanvas') mainCanvas: ElementRef;
     @ViewChild('markupCanvas') markupCanvas: ElementRef;
@@ -70,8 +88,47 @@ export class OsciComponent implements OnInit {
         this.drawOsci();
     }
 
-    public mousemove(event: MouseEvent){
+    public mousedown(event: MouseEvent) {
+        const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+            event,
+            this._viewport_sample_start,
+            this._viewport_sample_end
+        );
+
+        if (event.shiftKey && this._selection_sample_start !== null) {
+            this.selection_change.emit(adjustSelection(
+                sampleAtMousePosition,
+                this._selection_sample_start,
+                this._selection_sample_end
+            ));
+        } else {
+            this.selection_change.emit({start:sampleAtMousePosition, end: sampleAtMousePosition});
+        }
+    }
+
+    public mousemove(event: MouseEvent) {
         this.crosshair_move.emit(getMousePositionInCanvasX(event));
+
+        let mouseButton: number;
+        if (event.buttons === undefined) {
+            mouseButton = event.which;
+        } else {
+            mouseButton = event.buttons;
+        }
+
+        if (mouseButton === 1) {
+            const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+                event,
+                this._viewport_sample_start,
+                this._viewport_sample_end
+            );
+
+            this.selection_change.emit(adjustSelection(
+                sampleAtMousePosition,
+                this._selection_sample_start,
+                this._selection_sample_end
+            ));
+        }
     }
 
     private drawOsci() {

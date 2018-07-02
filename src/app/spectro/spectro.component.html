@@ -1,4 +1,5 @@
 <div class="emuwebapp-timelineCanvasContainer"
+     (mousedown)="mousedown($event)"
      (mousemove)="mousemove($event)">
     <canvas #mainCanvas class="emuwebapp-timelineCanvasMain" width="2048"></canvas>
     <canvas #ssffCanvas class="emuwebapp-timelineCanvasSSFF" width="2048"></canvas>

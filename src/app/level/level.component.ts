@@ -54,9 +54,11 @@ export class LevelComponent {
   }
   @Input() set selection_sample_start(value: number){
       this._selection_sample_start = value;
+      this.drawLevelMarkup();
   }
   @Input() set selection_sample_end(value: number){
       this._selection_sample_end = value;
+      this.drawLevelMarkup();
   }
   @Input() set preselected_item(value: PreselectedItemInfo) {
     this._preselected_item = value;

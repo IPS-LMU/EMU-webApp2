@@ -53,11 +53,13 @@ export function getSamplesPerPixel(viewportStartSample: number,
 export function getSampleNumberAtCanvasMouseEvent(event: MouseEvent,
                                                   viewportStartSample: number,
                                                   viewportEndSample: number) {
-    return viewportStartSample + getMousePositionInCanvasX(event) * getSamplesPerCanvasWidthUnit(
+    const position = getMousePositionInCanvasX(event);
+    const samplesPerUnit = getSamplesPerCanvasWidthUnit(
         viewportStartSample,
         viewportEndSample,
         event.target as HTMLCanvasElement
     );
+    return Math.round(viewportStartSample + position  * samplesPerUnit);
 }
 
 export function calculateSampleTime(sample: number, sampleRate: number): number {

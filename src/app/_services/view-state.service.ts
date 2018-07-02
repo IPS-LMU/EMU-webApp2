@@ -118,8 +118,8 @@ export class ViewStateService {
     this.curViewPort = {
       sS: 0,
       eS: 0,
-      selectS: -1,
-      selectE: -1,
+      selectS: null,
+      selectE: null,
       movingS: -1,
       movingE: -1,
       dragBarActive: false,
@@ -487,13 +487,21 @@ setState(nameOrObj) {
   //   //$rootScope.$digest();
   // };
 
+  public select (selection: {start: number, end: number}) {
+    if (selection.end < selection.start) {
+        console.log(selection);
+    }
+    this.curViewPort.selectS = selection.start;
+    this.curViewPort.selectE = selection.end;
+  }
+
 
   /**
    * reset selected Area to default
    */
-  resetSelect = function () {
-    this.curViewPort.selectS = -1;
-    this.curViewPort.selectE = -1;
+  public resetSelection () {
+    this.curViewPort.selectS = null;
+    this.curViewPort.selectE = null;
   };
 
   // /**
@@ -592,7 +600,7 @@ setState(nameOrObj) {
           this.setCurrentClickLevel(curLev);
           this.selectedItems = [];
           this.selectBoundary();
-          //sServObj.resetSelect();
+          //sServObj.resetSelection();
         }
       } else {
         if (idxOfNow - 1 >= 0) {
@@ -601,7 +609,7 @@ setState(nameOrObj) {
           this.setCurrentClickLevel(curLev);
           this.selectedItems = [];
           this.selectBoundary();
-          //sServObj.resetSelect();
+          //sServObj.resetSelection();
         }
       }
     }
