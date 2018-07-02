@@ -229,6 +229,7 @@ export class LevelService {
 
   /**
    * get item details by passing in level, sampleNr and maximum pcm
+   * this function assumes the items are ordered
    *
    * @param level
    * @param sampleNr
@@ -241,83 +242,71 @@ export class LevelService {
    *
    */
   public static getClosestItem (sampleNr: number, level: ILevel, maximum: number) {
-    let current: IItem;
-    let nearest: IItem;
-    let isFirst: boolean;
-    let isLast: boolean;
-
-
-    if (level !== undefined && level !== null && level.items.length > 0) {
-      current = nearest = level.items[0];
-      isFirst = true;
-      isLast = false;
-      if (level.type === 'SEGMENT') {
-        let leftHalf; // boolean to specify which half of the segment sampleNr is in
-        level.items.forEach((itm, index) => {
-          // check if in current segment
-          if (sampleNr >= (itm.sampleStart - 0.5)) { // 0.5 sample correction
-            if (sampleNr <= (itm.sampleStart + itm.sampleDur + 0.5)) { // 0.5 sample correction
-              // check if in left or right half of segment
-              if (sampleNr - itm.sampleStart >= itm.sampleDur / 2) {
-                // right side
-                leftHalf = false;
-                if (level.items[index + 1] !== undefined) {
-                  current = level.items[index];
-                  nearest = level.items[index + 1];
-                  isLast = false;
-                } else {
-                  isLast = true;
-                  current = nearest = level.items[level.items.length - 1];
-                }
-              } else {
-                // left side
-                leftHalf = true;
-                isLast = false;
-                current = nearest = level.items[index];
-              }
-            }
-            // only set to false if not in left half of first segment
-            if(!leftHalf && index === 0){
-              isFirst = false;
-            }
-          }
-          if (sampleNr >= (itm.sampleStart - 0.5)) {
-            if (sampleNr <= (itm.sampleStart + itm.sampleDur + 0.5)) { // 0.5 sample correction
-              current = itm;
-            } else {
-              isLast = true;
-              current = nearest = level.items[level.items.length - 1];
-            }
-          }
-        });
-      } else {
-        let spaceLower = 0;
-        let spaceHigher = 0;
-        isFirst = false;
-        isLast = false;
-        level.items.forEach((evt, index) => {
-          if (index < level.items.length - 1) {
-            spaceHigher = evt.samplePoint + (level.items[index + 1].samplePoint - level.items[index].samplePoint) / 2;
-          } else {
-            spaceHigher = maximum;
-          }
-          if (index > 0) {
-            spaceLower = evt.samplePoint - (level.items[index].samplePoint - level.items[index - 1].samplePoint) / 2;
-          } else {
-            spaceLower = 0;
-          }
-          if (sampleNr <= spaceHigher && sampleNr >= spaceLower) {
-            current = nearest = evt;
-          }
-        });
+      if (!level || level.items.length === 0) {
+          return {
+              current: null,
+              nearest: null,
+              isFirst: false,
+              isLast: false
+          };
       }
-    }
-    return {
-      current: current,
-      nearest: nearest,
-      isFirst: isFirst,
-      isLast: isLast
-    };
+
+      if (level.type === 'EVENT') {
+          let closestEvent: IItem = null;
+          let distanceToClosestEvent: number = +Infinity;
+
+          for (let item of level.items) {
+              const distance = Math.abs(item.samplePoint - sampleNr);
+
+              if (distance < distanceToClosestEvent) {
+                  closestEvent = item;
+                  distanceToClosestEvent = distance;
+              }
+          }
+
+          return {
+              current: closestEvent,
+              nearest: closestEvent,
+              isFirst: false,
+              isLast: false
+          };
+      } else {
+          let clickedSegment: IItem = level.items[0];
+          let rightNeighbor: IItem = null;
+
+          for (let i = 0; i < level.items.length; ++i) {
+              if (level.items[i].sampleStart <= sampleNr) {
+                  clickedSegment = level.items[i];
+                  if (level.items.length > i + 1) {
+                      rightNeighbor = level.items[i + 1];
+                  }
+              } else {
+                  break;
+              }
+          }
+
+          let segmentWithPreselectedBoundary: IItem;
+          let rightBoundarySelected: boolean;
+
+          if (sampleNr < clickedSegment.sampleStart + clickedSegment.sampleDur / 2) {
+              segmentWithPreselectedBoundary = clickedSegment;
+              rightBoundarySelected = false;
+          } else {
+              rightBoundarySelected = true;
+              if (rightNeighbor) {
+                  segmentWithPreselectedBoundary = rightNeighbor;
+              } else {
+                  segmentWithPreselectedBoundary = clickedSegment;
+              }
+          }
+
+          return {
+              current: clickedSegment,
+              nearest: segmentWithPreselectedBoundary,
+              isFirst: (clickedSegment === level.items[0] && !rightBoundarySelected),
+              isLast: (clickedSegment === level.items[level.items.length - 1] && rightBoundarySelected)
+          };
+      }
   }
 
 
