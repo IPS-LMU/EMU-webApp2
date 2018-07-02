@@ -108,6 +108,7 @@
           <app-osci style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name === 'OSCI'"
                     [audio_buffer] = "sound_handler_service.audioBuffer"
                     [channel]="view_state_service.osciSettings.curChannel"
+                    [moving_boundary_position]="view_state_service.movingBoundarySample"
                     [crosshair_position]="view_state_service.crosshairPosition"
                     [viewport_sample_start] = "view_state_service.curViewPort.sS"
                     [viewport_sample_end] = "view_state_service.curViewPort.eS"

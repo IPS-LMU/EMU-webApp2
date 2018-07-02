@@ -13,6 +13,7 @@ export class OsciComponent implements OnInit {
 
     private _audio_buffer: AudioBuffer;
     private _channel: number;
+    private _moving_boundary_position: number;
     private _crosshair_position: number;
     private _viewport_sample_start: number;
     private _viewport_sample_end: number;
@@ -34,6 +35,11 @@ export class OsciComponent implements OnInit {
     set channel(value: number) {
         this._channel = value;
         this.drawOsci();
+    }
+
+    @Input() set moving_boundary_position (value: number) {
+        this._moving_boundary_position = value;
+        this.drawOsciMarkup();
     }
 
     @Input()
@@ -88,6 +94,9 @@ export class OsciComponent implements OnInit {
         const context = this.markupCanvas.nativeElement.getContext('2d');
         drawOsciMarkup(
             context,
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            this._moving_boundary_position,
             this._crosshair_position
         );
     }
