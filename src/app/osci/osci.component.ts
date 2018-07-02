@@ -14,42 +14,35 @@ export class OsciComponent implements OnInit {
     private _viewport_sample_start: number;
     private _viewport_sample_end: number;
 
+    private initalised: boolean = false;
+
     private osciPeaks;
 
     @Input()
     set audio_buffer(value: AudioBuffer) {
-        this._audio_buffer = value;
-        this.osciPeaks = DrawHelperService.calculateOsciPeaks(this._audio_buffer);
-        console.log(value);
+        if (value instanceof AudioBuffer) {
+            this._audio_buffer = value;
+            this.osciPeaks = DrawHelperService.calculateOsciPeaks(this._audio_buffer);
+            this.drawOsci();
+        }
     }
 
     @Input()
     set channel(value: number) {
         this._channel = value;
+        this.drawOsci();
     }
 
     @Input()
     set viewport_sample_start(value: number) {
         this._viewport_sample_start = value;
-        console.log('setting _viewport_sample_start');
-        // this.redraw();
+        this.drawOsci();
     }
 
     @Input()
     set viewport_sample_end(value: number) {
         this._viewport_sample_end = value;
-        console.log('setting _viewport_sample_end');
-        if (this._viewport_sample_end !== 0) { // SIC this has to be done better!
-            DrawHelperService.freshRedrawDrawOsciOnCanvas(
-                this.mainCanvas.nativeElement,
-                this._viewport_sample_start,
-                this._viewport_sample_end,
-                this.osciPeaks,
-                // @todo make sure this._audio_buffer is set before this._viewport_sample_end
-                this._audio_buffer,
-                this._channel
-            );
-        }
+        this.drawOsci();
     }
 
 
@@ -58,6 +51,26 @@ export class OsciComponent implements OnInit {
     // @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
 
     ngOnInit() {
+        this.initalised = true;
+        this.drawOsci();
+    }
+
+    private drawOsci() {
+        if (!this.initalised || !this._audio_buffer) {
+            console.log("Drawing, aborting.");
+            return;
+        }
+        console.log("Drawing.");
+
+        const context = this.mainCanvas.nativeElement.getContext('2d');
+        DrawHelperService.freshRedrawDrawOsciOnCanvas(
+            context,
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            this.osciPeaks,
+            this._audio_buffer,
+            this._channel
+        );
     }
 
     // // select the needed DOM elements from the template

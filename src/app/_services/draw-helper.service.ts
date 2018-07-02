@@ -300,9 +300,15 @@ export class DrawHelperService {
   /**
    *
    */
-  public static freshRedrawDrawOsciOnCanvas(canvas, sS, eS, osciPeaks, audioBuffer: AudioBuffer, currentChannel: number) {
+  public static freshRedrawDrawOsciOnCanvas(ctx: CanvasRenderingContext2D,
+                                            sS: number,
+                                            eS: number,
+                                            osciPeaks,
+                                            audioBuffer: AudioBuffer,
+                                            currentChannel: number) {
+    const canvas = ctx.canvas;
+
     // clear canvas
-    let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // samples per pixel + one to correct for subtraction
@@ -431,7 +437,7 @@ export class DrawHelperService {
             ctx.fill();
             // if (ConfigProviderService.vals.restrictions.drawSampleNrs) {
             if(true){
-              ctx.strokeText(sNr, i / allPeakVals.samplePerPx + hDbS, (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
+              ctx.strokeText(sNr.toString(), i / allPeakVals.samplePerPx + hDbS, (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
               sNr = sNr + 1;
             }
           }
@@ -451,7 +457,7 @@ export class DrawHelperService {
             ctx.fill();
             // if (ConfigProviderService.vals.restrictions.drawSampleNrs) {
             if(true){
-              ctx.fillText(sNr, i / allPeakVals.samplePerPx - hDbS, canvas.height - (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
+              ctx.fillText(sNr.toString(), i / allPeakVals.samplePerPx - hDbS, canvas.height - (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
               sNr = sNr + 1;
             }
           }
