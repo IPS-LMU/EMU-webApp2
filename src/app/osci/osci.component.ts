@@ -1,6 +1,8 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 import {DrawHelperService} from '../_services/draw-helper.service';
+import {getMousePositionInCanvasX} from '../_utilities/view-state-helper-functions';
+import {drawOsciMarkup} from '../_utilities/drawing/draw-osci-markup.function';
 
 @Component({
     selector: 'app-osci',
@@ -11,6 +13,7 @@ export class OsciComponent implements OnInit {
 
     private _audio_buffer: AudioBuffer;
     private _channel: number;
+    private _crosshair_position: number;
     private _viewport_sample_start: number;
     private _viewport_sample_end: number;
 
@@ -34,6 +37,12 @@ export class OsciComponent implements OnInit {
     }
 
     @Input()
+    set crosshair_position(value: number) {
+        this._crosshair_position = value;
+        this.drawOsciMarkup();
+    }
+
+    @Input()
     set viewport_sample_start(value: number) {
         this._viewport_sample_start = value;
         this.drawOsci();
@@ -45,22 +54,24 @@ export class OsciComponent implements OnInit {
         this.drawOsci();
     }
 
+    @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
 
     @ViewChild('mainCanvas') mainCanvas: ElementRef;
-
-    // @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
+    @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
     ngOnInit() {
         this.initalised = true;
         this.drawOsci();
     }
 
+    public mousemove(event: MouseEvent){
+        this.crosshair_move.emit(getMousePositionInCanvasX(event));
+    }
+
     private drawOsci() {
         if (!this.initalised || !this._audio_buffer) {
-            console.log("Drawing, aborting.");
             return;
         }
-        console.log("Drawing.");
 
         const context = this.mainCanvas.nativeElement.getContext('2d');
         DrawHelperService.freshRedrawDrawOsciOnCanvas(
@@ -70,6 +81,14 @@ export class OsciComponent implements OnInit {
             this.osciPeaks,
             this._audio_buffer,
             this._channel
+        );
+    }
+
+    private drawOsciMarkup() {
+        const context = this.markupCanvas.nativeElement.getContext('2d');
+        drawOsciMarkup(
+            context,
+            this._crosshair_position
         );
     }
 
