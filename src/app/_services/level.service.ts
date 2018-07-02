@@ -1186,9 +1186,13 @@ export class LevelService {
   };
 
   public static calculateMoveDistance(event: MouseEvent,
-      preselectedItem: PreselectedItemInfo,
-      viewportStartSample: number,
-      viewportEndSample: number): number {
+                                      preselectedItem: PreselectedItemInfo,
+                                      viewportStartSample: number,
+                                      viewportEndSample: number): number {
+      if (!preselectedItem) {
+          return 0;
+      }
+
       const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, viewportStartSample, viewportEndSample);
       const samplesPerCanvasWidthUnit = getSamplesPerCanvasWidthUnit(
           viewportStartSample,
