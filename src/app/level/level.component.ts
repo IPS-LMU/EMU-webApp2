@@ -173,57 +173,53 @@ export class LevelComponent {
   }
 
   public mousemove(event: MouseEvent){
-      // if (this.view_state_service.focusOnEmuWebApp) {
+      // if (!this.view_state_service.focusOnEmuWebApp) {
+      //  return;
+      // }
+
+      let mouseButton = 0;
+      if (event.buttons === undefined) {
+          mouseButton = event.which;
+      } else {
+          mouseButton = event.buttons;
+      }
+      if (mouseButton === 1 || mouseButton === 2 || mouseButton === 3) {
+          // 1: left button pressed; 2: middle button pressed; 3: right button pressed
+          return;
+      }
+
       const moveBy = LevelService.calculateMoveDistance(event, this._preselected_item, this._viewport_sample_start, this._viewport_sample_end);
       const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
 
-      let mbutton = 0;
-      if (event.buttons === undefined) {
-          mbutton = event.which;
+      if (this._database_configuration.restrictions.editItemSize && event.shiftKey && this._preselected_item) {
+          if (this._level_annotation.type === 'SEGMENT') {
+              this.moveSegmentBoundary(this._preselected_item.item, moveBy);
+          } else {
+              this.moveEvent(this._preselected_item.item, moveBy);
+          }
+      } else if (this._database_configuration.restrictions.editItemSize && event.altKey && this._selected_items.length > 0) {
+          if (this._level_annotation.type === 'SEGMENT') {
+              this.moveSegments(this._selected_items, moveBy);
+          }
+          else if (this._level_annotation.type === 'EVENT') {
+              this.moveEvents(this._selected_items, moveBy);
+          }
       } else {
-          mbutton = event.buttons;
-      }
-      switch (mbutton) {
-          case 1:
-            //console.log('Left mouse button pressed');
-            break;
-          case 2:
-            //console.log('Middle mouse button pressed');
-            break;
-          case 3:
-            //console.log('Right mouse button pressed');
-            break;
-          default:
-              if (this._database_configuration.restrictions.editItemSize && event.shiftKey && this._preselected_item) {
-                  if (this._level_annotation.type === 'SEGMENT') {
-                      this.moveSegmentBoundary(this._preselected_item.item, moveBy);
-                  } else {
-                      this.moveEvent(this._preselected_item.item, moveBy);
-                  }
-              } else if (this._database_configuration.restrictions.editItemSize && event.altKey && this._selected_items.length > 0) {
-                  if (this._level_annotation.type === 'SEGMENT') {
-                      this.moveSegments(this._selected_items, moveBy);
-                  }
-                  else if (this._level_annotation.type === 'EVENT') {
-                      this.moveEvents(this._selected_items, moveBy);
-                  }
-              } else {
-                  this.moving_boundary_move.emit(null);
-                  this.crosshair_move.emit(getMousePositionInCanvasX(event));
+          this.moving_boundary_move.emit(null);
+          this.crosshair_move.emit(getMousePositionInCanvasX(event));
 
-                  let itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
-                  if (itemNearCursor.current && itemNearCursor.nearest) {
-                      this.preselect_item.emit({
-                          item: itemNearCursor.nearest,
-                          neighbours: LevelService.getItemNeighboursFromLevel(this._level_annotation, itemNearCursor.nearest.id, itemNearCursor.nearest.id),
-                          isFirst: itemNearCursor.isFirst,
-                          isLast: itemNearCursor.isLast
-                      });
-                  }
-              }
-              this.drawLevelDetails();
+          const itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
+          if (itemNearCursor.current && itemNearCursor.nearest) {
+              this.preselect_item.emit({
+                  item: itemNearCursor.nearest,
+                  neighbours: LevelService.getItemNeighboursFromLevel(this._level_annotation, itemNearCursor.nearest.id, itemNearCursor.nearest.id),
+                  isFirst: itemNearCursor.isFirst,
+                  isLast: itemNearCursor.isLast
+              });
+          }
       }
-      // }
+
+      this.drawLevelDetails();
   }
 
   private moveSegments(segments: IItem[], moveBy: number) {
