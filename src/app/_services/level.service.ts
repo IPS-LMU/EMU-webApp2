@@ -1,4 +1,9 @@
 import {IItem, ILabel, ILevel} from '../_interfaces/annot-json.interface';
+import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
+import {
+    getSampleNumberAtCanvasMouseEvent, getSamplesPerCanvasWidthUnit,
+    getSamplesPerPixel
+} from '../_utilities/view-state-helper-functions';
 
 export class LevelService {
   /**
@@ -1179,4 +1184,40 @@ export class LevelService {
       linkData.push(deletedLinks[i]);
     }
   };
+
+  public static calculateMoveDistance(event: MouseEvent,
+      preselectedItem: PreselectedItemInfo,
+      viewportStartSample: number,
+      viewportEndSample: number): number {
+      const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, viewportStartSample, viewportEndSample);
+      const samplesPerCanvasWidthUnit = getSamplesPerCanvasWidthUnit(
+          viewportStartSample,
+          viewportEndSample,
+          event.target as HTMLCanvasElement
+      );
+      const samplesPerPixel = getSamplesPerPixel(
+          viewportStartSample,
+          viewportEndSample,
+          event.target as HTMLCanvasElement
+      );
+
+      if (samplesPerCanvasWidthUnit <= 1) {
+          // absolute movement in samples below 1 sample per pixel
+          if (Object.keys(preselectedItem.item).includes('sampleStart')) {
+              if (preselectedItem.isFirst === true && preselectedItem.isLast === false) { // before first elem
+                  return Math.ceil((sampleNumberAtMousePosition) - preselectedItem.item.sampleStart);
+              } else if (preselectedItem.isFirst === false && preselectedItem.isLast === true) { // after last elem
+                  return Math.ceil((sampleNumberAtMousePosition) - preselectedItem.item.sampleStart - preselectedItem.item.sampleDur);
+              } else {
+                  return Math.ceil((sampleNumberAtMousePosition) - preselectedItem.item.sampleStart);
+              }
+          } else {
+              return Math.ceil((sampleNumberAtMousePosition) - preselectedItem.item.samplePoint - 0.5); // 0.5 to break between samples not on
+          }
+      } else {
+          // relative movement in samples above 1 sample per pixel
+          return Math.round(samplesPerPixel * event.movementX);
+      }
+  }
+
 }

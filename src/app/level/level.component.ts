@@ -1,12 +1,8 @@
 import {Component, Input, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
-
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
-import {IEvent, IItem, ILevel, ISegment} from '../_interfaces/annot-json.interface';
-import {
-    getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent,
-    getSamplesPerCanvasWidthUnit, getSamplesPerPixel
-} from '../_utilities/view-state-helper-functions';
+import {IItem, ILevel} from '../_interfaces/annot-json.interface';
+import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
 import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.function';
@@ -176,10 +172,9 @@ export class LevelComponent {
     this.preselect_level.emit(null);
   }
 
-
   public mousemove(event: MouseEvent){
       // if (this.view_state_service.focusOnEmuWebApp) {
-      let moveBy = this.calculateMoveDistance(event);
+      const moveBy = LevelService.calculateMoveDistance(event, this._preselected_item, this._viewport_sample_start, this._viewport_sample_end);
       const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
 
       let mbutton = 0;
@@ -229,40 +224,6 @@ export class LevelComponent {
               this.drawLevelDetails();
       }
       // }
-  }
-
-  private calculateMoveDistance(event: MouseEvent): number {
-      const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-      const samplesPerCanvasWidthUnit = getSamplesPerCanvasWidthUnit(
-          this._viewport_sample_start,
-          this._viewport_sample_end,
-          event.target as HTMLCanvasElement
-      );
-      const samplesPerPixel = getSamplesPerPixel(
-          this._viewport_sample_start,
-          this._viewport_sample_end,
-          event.target as HTMLCanvasElement
-      );
-
-      if (samplesPerCanvasWidthUnit <= 1) {
-          let itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
-          // absolute movement in pcm below 1 pcm per pixel
-          if (this._level_annotation.type === 'SEGMENT') {
-              if (itemNearCursor.isFirst === true && itemNearCursor.isLast === false) { // before first elem
-                  return Math.ceil((sampleNumberAtMousePosition) - this._level_annotation.items[0].sampleStart);
-              } else if (itemNearCursor.isFirst === false && itemNearCursor.isLast === true) { // after last elem
-                  let lastItem = this._level_annotation.items[this._level_annotation.items.length - 1];
-                  return Math.ceil((sampleNumberAtMousePosition) - lastItem.sampleStart - lastItem.sampleDur);
-              } else {
-                  return Math.ceil((sampleNumberAtMousePosition) - itemNearCursor.nearest.sampleStart);
-              }
-          } else {
-              return Math.ceil((sampleNumberAtMousePosition) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
-          }
-      } else {
-          // relative movement in pcm above 1 pcm per pixel
-          return Math.round(samplesPerPixel * event.movementX);
-      }
   }
 
   private moveSegments(segments: IItem[], moveBy: number) {
@@ -353,7 +314,7 @@ export class LevelComponent {
       }
   }
 
-    private drawLevelDetails() {
+  private drawLevelDetails() {
       const context = this.levelCanvas.nativeElement.getContext('2d');
       drawLevelDetails(
           context,
