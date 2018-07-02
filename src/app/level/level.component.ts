@@ -5,7 +5,7 @@ import { HistoryService } from '../_services/history.service';
 import {IEvent, IItem, ILevel, ISegment} from '../_interfaces/annot-json.interface';
 import {
     getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent,
-    getSamplesPerPixelInViewport
+    getSamplesPerCanvasWidthUnit, getSamplesPerPixel
 } from '../_utilities/view-state-helper-functions';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
@@ -32,10 +32,6 @@ export class LevelComponent {
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
   private _mouseover_level: ILevel;
-
-  // mouse handling vars
-  private sampleNumberAtLastMousePosition: number;
-  // order = attr.trackMouseInLevel;
 
   @Input() set database_configuration(value: {restrictions: any, perspectives: any[]}) {
     // @todo make sure, database_configuration is loaded before the other @Inputs
@@ -184,7 +180,7 @@ export class LevelComponent {
   public mousemove(event: MouseEvent){
       // if (this.view_state_service.focusOnEmuWebApp) {
       let moveBy = this.calculateMoveDistance(event);
-      this.sampleNumberAtLastMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
+      const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
 
       let mbutton = 0;
       if (event.buttons === undefined) {
@@ -220,7 +216,7 @@ export class LevelComponent {
                   this.moving_boundary_move.emit(null);
                   this.crosshair_move.emit(getMousePositionInCanvasX(event));
 
-                  let itemNearCursor = LevelService.getClosestItem(this.sampleNumberAtLastMousePosition, this._level_annotation, this._audio_buffer.length);
+                  let itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
                   if (itemNearCursor.current && itemNearCursor.nearest) {
                       this.preselect_item.emit({
                           item: itemNearCursor.nearest,
@@ -236,31 +232,36 @@ export class LevelComponent {
   }
 
   private calculateMoveDistance(event: MouseEvent): number {
-      const sampleNumberAtCurrentMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-      const samplesPerPixel = getSamplesPerPixelInViewport(
+      const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
+      const samplesPerCanvasWidthUnit = getSamplesPerCanvasWidthUnit(
+          this._viewport_sample_start,
+          this._viewport_sample_end,
+          event.target as HTMLCanvasElement
+      );
+      const samplesPerPixel = getSamplesPerPixel(
           this._viewport_sample_start,
           this._viewport_sample_end,
           event.target as HTMLCanvasElement
       );
 
-      if (samplesPerPixel <= 1) {
-          let itemNearCursor = LevelService.getClosestItem(sampleNumberAtCurrentMousePosition, this._level_annotation, this._audio_buffer.length);
+      if (samplesPerCanvasWidthUnit <= 1) {
+          let itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
           // absolute movement in pcm below 1 pcm per pixel
           if (this._level_annotation.type === 'SEGMENT') {
               if (itemNearCursor.isFirst === true && itemNearCursor.isLast === false) { // before first elem
-                  return Math.ceil((sampleNumberAtCurrentMousePosition) - this._level_annotation.items[0].sampleStart);
+                  return Math.ceil((sampleNumberAtMousePosition) - this._level_annotation.items[0].sampleStart);
               } else if (itemNearCursor.isFirst === false && itemNearCursor.isLast === true) { // after last elem
                   let lastItem = this._level_annotation.items[this._level_annotation.items.length - 1];
-                  return Math.ceil((sampleNumberAtCurrentMousePosition) - lastItem.sampleStart - lastItem.sampleDur);
+                  return Math.ceil((sampleNumberAtMousePosition) - lastItem.sampleStart - lastItem.sampleDur);
               } else {
-                  return Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.sampleStart);
+                  return Math.ceil((sampleNumberAtMousePosition) - itemNearCursor.nearest.sampleStart);
               }
           } else {
-              return Math.ceil((sampleNumberAtCurrentMousePosition) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
+              return Math.ceil((sampleNumberAtMousePosition) - itemNearCursor.nearest.samplePoint - 0.5); // 0.5 to break between samples not on
           }
       } else {
           // relative movement in pcm above 1 pcm per pixel
-          return Math.round(sampleNumberAtCurrentMousePosition - this.sampleNumberAtLastMousePosition);
+          return Math.round(samplesPerPixel * event.movementX);
       }
   }
 

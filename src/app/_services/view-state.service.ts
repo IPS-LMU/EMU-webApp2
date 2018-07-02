@@ -7,7 +7,7 @@ import {
     calculateSampleTime,
     getMousePositionInCanvasX, getMousePositionInCanvasY,
     getPixelDistanceBetweenSamples,
-    getPixelPositionOfSampleInViewport, getSamplesPerPixelInViewport
+    getPixelPositionOfSampleInViewport, getSamplesPerCanvasWidthUnit
 } from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
@@ -954,7 +954,7 @@ setState(nameOrObj) {
   public getSamplesPerPixelVal(event) {
     let start = parseFloat(this.curViewPort.sS);
     let end = parseFloat(this.curViewPort.eS);
-    return getSamplesPerPixelInViewport(start, end, event.target);
+    return getSamplesPerCanvasWidthUnit(start, end, event.target);
   }
 
 

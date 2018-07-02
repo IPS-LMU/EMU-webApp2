@@ -3,7 +3,7 @@ import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
-import {getSamplesPerPixelInViewport} from '../_utilities/view-state-helper-functions';
+import {getSamplesPerCanvasWidthUnit} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
@@ -1088,7 +1088,7 @@ export class SpectroComponent implements OnInit {
     let imageData = this._main_context.createImageData(this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     this.worker.onmessage = (event) => {
       if (event.data.status === undefined) {
-        const samplesPerPxl = getSamplesPerPixelInViewport(
+        const samplesPerPxl = getSamplesPerCanvasWidthUnit(
             this._viewport_sample_start,
             this._viewport_sample_end,
             this.mainCanvas.nativeElement
@@ -1156,7 +1156,7 @@ export class SpectroComponent implements OnInit {
         'alpha': this.alpha,
         'upperFreq': this._spectrogram_settings.rangeTo,
         'lowerFreq': this._spectrogram_settings.rangeFrom,
-        'samplesPerPxl': getSamplesPerPixelInViewport(
+        'samplesPerPxl': getSamplesPerCanvasWidthUnit(
             this._viewport_sample_start,
             this._viewport_sample_end,
             this.mainCanvas.nativeElement
