@@ -131,8 +131,11 @@
 
           <app-ssff-track style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name !== 'OSCI' && canvas_name !== 'SPEC'"
                           [name]="canvas_name"
+                          [crosshair_position]="view_state_service.crosshairPosition"
                           [viewport_sample_start] = "view_state_service.curViewPort.sS"
-                          [viewport_sample_end] = "view_state_service.curViewPort.eS"></app-ssff-track>
+                          [viewport_sample_end] = "view_state_service.curViewPort.eS"
+                          (crosshair_move)="view_state_service.crosshairPosition = $event"
+          ></app-ssff-track>
 
         </div>
           <!--<app-osci style="flex-grow: 1"></app-osci>-->
