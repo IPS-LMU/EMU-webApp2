@@ -126,6 +126,7 @@
                        [selection_sample_end]="view_state_service.curViewPort.selectE"
                        [preselected_item]="view_state_service.getPreselectedItemInfo()"
                        [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
+                       (crosshair_move)="view_state_service.crosshairPosition = $event"
           ></app-spectro>
 
           <app-ssff-track style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name !== 'OSCI' && canvas_name !== 'SPEC'"

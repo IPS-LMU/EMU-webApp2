@@ -1,9 +1,9 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
-import {getSamplesPerCanvasWidthUnit} from '../_utilities/view-state-helper-functions';
+import {getMousePositionInCanvasX, getSamplesPerCanvasWidthUnit} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
@@ -97,6 +97,8 @@ export class SpectroComponent implements OnInit {
     this._mouseover_level = value;
   }
 
+  @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
@@ -124,6 +126,9 @@ export class SpectroComponent implements OnInit {
 
   }
 
+  public mousemove(event: MouseEvent){
+    this.crosshair_move.emit(getMousePositionInCanvasX(event));
+  }
 
   workerFunction() {
     let selfAny = <any>self;
