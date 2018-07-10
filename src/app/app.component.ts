@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
   }
 
 
-  private loadDefaultConfig() {
+  public loadDefaultConfig() {
     this.view_state_service.somethingInProgress = true;
     this.view_state_service.somethingInProgressTxt = 'Loading schema files';
     // load schemas first
@@ -103,7 +103,7 @@ export class AppComponent implements OnInit {
   /**
    * function called after default config was loaded
    */
-  handleDefaultConfigLoaded() {
+  public handleDefaultConfigLoaded() {
 
   //   if (!viewState.getsubmenuOpen()) {
   //     viewState.toggleSubmenu(ConfigProviderService.design.animation.period);

@@ -9,9 +9,12 @@ import { DataService } from "../_services/data.service";
 import { ConfigProviderService } from "../_services/config-provider.service";
 import { ViewStateService } from "../_services/view-state.service";
 import { SoundHandlerService } from "../_services/sound-handler.service";
+import { ConnectComponent } from '../_dialogs/connect/connect.component';
 import { ConfirmDialogComponent } from '../_dialogs/confirm/confirm.component';
 import { HistoryService } from '../_services/history.service';
 import { AppStateService } from '../_services/app-state.service';
+import { IohandlerService } from '../_services/iohandler.service';
+import { AppComponent } from '../app.component'; // probably a bad idea!
 
 
 @Component({
@@ -46,9 +49,13 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
               public view_state_service: ViewStateService,
               public sound_handler_service: SoundHandlerService,
               public confirmDialog: MatDialog,
+              public connectDialog: MatDialog,
               public hotkeys_service: HotkeysService,
               private history_service: HistoryService,
-              private app_state_service: AppStateService) {
+              private app_state_service: AppStateService,
+              private io_handler_service: IohandlerService,
+              private app_component: AppComponent
+  ) {
 
     this.mat_icon_registry.addSvgIcon(
       'EMUwebAppEmu',
@@ -1227,35 +1234,34 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
    */
   connectBtnClick() {
     // if (this.view_state_service.getPermission('connectBtnClick')) {
-      let dialog_ref = this.confirmDialog.open(ConfirmDialogComponent);
-
-      dialog_ref.componentInstance.setText("Connect websocket server (fake example)");
+      let dialog_ref = this.connectDialog.open(ConnectComponent);
       dialog_ref.afterClosed().subscribe(result => {
-        if(result === "confirm"){
-          console.log("connected");
+        console.log(result);
+        if(result !== "cancel"){
+          // modalService.open('views/connectModal.html').then(function (url) {
+          //   if (url) {
+              this.view_state_service.somethingInProgressTxt = 'Connecting to server...';
+              this.view_state_service.somethingInProgress = true;
+              this.view_state_service.url = result;
+              this.io_handler_service.wsh.initConnect(result).subscribe((message) => {
+                if (message.type === 'error') {
+          //         modalService.open('views/error.html', 'Could not connect to websocket server: ' + url).then(function () {
+                    this.app_state_service.resetToInitState();
+          //         });
+                } else {
+                  // don't know about this
+                  this.app_component.handleConnectedToWSserver({session: null, reload: null});
+                }
+          //     }, function (errMess) {
+          //       modalService.open('views/error.html', 'Could not connect to websocket server: ' + JSON.stringify(errMess, null, 4)).then(function () {
+          //         appStateService.resetToInitState();
+          //       });
+          //     });
+          //   }
+          });
         }
       });
 
-      // modalService.open('views/connectModal.html').then(function (url) {
-      //   if (url) {
-      //     this.view_state_service.somethingInProgressTxt = 'Connecting to server...';
-      //     this.view_state_service.somethingInProgress = true;
-      //     this.view_state_service.url = url;
-      //     Iohandlerservice.wsH.initConnect(url).then(function (message) {
-      //       if (message.type === 'error') {
-      //         modalService.open('views/error.html', 'Could not connect to websocket server: ' + url).then(function () {
-      //           appStateService.resetToInitState();
-      //         });
-      //       } else {
-      //         $scope.handleConnectedToWSserver({session: null, reload: null});
-      //       }
-      //     }, function (errMess) {
-      //       modalService.open('views/error.html', 'Could not connect to websocket server: ' + JSON.stringify(errMess, null, 4)).then(function () {
-      //         appStateService.resetToInitState();
-      //       });
-      //     });
-      //   }
-      // });
     // } else {
     //
     // }
@@ -1576,7 +1582,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
 
     dialog_ref.componentInstance.setText(dialogText);
     dialog_ref.afterClosed().subscribe(result => {
-      if(result === "confirm"){
+      if(result === 'confirm'){
         this.app_state_service.resetToInitState();
       }
     });

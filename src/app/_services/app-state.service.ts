@@ -8,7 +8,7 @@ import { SsffParserService } from './ssff-parser.service';
 import { HistoryService } from './history.service';
 import { ViewStateService } from './view-state.service';
 import { SsffDataService } from './ssff-data.service';
-
+// import { AppComponent } from '../app.component';
 
 
 @Injectable({
@@ -23,7 +23,9 @@ export class AppStateService {
               private ssff_parser_service: SsffParserService,
               private history_service: HistoryService,
               private view_state_service: ViewStateService,
-              private ssff_data_service: SsffDataService) { }
+              private ssff_data_service: SsffDataService,
+              // private app_component: AppComponent
+  ) { }
 
   /**
    *
@@ -49,6 +51,7 @@ export class AppStateService {
     this.history_service.resetToInitState();
     this.view_state_service.showDropZone = true;
     console.error('reset url & check $rootScope.$broadcast');
+    // this.app_component.loadDefaultConfig();
     // $location.url($location.path()); // reset URL without get values
     // $rootScope.$broadcast('resetToInitState');
   }

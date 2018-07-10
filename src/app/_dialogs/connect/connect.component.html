@@ -1,0 +1,34 @@
+<div mat-dialog-title>Connect to server</div>
+<div mat-dialog-content>
+    Please enter URL: <br />
+    &nbsp;<br />
+
+    <mat-form-field>
+      <input matInput type="text" [value]="curURL" (focus)="cursorInTextField();" (blur)="cursorOutOfTextField();">
+    </mat-form-field>
+      <!--ng-model="modal.dataOut"-->
+      <!--ng-init="modal.dataOut=cps.vals.main.serverUrl"-->
+      <!--(focus)="cursorInTextField()"-->
+      <!--(blur)="cursorOutOfTextField()">-->
+      <!--<input matInput type="text" ng-model="modal.dataOut" ng-init="modal.dataOut=cps.vals.main.serverUrl" ng-focus="cursorInTextField();" ng-blur="cursorOutOfTextField();">-->
+    <button (click)="saveURL();" class="emuwebapp-mini-btn-save">(+)</button>
+      <!--<button (click)="deleteURL(mySelect);" class="emuwebapp-mini-btn-save">(-)</button><br />-->
+      <!--&nbsp;<br />-->
+      <!--<select size="10"-->
+      <!--name="url"-->
+      <!--class="emuwebapp-modal-list"-->
+      <!--ng-init="myUrls = getURLs(); mySelect=myUrls[0]"-->
+      <!--ng-model="mySelect"-->
+      <!--ng-change="setCurrentURL(mySelect)"-->
+      <!--ng-dblclick="modal.confirmContent();">-->
+      <!--<option ng-repeat="url in myUrls track by $index" ng-click="setCurrentURL(url)">{{url}}</option>-->
+      <!--</select>-->
+      <!--<br />-->
+
+  {{connectionError}}
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button mat-dialog-close="cancel">cancel</button>
+  <button mat-button mat-dialog-close="{{curURL}}">connect</button>
+</div>

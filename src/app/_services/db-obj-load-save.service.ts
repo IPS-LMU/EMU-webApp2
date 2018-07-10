@@ -82,10 +82,6 @@ export class DbObjLoadSaveService {
         // empty ssff files
         this.ssff_data_service.data = [];
         this.io_handler_service.getBundle(bndl.name, bndl.session, this.loaded_meta_data_service.getDemoDbName()).subscribe((bundleData) => {
-          // check if response from http request
-          if (bundleData.status === 200) {
-            bundleData = bundleData.data;
-          }
 
           // validate bundle
           let validRes = this.validation_service.validateJSO('bundleSchema', bundleData);
@@ -97,11 +93,11 @@ export class DbObjLoadSaveService {
             if(bundleData.mediaFile.encoding === 'BASE64'){
               arrBuff = this.binary_data_manip_helper_service.base64ToArrayBuffer(bundleData.mediaFile.data);
               this.innerLoadBundle(bndl, bundleData, arrBuff, subj);
-  //           }else if(bundleData.mediaFile.encoding === 'GETURL'){
-  //             Iohandlerservice.httpGetPath(bundleData.mediaFile.data, 'arraybuffer').then(function (res) {
-  //               innerLoadBundle(bndl, bundleData, res.data, defer);
-  //             });
-  //           }
+            }else if(bundleData.mediaFile.encoding === 'GETURL'){
+              this.io_handler_service.httpGetPath(bundleData.mediaFile.data, 'arraybuffer').subscribe((res) => {
+                this.innerLoadBundle(bndl, bundleData, res, subj);
+              });
+            // }
   //         } else {
   //           modalService.open('views/error.html', 'Error validating annotation file: ' + JSON.stringify(validRes, null, 4)).then(function () {
   //             appStateService.resetToInitState();

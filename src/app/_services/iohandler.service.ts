@@ -30,16 +30,15 @@ export class IohandlerService {
   public httpGetDefaultDesign() {
     return this.http.get('assets/configFiles/default_emuwebappDesign.json');
   }
-  //
-  // /**
-  //  * default config is always loaded from same origin
-  //  */
-  // sServObj.httpGetPath = function (path, respType) {
-  //   var prom = $http.get(path, {
-  //     responseType: respType
-  //   });
-  //   return prom;
-  // };
+
+  /**
+   * default config is always loaded from same origin
+   */
+  public httpGetPath = function (path, respType) {
+    return this.http.get(path, {
+      responseType: respType
+    });
+  }
 
   ////////////////////////////
   // EMU-webApp protocol begins here

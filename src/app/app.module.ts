@@ -40,6 +40,7 @@ import { ConfirmDialogComponent } from './_dialogs/confirm/confirm.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { HandleGlobalKeyStrokesDirective } from './_directives/handle-global-key-strokes.directive';
+import { ConnectComponent } from './_dialogs/connect/connect.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { HandleGlobalKeyStrokesDirective } from './_directives/handle-global-key
     SpectroComponent,
     SsffTrackComponent,
     ConfirmDialogComponent,
-    HandleGlobalKeyStrokesDirective
+    HandleGlobalKeyStrokesDirective,
+    ConnectComponent
   ],
   imports: [
     BrowserModule,
@@ -82,7 +84,8 @@ import { HandleGlobalKeyStrokesDirective } from './_directives/handle-global-key
     MatIconRegistry
   ],
   entryComponents: [
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    ConnectComponent
   ],
   bootstrap: [AppComponent]
 })
