@@ -75,25 +75,25 @@ export class HistoryService {
           case 'MOVEBOUNDARY':
             if (applyOldVal) {
               action = true;
-              LevelService.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, cur.isFirst, cur.isLast, this.sound_handler_service.audioBuffer.length);
             } else {
-              LevelService.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, cur.isFirst, cur.isLast, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveBoundary(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, cur.isFirst, cur.isLast, this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'MOVESEGMENT':
             if (applyOldVal) {
               action = true;
-              LevelService.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, -cur.movedBy, this.sound_handler_service.audioBuffer.length);
             } else {
-              LevelService.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveSegment(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.movedBy, this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'MOVEEVENT':
             if (applyOldVal) {
               action = true;
-              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, -cur.movedBy, this.sound_handler_service.audioBuffer.length);
             } else {
-              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.moveEvent(this.data_service.getLevelDataByName(cur.name), cur.id, cur.movedBy, this.sound_handler_service.audioBuffer.length);
             }
             break;
           case 'RENAMELABEL':
@@ -133,9 +133,9 @@ export class HistoryService {
           case 'DELETESEGMENTS':
             if (applyOldVal) {
               action = true;
-              LevelService.deleteSegmentsInvers(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.deletedSegment, this.view_state_service.getCurAttrDef(cur.name));
+              LevelService.deleteSegmentsInvers(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, cur.deletedSegment);
             } else {
-              LevelService.deleteSegments(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length, this.view_state_service.getCurAttrDef(cur.name));
+              LevelService.deleteSegments(this.data_service.getLevelDataByName(cur.name), cur.id, cur.length);
             }
             break;
           case 'DELETEEVENT':
@@ -234,9 +234,9 @@ export class HistoryService {
           case 'EXPANDSEGMENTS':
             if (applyOldVal) {
               action = true;
-              LevelService.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), -cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), -cur.changeTime, this.sound_handler_service.audioBuffer.length);
             } else {
-              LevelService.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), cur.changeTime, this.view_state_service.getCurAttrDef(cur.name), this.sound_handler_service.audioBuffer.length);
+              LevelService.expandSegment(cur.rightSide, cur.item, this.data_service.getLevelDataByName(cur.name), cur.changeTime, this.sound_handler_service.audioBuffer.length);
             }
             break;
         }

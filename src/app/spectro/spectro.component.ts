@@ -1,12 +1,17 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
-import { SoundHandlerService } from '../_services/sound-handler.service';
-import { ViewStateService } from '../_services/view-state.service';
-import { ConfigProviderService } from '../_services/config-provider.service';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { MathHelperService } from '../_services/math-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
-import { ArrayBufferHelperService } from '../_services/array-buffer-helper.service';
+import {
+    getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent,
+    getSamplesPerCanvasWidthUnit
+} from '../_utilities/view-state-helper-functions';
+import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
+import {WindowType} from '../_interfaces/window-type.type';
+import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
+import {ILevel} from '../_interfaces/annot-json.interface';
+import {adjustSelection} from '../_utilities/adjust-selection.function';
 
 @Component({
   selector: 'app-spectro',
@@ -15,11 +20,19 @@ import { ArrayBufferHelperService } from '../_services/array-buffer-helper.servi
 })
 export class SpectroComponent implements OnInit {
 
-  private _audio_buffer: any;
+  private _audio_buffer: AudioBuffer;
+  private _channel: number;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
+  private _selection_sample_start: number;
+  private _selection_sample_end: number;
+  private _preselected_item: PreselectedItemInfo;
+  private _crosshair_position: number;
+  private _moving_boundary_position: number;
+  private _spectrogram_settings: SpectrogramSettings;
+  private _mouseover_level: ILevel;
   private _main_context;
-  private _markup_context;
+  private _markup_context: CanvasRenderingContext2D;
   private worker;
   private workerFunctionURL;
 
@@ -28,9 +41,17 @@ export class SpectroComponent implements OnInit {
   private alpha: number = 0.16;
   private devicePixelRatio = window.devicePixelRatio || 1;
 
-  @Input() set audio_buffer(value: any){
+  @Input() set spectrogram_settings(value: SpectrogramSettings) {
+    this._spectrogram_settings = value;
+  }
+
+  @Input() set audio_buffer(value: AudioBuffer) {
     this._audio_buffer = value;
     console.log(value);
+  }
+
+  @Input() set channel (value: number) {
+      this._channel = value;
   }
 
   @Input() set viewport_sample_start(value: number){
@@ -41,20 +62,50 @@ export class SpectroComponent implements OnInit {
   @Input() set viewport_sample_end(value: number){
     this._viewport_sample_end = value;
     console.log("setting _viewport_sample_end");
-    if(this._viewport_sample_end !== 0){ // SIC this has to be done better!
-      this.redraw()
+    if (this._markup_context) {
+      this.redraw();
+    }
+  }
+  @Input() set selection_sample_start(value: number){
+      this._selection_sample_start = value;
+      this.drawSpectMarkup();
+  }
+  @Input() set selection_sample_end(value: number){
+      this._selection_sample_end = value;
+        if(this._selection_sample_end !== 0){ // SIC this has to be done better!
+        this.drawSpectMarkup();
+      }
+  }
+
+  @Input() set crosshair_position (value: number) {
+    this._crosshair_position = value;
+    if (this._markup_context) {
+        this.drawSpectMarkup();
     }
   }
 
+  @Input() set moving_boundary_position (value: number) {
+    this._moving_boundary_position = value;
+    if (this._markup_context) {
+      this.drawSpectMarkup();
+    }
+  }
+
+  @Input() set preselected_item (value: PreselectedItemInfo) {
+    this._preselected_item = value;
+  }
+
+  @Input() set mouseover_level (value: ILevel) {
+    this._mouseover_level = value;
+  }
+
+  @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+  @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
 
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
-  constructor(private sound_handler_service: SoundHandlerService,
-              private view_state_service: ViewStateService,
-              private config_provider_service: ConfigProviderService,
-              private draw_helper_service: DrawHelperService,
-              private array_buffer_helper_service: ArrayBufferHelperService) {
+  constructor() {
 
     let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
     this.workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
@@ -78,6 +129,48 @@ export class SpectroComponent implements OnInit {
 
   }
 
+  public mousedown(event: MouseEvent) {
+      const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+          event,
+          this._viewport_sample_start,
+          this._viewport_sample_end
+      );
+
+      if (event.shiftKey && this._selection_sample_start !== null) {
+          this.selection_change.emit(adjustSelection(
+              sampleAtMousePosition,
+              this._selection_sample_start,
+              this._selection_sample_end
+          ));
+      } else {
+          this.selection_change.emit({start:sampleAtMousePosition, end: sampleAtMousePosition});
+      }
+  }
+
+  public mousemove(event: MouseEvent){
+    this.crosshair_move.emit(getMousePositionInCanvasX(event));
+
+    let mouseButton: number;
+    if (event.buttons === undefined) {
+        mouseButton = event.which;
+    } else {
+        mouseButton = event.buttons;
+    }
+
+    if (mouseButton === 1) {
+        const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+            event,
+            this._viewport_sample_start,
+            this._viewport_sample_end
+        );
+
+        this.selection_change.emit(adjustSelection(
+            sampleAtMousePosition,
+            this._selection_sample_start,
+            this._selection_sample_end
+        ));
+    }
+  }
 
   workerFunction() {
     let selfAny = <any>self;
@@ -98,18 +191,6 @@ export class SpectroComponent implements OnInit {
     selfAny.TWO_PI = 6.283185307179586; // value : 2 * Math.PI
     selfAny.totalMax = 0;
     selfAny.dynRangeInDB = 50;
-    selfAny.myWindow = {
-      BARTLETT: 1,
-      BARTLETTHANN: 2,
-      BLACKMAN: 3,
-      COSINE: 4,
-      GAUSS: 5,
-      HAMMING: 6,
-      HANN: 7,
-      LANCZOS: 8,
-      RECTANGULAR: 9,
-      TRIANGULAR: 10
-    };
     selfAny.imgWidth = 0;
     selfAny.imgHeight = 0;
     selfAny.upperFreq = 0;
@@ -212,11 +293,11 @@ export class SpectroComponent implements OnInit {
        * to only apply function to non-zero-padded values of magnitude spectrum.
        * @return the windowed/pre-emphasised buffer
        */
-      this.applyWindowFuncAndPreemph = function (type, alpha, buffer, length) {
+      this.applyWindowFuncAndPreemph = function (type: WindowType, alpha, buffer, length) {
         // var length = buffer.length;
         this.alpha = alpha;
         switch (type) {
-          case selfAny.myWindow.BARTLETT:
+          case 'BARTLETT':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -224,7 +305,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionBartlett(length, i);
             }
             break;
-          case selfAny.myWindow.BARTLETTHANN:
+          case 'BARTLETTHANN':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -232,7 +313,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionBartlettHann(length, i);
             }
             break;
-          case selfAny.myWindow.BLACKMAN:
+          case 'BLACKMAN':
             this.alpha = this.alpha || 0.16;
             for (i = 0; i < length; i++) {
               if (i > 0) {
@@ -241,7 +322,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionBlackman(length, i, alpha);
             }
             break;
-          case selfAny.myWindow.COSINE:
+          case 'COSINE':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -249,7 +330,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionCosine(length, i);
             }
             break;
-          case selfAny.myWindow.GAUSS:
+          case 'GAUSS':
             this.alpha = this.alpha || 0.25;
             for (i = 0; i < length; i++) {
               if (i > 0) {
@@ -258,7 +339,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionGauss(length, i, alpha);
             }
             break;
-          case selfAny.myWindow.HAMMING:
+          case 'HAMMING':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -266,7 +347,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionHamming(length, i);
             }
             break;
-          case selfAny.myWindow.HANN:
+          case 'HANN':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -274,7 +355,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionHann(length, i);
             }
             break;
-          case selfAny.myWindow.LANCZOS:
+          case 'LANCZOS':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -282,7 +363,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionLanczos(length, i);
             }
             break;
-          case selfAny.myWindow.RECTANGULAR:
+          case 'RECTANGULAR':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -290,7 +371,7 @@ export class SpectroComponent implements OnInit {
               buffer[i] *= this.wFunctionRectangular(length, i);
             }
             break;
-          case selfAny.myWindow.TRIANGULAR:
+          case 'TRIANGULAR':
             for (i = 0; i < length; i++) {
               if (i > 0) {
                 buffer[i] = this.applyPreEmph(buffer[i], buffer[i - 1]);
@@ -710,38 +791,7 @@ export class SpectroComponent implements OnInit {
           render = false;
         }
         if (data.window !== undefined) {
-          switch (data.window) {
-            case 1:
-              selfAny.wFunction = selfAny.myWindow.BARTLETT;
-              break;
-            case 2:
-              selfAny.wFunction = selfAny.myWindow.BARTLETTHANN;
-              break;
-            case 3:
-              selfAny.wFunction = selfAny.myWindow.BLACKMAN;
-              break;
-            case 4:
-              selfAny.wFunction = selfAny.myWindow.COSINE;
-              break;
-            case 5:
-              selfAny.wFunction = selfAny.myWindow.GAUSS;
-              break;
-            case 6:
-              selfAny.wFunction = selfAny.myWindow.HAMMING;
-              break;
-            case 7:
-              selfAny.wFunction = selfAny.myWindow.HANN;
-              break;
-            case 8:
-              selfAny.wFunction = selfAny.myWindow.LANCZOS;
-              break;
-            case 9:
-              selfAny.wFunction = selfAny.myWindow.RECTANGULAR;
-              break;
-            case 10:
-              selfAny.wFunction = selfAny.myWindow.TRIANGULAR;
-              break;
-          }
+          selfAny.wFunction = data.window;
         } else {
           renderError = 'window';
           render = false;
@@ -1014,17 +1064,13 @@ export class SpectroComponent implements OnInit {
   // bindings
 
   redraw() {
-    this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
-    this.drawSpectro(this.sound_handler_service.audioBuffer.getChannelData(this.view_state_service.osciSettings.curChannel));
+    this.drawSpectMarkup();
+    this.drawSpectro(this._audio_buffer.getChannelData(this._channel));
   }
 
   drawSpectro(buffer) {
     this.killSpectroRenderingThread();
     this.startSpectroRenderingThread(buffer);
-  }
-
-  calcSamplesPerPxl() {
-    return (this.view_state_service.curViewPort.eS + 1 - this.view_state_service.curViewPort.sS) / this.mainCanvas.nativeElement.width;
   }
 
 //   scope.clearAndDrawSpectMarkup = function () {
@@ -1033,14 +1079,38 @@ export class SpectroComponent implements OnInit {
 //   };
 
   drawSpectMarkup() {
+    if (!this._markup_context) {
+      return;
+    }
+
+    this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
+
     // draw moving boundary line if moving
-    this.draw_helper_service.drawMovingBoundaryLine(this._markup_context);
+    if (this._moving_boundary_position) {
+      DrawHelperService.drawMovingBoundaryLine(
+          this._markup_context,
+          this._viewport_sample_start,
+          this._viewport_sample_end,
+          this._moving_boundary_position,
+          this._preselected_item.isLast,
+          this._mouseover_level
+      );
+    }
+
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(this._markup_context, false, this._audio_buffer);
+    DrawHelperService.drawCurViewPortSelected(
+        this._markup_context,
+        false,
+        this._viewport_sample_start,
+        this._viewport_sample_end,
+        this._selection_sample_start,
+        this._selection_sample_end,
+        this._audio_buffer,
+        this._mouseover_level
+    );
     // draw min max vals and name of track
-    this.draw_helper_service.drawMinMaxAndName(this._markup_context, '', this.view_state_service.spectroSettings.rangeFrom, this.view_state_service.spectroSettings.rangeTo, 2);
-    // only draw corsshair x line if mouse currently not over canvas
-    this.draw_helper_service.drawCrossHairX(this._markup_context, this.view_state_service.curMouseX);
+    DrawHelperService.drawMinMaxAndName(this._markup_context, '', this._spectrogram_settings.rangeFrom, this._spectrogram_settings.rangeTo, 2);
+    DrawHelperService.drawCrossHairX(this._markup_context, this._crosshair_position);
 
   }
 
@@ -1048,7 +1118,16 @@ export class SpectroComponent implements OnInit {
     this._main_context.fillStyle = 'lightgrey'; //ConfigProviderService.design.color.lightGrey;
     this._main_context.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     // draw current viewport selected
-    this.draw_helper_service.drawCurViewPortSelected(this._markup_context, false, this._audio_buffer);
+    DrawHelperService.drawCurViewPortSelected(
+        this._markup_context,
+        false,
+        this._viewport_sample_start,
+        this._viewport_sample_end,
+        this._selection_sample_start,
+        this._selection_sample_end,
+        this._audio_buffer,
+        this._mouseover_level
+    );
     FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
     if (this.worker !== null) {
       this.worker.terminate();
@@ -1060,7 +1139,12 @@ export class SpectroComponent implements OnInit {
     let imageData = this._main_context.createImageData(this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     this.worker.onmessage = (event) => {
       if (event.data.status === undefined) {
-        if (this.calcSamplesPerPxl() === event.data.samplesPerPxl) {
+        const samplesPerPxl = getSamplesPerCanvasWidthUnit(
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            this.mainCanvas.nativeElement
+        );
+        if (samplesPerPxl === event.data.samplesPerPxl) {
           let tmp = new Uint8ClampedArray(event.data.img);
           imageData.data.set(tmp);
           this._main_context.putImageData(imageData, 0, 0);
@@ -1078,29 +1162,29 @@ export class SpectroComponent implements OnInit {
       this.worker = new Worker(this.workerFunctionURL);
 
       let parseData: any = [];
-      let fftN = MathHelperService.calcClosestPowerOf2Gt(this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs);
+      let fftN = MathHelperService.calcClosestPowerOf2Gt(this._audio_buffer.sampleRate * this._spectrogram_settings.windowSizeInSecs);
       // fftN must be greater than 512 (leads to better resolution of spectrogram)
       if (fftN < 512) {
         fftN = 512;
       }
       // extract relavant data
-      parseData = buffer.slice(this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS);
+      parseData = buffer.slice(this._viewport_sample_start, this._viewport_sample_end);
 
       let leftPadding: any = [];
       let rightPadding: any = [];
 
       // check if any zero padding at LEFT edge is necessary
-      let windowSizeInSamples = this.sound_handler_service.audioBuffer.sampleRate * this.view_state_service.spectroSettings.windowSizeInSecs;
-      if (this.view_state_service.curViewPort.sS < windowSizeInSamples / 2) {
+      let windowSizeInSamples = this._audio_buffer.sampleRate * this._spectrogram_settings.windowSizeInSecs;
+      if (this._viewport_sample_start < windowSizeInSamples / 2) {
         //should do something here... currently always padding with zeros!
       } else {
-        leftPadding = buffer.slice(this.view_state_service.curViewPort.sS - windowSizeInSamples / 2, this.view_state_service.curViewPort.sS);
+        leftPadding = buffer.slice(this._viewport_sample_start - windowSizeInSamples / 2, this._viewport_sample_start);
       }
       // check if zero padding at RIGHT edge is necessary
-      if (this.view_state_service.curViewPort.eS + fftN / 2 - 1 >= this.sound_handler_service.audioBuffer.length) {
+      if (this._viewport_sample_end + fftN / 2 - 1 >= this._audio_buffer.length) {
         //should do something here... currently always padding with zeros!
       } else {
-        rightPadding = buffer.slice(this.view_state_service.curViewPort.eS, this.view_state_service.curViewPort.eS + fftN / 2 - 1);
+        rightPadding = buffer.slice(this._viewport_sample_end, this._viewport_sample_end + fftN / 2 - 1);
       }
       // add padding
       let paddedSamples = new Float32Array(leftPadding.length + parseData.length + rightPadding.length);
@@ -1110,32 +1194,36 @@ export class SpectroComponent implements OnInit {
 
       // if (this.view_state_service.curViewPort.sS >= fftN / 2) {
       //   // pass in half a window extra at the front and a full window extra at the back so everything can be drawn/calculated this also fixes alignment issue
-      //   parseData = this.array_buffer_helper_service.subarray(buffer,this.view_state_service.curViewPort.sS - fftN / 2, this.view_state_service.curViewPort.eS + fftN);
+      //   parseData = ArrayBufferHelperService.subarray(buffer,this.view_state_service.curViewPort.sS - fftN / 2, this.view_state_service.curViewPort.eS + fftN);
       // } else {
       //   // tolerate window/2 alignment issue if at beginning of file
-      //   parseData = this.array_buffer_helper_service.subarray(buffer, this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS + fftN);
+      //   parseData = ArrayBufferHelperService.subarray(buffer, this.view_state_service.curViewPort.sS, this.view_state_service.curViewPort.eS + fftN);
       // }
       this.setupEvent();
       // console.log(paddedSamples.buffer);
       this.worker.postMessage({
-        'windowSizeInSecs': this.view_state_service.spectroSettings.windowSizeInSecs,
+        'windowSizeInSecs': this._spectrogram_settings.windowSizeInSecs,
         'fftN': fftN,
         'alpha': this.alpha,
-        'upperFreq': this.view_state_service.spectroSettings.rangeTo,
-        'lowerFreq': this.view_state_service.spectroSettings.rangeFrom,
-        'samplesPerPxl': this.calcSamplesPerPxl(),
-        'window': this.view_state_service.spectroSettings.window,
+        'upperFreq': this._spectrogram_settings.rangeTo,
+        'lowerFreq': this._spectrogram_settings.rangeFrom,
+        'samplesPerPxl': getSamplesPerCanvasWidthUnit(
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            this.mainCanvas.nativeElement
+        ),
+        'window': this._spectrogram_settings.window,
         'imgWidth': this.mainCanvas.nativeElement.width,
         'imgHeight': this.mainCanvas.nativeElement.height,
-        'dynRangeInDB': this.view_state_service.spectroSettings.dynamicRange,
+        'dynRangeInDB': this._spectrogram_settings.dynamicRange,
         'pixelRatio': this.devicePixelRatio,
-        'sampleRate': this.sound_handler_service.audioBuffer.sampleRate,
-        'transparency': this.config_provider_service.vals.spectrogramSettings.transparency,
+        'sampleRate': this._audio_buffer.sampleRate,
+        'transparency': this._spectrogram_settings.transparency,
         'audioBuffer': paddedSamples.buffer,
-        'audioBufferChannels': this.sound_handler_service.audioBuffer.numberOfChannels,
-        'drawHeatMapColors': this.view_state_service.spectroSettings.drawHeatMapColors,
-        'preEmphasisFilterFactor': this.view_state_service.spectroSettings.preEmphasisFilterFactor,
-        'heatMapColorAnchors': this.view_state_service.spectroSettings.heatMapColorAnchors
+        'audioBufferChannels': this._audio_buffer.numberOfChannels,
+        'drawHeatMapColors': this._spectrogram_settings.drawHeatMapColors,
+        'preEmphasisFilterFactor': this._spectrogram_settings.preEmphasisFilterFactor,
+        'heatMapColorAnchors': this._spectrogram_settings.heatMapColorAnchors
       }, [paddedSamples.buffer]);
     }
   };

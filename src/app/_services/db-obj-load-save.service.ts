@@ -42,7 +42,7 @@ export class DbObjLoadSaveService {
   loadBundle(bndl) {
     let subj = new Subject();
     // check if bndl has to be saved
-    this.view_state_service.setcurClickItem(null);
+    this.view_state_service.selectItems([]);
     if ((this.history_service.movesAwayFromLastSave !== 0 &&
       this.config_provider_service.vals.main.comMode !== 'DEMO' &&
       this.config_provider_service.vals.activeButtons.saveBundle)) {
@@ -74,7 +74,7 @@ export class DbObjLoadSaveService {
         // this.view_state_service.hierarchyState.reset();
         // set state
         // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
-        this.view_state_service.setEditing(false);
+        // this.view_state_service.setEditing(false);
         this.view_state_service.setState('loadingSaving');
 
         this.view_state_service.somethingInProgress = true;
@@ -134,10 +134,10 @@ export class DbObjLoadSaveService {
         this.view_state_service.curViewPort.selectS = bndl.timeAnchors[0].sample_start;
         this.view_state_service.curViewPort.selectE = bndl.timeAnchors[0].sample_end;
       }else {
-        this.view_state_service.resetSelect();
+        this.view_state_service.resetSelection();
       }
       this.view_state_service.curTimeAnchorIdx = -1;
-      this.view_state_service.curClickItems = []; // used to be curClickSegment
+      this.view_state_service.selectedItems = []; // used to be curClickSegment
       this.view_state_service.currentClickLevel = undefined;
 
       this.sound_handler_service.audioBuffer = audioBuffer;

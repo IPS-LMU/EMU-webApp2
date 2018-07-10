@@ -1,9 +1,10 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 import { FontScaleService } from '../_services/font-scale.service';
 import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
+import {getMousePositionInCanvasX} from '../_utilities/view-state-helper-functions';
 
 @Component({
   selector: 'app-ssff-track',
@@ -12,15 +13,22 @@ import { ViewStateService } from '../_services/view-state.service';
 })
 export class SsffTrackComponent implements OnInit {
 
+  private _crosshair_position: number;
   private _name: string;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
   private _main_context;
   private assTrackName: string;
+  private initalised: boolean;
 
   @Input() set name(value: any){
     this._name = value;
     console.log(value);
+  }
+
+  @Input() set crosshair_position(value: number) {
+    this._crosshair_position = value;
+    this.handleUpdate();
   }
 
   @Input() set viewport_sample_start(value: number){
@@ -36,6 +44,9 @@ export class SsffTrackComponent implements OnInit {
     }
   }
 
+  @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+
+
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
   // @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
@@ -45,6 +56,12 @@ export class SsffTrackComponent implements OnInit {
 
   ngOnInit() {
     this._main_context = this.mainCanvas.nativeElement.getContext('2d');
+    this.initalised = true;
+    this.handleUpdate();
+  }
+
+  public mousemove(event: MouseEvent){
+    this.crosshair_move.emit(getMousePositionInCanvasX(event));
   }
 
   // // select the needed DOM elements from the template
@@ -176,6 +193,10 @@ export class SsffTrackComponent implements OnInit {
    *
    */
   handleUpdate() {
+    if (!this.initalised) {
+      return;
+    }
+
     // let ctx = element[0].getContext('2d');
     this._main_context.clearRect(0, 0, this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
 

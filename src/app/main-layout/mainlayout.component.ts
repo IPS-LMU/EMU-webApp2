@@ -294,7 +294,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //       });
     //       LevelService.deleteEditArea();
     //       this.view_state_service.setEditing(false);
-    //       this.view_state_service.setcurClickItem(LevelService.getItemFromLevelById(this.view_state_service.getcurClickLevelName(), LevelService.getlastID()));
+    //       this.view_state_service.selectItems(LevelService.getItemFromLevelById(this.view_state_service.getcurClickLevelName(), LevelService.getlastID()));
     //     }
     //     // escape from text if esc
     //     if (code === this.config_provider_service.vals.keyMappings.esc) {
@@ -373,7 +373,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     // zoomIn
     this.hotkey_w = this.hotkeys_service.add(new Hotkey('w', (event: KeyboardEvent): boolean => {
         if (this.view_state_service.getPermission('zoom')) {
-          this.view_state_service.zoomViewPort(true, this.data_service);
+          this.view_state_service.zoomViewPort(true);
         } else {
           //console.log('action currently not allowed');
         }
@@ -384,7 +384,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     // zoomOut
     this.hotkey_s = this.hotkeys_service.add(new Hotkey('s', (event: KeyboardEvent): boolean => {
       if (this.view_state_service.getPermission('zoom')) {
-        this.view_state_service.zoomViewPort(false, this.data_service);
+        this.view_state_service.zoomViewPort(false);
       } else {
         //console.log('action currently not allowed');
       }
@@ -803,11 +803,11 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //         if (this.view_state_service.getcurClickLevelName() === undefined) {
     //           modalService.open('views/error.html', 'Selection Error : Please select a Level first');
     //         } else {
-    //           this.view_state_service.curClickItems = [];
+    //           this.view_state_service.selectedItems = [];
     //           var prev = null;
     //           angular.forEach(this.view_state_service.getItemsInSelection(DataService.data.levels), function (item) {
     //             if(prev === null) {
-    //               this.view_state_service.setcurClickItem(item);
+    //               this.view_state_service.selectItems(item);
     //             }
     //             else {
     //               this.view_state_service.setcurClickItemMultiple(item, prev);
@@ -833,7 +833,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.left, neighbours.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -845,7 +845,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.left, neighbours.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -872,7 +872,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.right, neighbours.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -884,7 +884,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   this.view_state_service.setcurClickItemMultiple(lastNeighboursMove.right, neighbours.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 } else {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //                 this.view_state_service.selectBoundary();
@@ -907,13 +907,13 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //               if (lastNeighboursMove.left.sampleStart !== undefined) {
     //                 // check if in view
     //                 if (lastNeighboursMove.left.sampleStart >= this.view_state_service.curViewPort.sS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //               } else {
     //                 // check if in view
     //                 if (lastNeighboursMove.left.samplePoint >= this.view_state_service.curViewPort.sS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.left, lastNeighboursMove.left.id);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.left, lastNeighboursMove.left.id);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.left.id);
     //                 }
     //               }
@@ -923,13 +923,13 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //               if (lastNeighboursMove.right.sampleStart !== undefined) {
     //                 // check if in view
     //                 if (lastNeighboursMove.right.sampleStart + lastNeighboursMove.right.sampleDur <= this.view_state_service.curViewPort.eS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //               } else {
     //                 // check if in view
     //                 if (lastNeighboursMove.right.samplePoint < this.view_state_service.curViewPort.eS) {
-    //                   this.view_state_service.setcurClickItem(lastNeighboursMove.right);
+    //                   this.view_state_service.selectItems(lastNeighboursMove.right);
     //                   LevelService.setlasteditArea('_' + lastNeighboursMove.right.id);
     //                 }
     //               }
@@ -1133,9 +1133,9 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                 lastEventMove = LevelService.getClosestItem(this.view_state_service.getLasPcm() + this.view_state_service.curViewPort.sS, levelName, this.sound_handler_service.audioBuffer.length);
     //                 if (lastEventMove.current !== undefined && lastEventMove.nearest !== undefined) {
     //                   lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
-    //                   this.view_state_service.setcurMouseItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
+    //                   this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                 }
-    //                 this.view_state_service.setcurClickItem(deletedSegment.clickSeg);
+    //                 this.view_state_service.selectItems(deletedSegment.clickSeg);
     //               } else {
     //                 var deletedPoint = LevelService.deleteEvent(levelName, seg.id);
     //                 if (deletedPoint !== false) {
@@ -1152,10 +1152,10 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                   lastEventMove = LevelService.getClosestItem(this.view_state_service.getLasPcm() + this.view_state_service.curViewPort.sS, levelName, this.sound_handler_service.audioBuffer.length);
     //                   if (lastEventMove.current !== undefined && lastEventMove.nearest !== undefined) {
     //                     lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
-    //                     this.view_state_service.setcurMouseItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
+    //                     this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                   }
     //                 } else {
-    //                   this.view_state_service.setcurMouseItem(undefined, undefined, undefined, undefined, undefined);
+    //                   this.view_state_service.preselectItem(undefined, undefined, undefined, undefined, undefined);
     //                 }
     //               }
     //             }
@@ -1185,9 +1185,9 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
     //                 lastEventMove = LevelService.getClosestItem(this.view_state_service.getLasPcm() + this.view_state_service.curViewPort.sS, levelName, this.sound_handler_service.audioBuffer.length);
     //                 if (lastEventMove.current !== undefined && lastEventMove.nearest !== undefined) {
     //                   lastNeighboursMove = LevelService.getItemNeighboursFromLevel(levelName, lastEventMove.nearest.id, lastEventMove.nearest.id);
-    //                   this.view_state_service.setcurMouseItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
+    //                   this.view_state_service.preselectItem(lastEventMove.nearest, lastNeighboursMove, this.view_state_service.getLasPcm(), lastEventMove.isFirst, lastEventMove.isLast);
     //                 }
-    //                 this.view_state_service.setcurClickItem(deletedSegment.clickSeg);
+    //                 this.view_state_service.selectItems(deletedSegment.clickSeg);
     //               } else {
     //                 modalService.open('views/error.html', 'Delete Error: You can not delete Segments on Point Levels.');
     //               }
@@ -1609,7 +1609,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
   public cmdZoomIn() {
     if (this.view_state_service.getPermission('zoom')) {
       // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
-      this.view_state_service.zoomViewPort(true, this.data_service);
+      this.view_state_service.zoomViewPort(true);
     } else {
       //console.log('action currently not allowed');
     }
@@ -1621,7 +1621,7 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
   cmdZoomOut() {
     if (this.view_state_service.getPermission('zoom')) {
       // this.level_service.deleteEditArea(); @todo how do we do this after editArea was moved from service to component?
-      this.view_state_service.zoomViewPort(false, this.data_service);
+      this.view_state_service.zoomViewPort(false);
     } else {
       //console.log('action currently not allowed');
     }

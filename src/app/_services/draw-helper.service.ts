@@ -1,17 +1,14 @@
-import { Injectable } from '@angular/core';
-
-import { ViewStateService } from './view-state.service';
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
+import {
+    calculateSampleTime,
+    getPixelDistanceBetweenSamples,
+    getPixelPositionOfSampleInViewport,
+    getSampleAtPixelPositionInViewport
+} from '../_utilities/view-state-helper-functions';
+import {ILevel} from '../_interfaces/annot-json.interface';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class DrawHelperService {
-
-  constructor(private view_state_service: ViewStateService) { }
-
-  osciPeaks: any = {};
 
   private static getScale(ctx, str, scale) {
     return ctx.measureText(str).width * scale;
@@ -28,7 +25,7 @@ export class DrawHelperService {
   /**
    *
    */
-  public calculateOsciPeaks(audioBuffer: AudioBuffer) {
+  public static calculateOsciPeaks(audioBuffer: AudioBuffer) {
     let sampleRate = audioBuffer.sampleRate;
     let numberOfChannels = audioBuffer.numberOfChannels;
 
@@ -43,7 +40,7 @@ export class DrawHelperService {
     let winSize2 = sampleRate / 1;
 
     // set initial result values
-    this.osciPeaks = {
+    const osciPeaks = {
       'numberOfChannels': numberOfChannels,
       'sampleRate': sampleRate,
       'winSizes': [winSize0, winSize1, winSize2],
@@ -157,12 +154,14 @@ export class DrawHelperService {
         curWindowIdxCounterWinSize2 += 1;
       }
 
-      this.osciPeaks.channelOsciPeaks[channelIdx] = {
+      osciPeaks.channelOsciPeaks[channelIdx] = {
         'maxPeaks': [curChannelMaxPeaksWinSize0, curChannelMaxPeaksWinSize1, curChannelMaxPeaksWinSize2],
         'minPeaks': [curChannelMinPeaksWinSize0, curChannelMinPeaksWinSize1, curChannelMinPeaksWinSize2]
       };
 
     }
+
+    return osciPeaks;
   }
 
 
@@ -175,7 +174,7 @@ export class DrawHelperService {
    * @param sS start sample
    * @param eS end sample
    */
-  public calculatePeaks = function (canvas, data, sS, eS) {
+  public static calculatePeaks = function (canvas, data, sS, eS) {
 
     let samplePerPx = (eS + 1 - sS) / canvas.width; // samples per pixel + one to correct for subtraction
     // var numberOfChannels = 1; // hardcode for now...
@@ -266,13 +265,13 @@ export class DrawHelperService {
   };
 
 
-  public findMinMaxPeaks(sS, eS, winIdx){
+  public static findMinMaxPeaks(sS, eS, winIdx, audioBuffer: AudioBuffer, osciPeaks) {
 
-    let ssT = this.view_state_service.calcSampleTime(sS);
-    let esT = this.view_state_service.calcSampleTime(eS);
+    const ssT = calculateSampleTime(sS, audioBuffer.sampleRate);
+    const esT = calculateSampleTime(eS, audioBuffer.sampleRate);
 
     // calc exact peaks per second value (should be very close to or exactly 400|10|1 depending on  winSize)
-    let pps = this.osciPeaks.sampleRate / this.osciPeaks.winSizes[winIdx];
+    let pps = osciPeaks.sampleRate / osciPeaks.winSizes[winIdx];
 
     let startPeakWinIdx = ssT * pps;
     let endPeakWinIdx = esT * pps;
@@ -281,11 +280,11 @@ export class DrawHelperService {
     let maxMaxPeak = -Infinity;
 
     for(let i = Math.round(startPeakWinIdx); i < Math.round(endPeakWinIdx); i++){
-      if (this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i] > maxMaxPeak) {
-        maxMaxPeak = this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i];
+      if (osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i] > maxMaxPeak) {
+        maxMaxPeak = osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][i];
       }
-      if (this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i] < minMinPeak) {
-        minMinPeak = this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i];
+      if (osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i] < minMinPeak) {
+        minMinPeak = osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][i];
       }
     }
 
@@ -301,20 +300,16 @@ export class DrawHelperService {
   /**
    *
    */
-  public freshRedrawDrawOsciOnCanvas(canvas, sS, eS, forceToCalcOsciPeaks, audioBuffer: AudioBuffer) {
+  public static freshRedrawDrawOsciOnCanvas(ctx: CanvasRenderingContext2D,
+                                            sS: number,
+                                            eS: number,
+                                            osciPeaks,
+                                            audioBuffer: AudioBuffer,
+                                            currentChannel: number) {
+    const canvas = ctx.canvas;
+
     // clear canvas
-    let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if(forceToCalcOsciPeaks){
-      this.osciPeaks = {};
-    }
-
-    // calc osciPeaks if these have not been calculated yet
-    // if(Object.keys(this.osciPeaks).length === 0 && this.osciPeaks.constructor === Object){
-    if(true){
-      this.calculateOsciPeaks(audioBuffer);
-    }
 
     // samples per pixel + one to correct for subtraction
     let samplesPerPx = (eS + 1 - sS) / canvas.width;
@@ -323,8 +318,8 @@ export class DrawHelperService {
 
     // find current peaks array window size by checking if
     let winIdx = -1;
-    for (i = 0; i < this.osciPeaks.winSizes.length; i++) {
-      if(samplesPerPx > this.osciPeaks.winSizes[i]){
+    for (i = 0; i < osciPeaks.winSizes.length; i++) {
+      if(samplesPerPx > osciPeaks.winSizes[i]){
         winIdx = i;
       }
     }
@@ -336,12 +331,12 @@ export class DrawHelperService {
 
     if(winIdx !== -1){
       // use pre calcuated peaks
-      allPeakVals = this.findMinMaxPeaks(sS, eS, winIdx);
+      allPeakVals = DrawHelperService.findMinMaxPeaks(sS, eS, winIdx, audioBuffer, osciPeaks);
 
-      let ssT = this.view_state_service.calcSampleTime(sS);
+      let ssT = calculateSampleTime(sS, audioBuffer.sampleRate);
 
       // calc exact peaks per second value (should be very close to or exactly 400|10|1 depending on  winSize)
-      let pps = this.osciPeaks.sampleRate / this.osciPeaks.winSizes[winIdx];
+      let pps = osciPeaks.sampleRate / osciPeaks.winSizes[winIdx];
 
       let startPeakWinIdx = ssT * pps;
 
@@ -349,22 +344,21 @@ export class DrawHelperService {
 
       let peakIdx = Math.round(startPeakWinIdx);
       ctx.beginPath();
-      yMax = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
-      yMin = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+      yMax = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+      yMin = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
       ctx.moveTo(0, yMax);
       // ctx.lineTo(0, yMin);
       yMaxPrev = yMax;
       yMinPrev = yMin;
 
-      let sT, perc, curSample;
+      let sT, curSample;
       for (let curPxIdx = 1; curPxIdx < canvas.width; curPxIdx++) {
-        perc = curPxIdx / canvas.width;
-        curSample = this.view_state_service.getCurrentSample(perc);
+        curSample = getSampleAtPixelPositionInViewport(curPxIdx, sS, eS, canvas.width);
         // calculate cur pixel sample time
-        sT = this.view_state_service.calcSampleTime(curSample);
+        sT = calculateSampleTime(curSample, audioBuffer.sampleRate);
         peakIdx = Math.round(sT * pps);
-        yMax = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
-        yMin = ((allPeakVals.maxMaxPeak - this.osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+        yMax = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
+        yMin = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
         // draw connection to previous peaks (neccesary to avoid gaps in osci when maxMaxPeak === minMinPeak)
         ctx.moveTo(curPxIdx - 1, yMaxPrev);
         ctx.lineTo(curPxIdx - 1, yMax);
@@ -385,7 +379,7 @@ export class DrawHelperService {
 
     }else{
       // if winIdx is -1 then calculate the peaks from the channel data
-      allPeakVals = this.calculatePeaks(canvas, audioBuffer.getChannelData(this.view_state_service.osciSettings.curChannel), sS, eS);
+      allPeakVals = DrawHelperService.calculatePeaks(canvas, audioBuffer.getChannelData(currentChannel), sS, eS);
 
       // check if envelope is to be drawn
       if (allPeakVals.minPeaks && allPeakVals.maxPeaks && allPeakVals.samplePerPx >= 1) {
@@ -424,12 +418,12 @@ export class DrawHelperService {
       } else if (allPeakVals.samplePerPx < 1) {
         // console.log("at 0 over sample exact")
         let hDbS = (1 / allPeakVals.samplePerPx) / 2; // half distance between samples
-        let sNr = this.view_state_service.curViewPort.sS;
+        let sNr = sS;
         // over sample exact
         ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
         ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
         // ctx.beginPath();
-        if (this.view_state_service.curViewPort.sS === 0) {
+        if (sS === 0) {
           ctx.moveTo(hDbS, (allPeakVals.samples[0] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height);
           for (i = 0; i < allPeakVals.samples.length; i++) {
             ctx.lineTo(i / allPeakVals.samplePerPx + hDbS, (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height);
@@ -443,7 +437,7 @@ export class DrawHelperService {
             ctx.fill();
             // if (ConfigProviderService.vals.restrictions.drawSampleNrs) {
             if(true){
-              ctx.strokeText(sNr, i / allPeakVals.samplePerPx + hDbS, (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
+              ctx.strokeText(sNr.toString(), i / allPeakVals.samplePerPx + hDbS, (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
               sNr = sNr + 1;
             }
           }
@@ -463,7 +457,7 @@ export class DrawHelperService {
             ctx.fill();
             // if (ConfigProviderService.vals.restrictions.drawSampleNrs) {
             if(true){
-              ctx.fillText(sNr, i / allPeakVals.samplePerPx - hDbS, canvas.height - (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
+              ctx.fillText(sNr.toString(), i / allPeakVals.samplePerPx - hDbS, canvas.height - (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
               sNr = sNr + 1;
             }
           }
@@ -504,26 +498,34 @@ export class DrawHelperService {
    * drawing method to drawMovingBoundaryLine
    */
 
-  public drawMovingBoundaryLine(ctx) {
+  public static drawMovingBoundaryLine(ctx: CanvasRenderingContext2D,
+                                viewportStartSample: number,
+                                viewportEndSample: number,
+                                position: number,
+                                currentMouseItemIsLast: boolean,
+                                currentMouseOverLevel: ILevel) {
 
     let xOffset, sDist;
-    sDist = this.view_state_service.getSampleDist(ctx.canvas.width);
+    sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, ctx.canvas.width);
 
     // calc. offset dependant on type of level of mousemove  -> default is sample exact
-    if (this.view_state_service.getcurMouseLevelType() === 'SEGMENT') {
+    if (currentMouseOverLevel.type === 'SEGMENT') {
       xOffset = 0;
     } else {
       xOffset = (sDist / 2);
     }
 
-    if (this.view_state_service.movingBoundary) {
-      ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
-      let p = Math.round(this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.movingBoundarySample));
-      if (this.view_state_service.getcurMouseisLast()) {
-        ctx.fillRect(p + sDist, 0, 1, ctx.canvas.height);
-      } else {
-        ctx.fillRect(p + xOffset, 0, 1, ctx.canvas.height);
-      }
+    ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
+    const p = Math.round(getPixelPositionOfSampleInViewport(
+        position,
+        viewportStartSample,
+        viewportEndSample,
+        ctx.canvas.width
+    ));
+    if (currentMouseItemIsLast) {
+      ctx.fillRect(p + sDist, 0, 1, ctx.canvas.height);
+    } else {
+      ctx.fillRect(p + xOffset, 0, 1, ctx.canvas.height);
     }
 
   }
@@ -533,21 +535,38 @@ export class DrawHelperService {
    * drawing method to drawCurViewPortSelected
    */
 
-  public drawCurViewPortSelected(ctx, drawTimeAndSamples, audioBuffer: AudioBuffer) {
+  public static drawCurViewPortSelected(ctx: CanvasRenderingContext2D,
+                                 drawTimeAndSamples: boolean,
+                                 viewportStartSample: number,
+                                 viewportEndSample: number,
+                                 selectionStartSample: number,
+                                 selectionEndSample: number,
+                                 audioBuffer: AudioBuffer,
+                                 currentMouseOverLevel: ILevel) {
 
     let fontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
     let xOffset, sDist, space, scaleX;
-    sDist = this.view_state_service.getSampleDist(ctx.canvas.width);
+    sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, ctx.canvas.width);
 
     // calc. offset dependant on type of level of mousemove  -> default is sample exact
-    if (this.view_state_service.getcurMouseLevelType() === 'seg') {
+    if (currentMouseOverLevel && currentMouseOverLevel.type === 'SEGMENT') {
       xOffset = 0;
     } else {
       xOffset = (sDist / 2);
     }
 
-    let posS = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectS);
-    let posE = this.view_state_service.getPos(ctx.canvas.width, this.view_state_service.curViewPort.selectE);
+    const posS = getPixelPositionOfSampleInViewport(
+        selectionStartSample,
+        viewportStartSample,
+        viewportEndSample,
+        ctx.canvas.width
+    );
+    const posE = getPixelPositionOfSampleInViewport(
+        selectionEndSample,
+        viewportStartSample,
+        viewportEndSample,
+        ctx.canvas.width
+    );
 
     if (posS === posE) {
 
@@ -555,10 +574,10 @@ export class DrawHelperService {
       ctx.fillRect(posS + xOffset, 0, 2, ctx.canvas.height);
 
       if (drawTimeAndSamples) {
-        if (this.view_state_service.curViewPort.sS !== this.view_state_service.curViewPort.selectS && this.view_state_service.curViewPort.selectS !== -1) {
+        if (viewportStartSample !== selectionStartSample && selectionStartSample !== -1) {
           scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-          space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / audioBuffer.sampleRate, 6), scaleX);
-          // FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
+          space = DrawHelperService.getScaleWidth(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6), scaleX);
+          // FontScaleService.drawUndistortedTextTwoLines(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
         }
       }
     } else {
@@ -576,18 +595,18 @@ export class DrawHelperService {
       if (drawTimeAndSamples) {
         // start values
         scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-        space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / audioBuffer.sampleRate, 6), scaleX);
-        // FontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectS, MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
+        space = DrawHelperService.getScaleWidth(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6), scaleX);
+        // FontScaleService.drawUndistortedTextTwoLines(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
 
         // end values
         // FontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectE, MathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
         // dur values
         // check if space
-        space = DrawHelperService.getScale(ctx, MathHelperService.roundToNdigitsAfterDecPoint((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / audioBuffer.sampleRate, 6), scaleX);
+        space = DrawHelperService.getScale(ctx, MathHelperService.roundToNdigitsAfterDecPoint((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate, 6), scaleX);
 
         if (posE - posS > space) {
-          let str1 = this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS - 1;
-          let str2 = MathHelperService.roundToNdigitsAfterDecPoint(((this.view_state_service.curViewPort.selectE - this.view_state_service.curViewPort.selectS) / audioBuffer.sampleRate), 6);
+          let str1 = selectionEndSample - selectionStartSample - 1;
+          let str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate), 6);
           space = DrawHelperService.getScaleWidth(ctx, str1, str2, scaleX);
           // FontScaleService.drawUndistortedTextTwoLines(ctx, str1, str2, fontSize, ConfigProviderService.design.font.small.family, posS + (posE - posS) / 2 - space / 2, 0, ConfigProviderService.design.color.black, false);
         }
@@ -603,7 +622,7 @@ export class DrawHelperService {
    * this is used to draw a red line at the current mouse position
    * on canvases where the mouse is currently not hovering over
    */
-  public drawCrossHairX(ctx, mouseX){
+  public static drawCrossHairX(ctx, mouseX){
     ctx.strokeStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
     ctx.fillStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
     ctx.beginPath();
@@ -712,7 +731,7 @@ export class DrawHelperService {
    * @param round value to round to for min/max values (== digits after comma)
    */
 
-  drawMinMaxAndName(ctx, trackName, min, max, round) {
+  public static drawMinMaxAndName(ctx, trackName, min, max, round) {
     // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.fillStyle = 'black';// ConfigProviderService.design.color.black;
@@ -752,7 +771,10 @@ export class DrawHelperService {
   /**
    *
    */
-  drawViewPortTimes(ctx, sampleRate: number) {
+  public static drawViewPortTimes(ctx: CanvasRenderingContext2D,
+                    viewportStartSample: number,
+                    viewportEndSample: number,
+                    sampleRate: number) {
     ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
     ctx.font = 'HelveticaNeue';//(ConfigProviderService.design.font.small.size + ' ' + ConfigProviderService.design.font.small.family);
@@ -771,14 +793,12 @@ export class DrawHelperService {
     let sTime;
     let eTime;
     let space;
-    if (this.view_state_service.curViewPort) {
-      //draw time and sample nr
-      sTime = MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.sS / sampleRate, 6);
-      eTime = MathHelperService.roundToNdigitsAfterDecPoint(this.view_state_service.curViewPort.eS / sampleRate, 6);
-      FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.sS, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
-      space = DrawHelperService.getScaleWidth(ctx, this.view_state_service.curViewPort.eS, eTime, scaleX);
-      FontScaleService.drawUndistortedTextTwoLines(ctx, this.view_state_service.curViewPort.eS, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
-    }
+    //draw time and sample nr
+    sTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 6);
+    eTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
+    space = DrawHelperService.getScaleWidth(ctx, viewportEndSample, eTime, scaleX);
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
   };
 
 }
