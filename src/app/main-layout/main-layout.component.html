@@ -114,6 +114,7 @@
                     [viewport_sample_end] = "view_state_service.curViewPort.eS"
                     [selection_sample_start]="view_state_service.curViewPort.selectS"
                     [selection_sample_end]="view_state_service.curViewPort.selectE"
+                    [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
                     (crosshair_move)="view_state_service.crosshairPosition = $event"
                     (selection_change)="view_state_service.select($event)"
           ></app-osci>

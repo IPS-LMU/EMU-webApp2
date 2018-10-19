@@ -4,8 +4,12 @@ import {ILevel} from '../../_interfaces/annot-json.interface';
 export function drawOsciMarkup(context: CanvasRenderingContext2D,
                                viewportStartSample: number,
                                viewportEndSample: number,
+                               selectionStartSample: number,
+                               selectionEndSample: number,
                                movingBoundaryPosition: number,
-                               crosshairPosition: number) {
+                               crosshairPosition: number,
+                               audioBuffer: AudioBuffer,
+                               currentMouseOverLevel: ILevel) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
     // draw moving boundary line if moving
@@ -19,6 +23,18 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
             {type: 'SEGMENT'} as ILevel // mouseoverLevel
         );
     }
+
+    // draw current viewport selected
+    DrawHelperService.drawCurViewPortSelected(
+        context,
+        false,
+        viewportStartSample,
+        viewportEndSample,
+        selectionStartSample,
+        selectionEndSample,
+        audioBuffer,
+        currentMouseOverLevel
+    );
 
     DrawHelperService.drawCrossHairX(context, crosshairPosition);
 }
