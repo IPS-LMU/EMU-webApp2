@@ -4,10 +4,11 @@ import { FontScaleService } from '../_services/font-scale.service';
 import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
-import {getMousePositionInCanvasX} from '../_utilities/view-state-helper-functions';
+import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
 import {ILevel} from '../_interfaces/annot-json.interface';
 import {DrawHelperService} from '../_services/draw-helper.service';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
+import {adjustSelection} from '../_utilities/adjust-selection.function';
 
 @Component({
   selector: 'app-ssff-track',
@@ -84,6 +85,7 @@ export class SsffTrackComponent implements OnInit {
   }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+  @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
 
 
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
@@ -101,8 +103,47 @@ export class SsffTrackComponent implements OnInit {
     this.redraw();
   }
 
+  public mousedown(event: MouseEvent) {
+      const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+          event,
+          this._viewport_sample_start,
+          this._viewport_sample_end
+      );
+
+      if (event.shiftKey && this._selection_sample_start !== null) {
+          this.selection_change.emit(adjustSelection(
+              sampleAtMousePosition,
+              this._selection_sample_start,
+              this._selection_sample_end
+          ));
+      } else {
+          this.selection_change.emit({start: sampleAtMousePosition, end: sampleAtMousePosition});
+      }
+  }
+
   public mousemove(event: MouseEvent){
     this.crosshair_move.emit(getMousePositionInCanvasX(event));
+
+    let mouseButton: number;
+    if (event.buttons === undefined) {
+        mouseButton = event.which;
+    } else {
+        mouseButton = event.buttons;
+    }
+
+    if (mouseButton === 1) {
+        const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
+            event,
+            this._viewport_sample_start,
+            this._viewport_sample_end
+        );
+
+        this.selection_change.emit(adjustSelection(
+            sampleAtMousePosition,
+            this._selection_sample_start,
+            this._selection_sample_end
+        ));
+    }
   }
 
   // // select the needed DOM elements from the template
