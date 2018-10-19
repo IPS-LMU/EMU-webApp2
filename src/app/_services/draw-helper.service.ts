@@ -581,7 +581,7 @@ export class DrawHelperService {
         }
       }
     } else {
-      ctx.fillStyle = 'grey';//ConfigProviderService.design.color.transparent.grey;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';//ConfigProviderService.design.color.transparent.grey;
       ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
       ctx.strokeStyle = 'black'; //ConfigProviderService.design.color.transparent.black;
       ctx.beginPath();
