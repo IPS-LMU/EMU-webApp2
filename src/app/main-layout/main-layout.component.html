@@ -137,7 +137,13 @@
 
           <app-ssff-track style="display: flex; flex-direction: column; flex-grow: 1" *ngIf="canvas_name !== 'OSCI' && canvas_name !== 'SPEC'"
                           [name]="canvas_name"
+                          [audio_buffer] = "sound_handler_service.audioBuffer"
                           [crosshair_position]="view_state_service.crosshairPosition"
+                          [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
+                          [moving_boundary_position]="view_state_service.movingBoundarySample"
+                          [preselected_item]="view_state_service.getPreselectedItemInfo()"
+                          [selection_sample_start]="view_state_service.curViewPort.selectS"
+                          [selection_sample_end]="view_state_service.curViewPort.selectE"
                           [viewport_sample_start] = "view_state_service.curViewPort.sS"
                           [viewport_sample_end] = "view_state_service.curViewPort.eS"
                           (crosshair_move)="view_state_service.crosshairPosition = $event"

@@ -5,6 +5,9 @@ import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
 import {getMousePositionInCanvasX} from '../_utilities/view-state-helper-functions';
+import {ILevel} from '../_interfaces/annot-json.interface';
+import {DrawHelperService} from '../_services/draw-helper.service';
+import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 
 @Component({
   selector: 'app-ssff-track',
@@ -13,11 +16,19 @@ import {getMousePositionInCanvasX} from '../_utilities/view-state-helper-functio
 })
 export class SsffTrackComponent implements OnInit {
 
+  private _audio_buffer: AudioBuffer;
   private _crosshair_position: number;
+  private _mouseover_level: ILevel;
+  private _moving_boundary_position: number;
   private _name: string;
+  private _preselected_item: PreselectedItemInfo;
+  private _selection_sample_start: number;
+  private _selection_sample_end: number;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
+
   private _main_context;
+  private _markup_context: CanvasRenderingContext2D;
   private assTrackName: string;
   private initalised: boolean;
 
@@ -26,21 +37,49 @@ export class SsffTrackComponent implements OnInit {
     console.log(value);
   }
 
-  @Input() set crosshair_position(value: number) {
-    this._crosshair_position = value;
-    this.handleUpdate();
+  @Input() set audio_buffer(value: AudioBuffer) {
+      this._audio_buffer = value;
   }
 
-  @Input() set viewport_sample_start(value: number){
+  @Input() set crosshair_position(value: number) {
+    this._crosshair_position = value;
+    this.drawSsffTrackMarkup();
+  }
+
+  @Input() set mouseover_level (value: ILevel) {
+      this._mouseover_level = value;
+  }
+
+  @Input() set moving_boundary_position (value: number) {
+      this._moving_boundary_position = value;
+      if (this._markup_context) {
+          this.drawSsffTrackMarkup();
+      }
+  }
+
+  @Input() set preselected_item (value: PreselectedItemInfo) {
+      this._preselected_item = value;
+  }
+
+  @Input() set selection_sample_start(value: number) {
+      this._selection_sample_start = value;
+      this.drawSsffTrackMarkup();
+  }
+  @Input() set selection_sample_end(value: number) {
+      this._selection_sample_end = value;
+      if (this._selection_sample_end !== 0) { // SIC this has to be done better!
+          this.drawSsffTrackMarkup();
+      }
+  }
+
+  @Input() set viewport_sample_start(value: number) {
     this._viewport_sample_start = value;
-    console.log("setting _viewport_sample_start");
     // this.redraw();
   }
-  @Input() set viewport_sample_end(value: number){
+  @Input() set viewport_sample_end(value: number) {
     this._viewport_sample_end = value;
-    console.log("setting _viewport_sample_end");
-    if(this._viewport_sample_end !== 0){ // SIC this has to be done better!
-      this.handleUpdate();
+    if (this._viewport_sample_end !== 0) { // SIC this has to be done better!
+      this.redraw();
     }
   }
 
@@ -48,7 +87,7 @@ export class SsffTrackComponent implements OnInit {
 
 
   @ViewChild('mainCanvas') mainCanvas: ElementRef;
-  // @ViewChild('markupCanvas') markupCanvas: ElementRef;
+  @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
   constructor(private ssff_data_service: SsffDataService,
               private config_provider_service: ConfigProviderService,
@@ -56,8 +95,10 @@ export class SsffTrackComponent implements OnInit {
 
   ngOnInit() {
     this._main_context = this.mainCanvas.nativeElement.getContext('2d');
+    this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
+
     this.initalised = true;
-    this.handleUpdate();
+    this.redraw();
   }
 
   public mousemove(event: MouseEvent){
@@ -154,40 +195,62 @@ export class SsffTrackComponent implements OnInit {
   // //
   // /////////////////////
 
-  // /**
-  //  *
-  //  */
-  // scope.drawSsffTrackMarkup = function () {
-  //   if (!$.isEmptyObject(scope.ssffds.data)) {
-  //     if (scope.ssffds.data.length !== 0) {
-  //
-  //       markupCtx.clearRect(0, 0, markupCtx.canvas.width, markupCtx.canvas.height);
-  //
-  //       // draw moving boundary line if moving
-  //       scope.dhs.drawMovingBoundaryLine(markupCtx);
-  //
-  //       // draw current viewport selected
-  //       scope.dhs.drawCurViewPortSelected(markupCtx, false);
-  //
-  //       // draw min max an name of track
-  //       var tr = scope.cps.getSsffTrackConfig(trackName);
-  //       var col = scope.ssffds.getColumnOfTrack(tr.name, tr.columnName);
-  //       var minMaxValLims = scope.cps.getValueLimsOfTrack(tr.name);
-  //
-  //       var minVal, maxVal;
-  //       if(!angular.equals(minMaxValLims, {})){
-  //         minVal = minMaxValLims.minVal;
-  //         maxVal = minMaxValLims.maxVal;
-  //       }else{
-  //         minVal = col._minVal;
-  //         maxVal = col._maxVal;
-  //       }
-  //
-  //       scope.dhs.drawMinMaxAndName(markupCtx, trackName, minVal, maxVal, 2);
-  //       Drawhelperservice.drawCrossHairX(markupCtx, viewState.curMouseX);
-  //     }
-  //   }
-  // };
+  redraw() {
+      this.drawSsffTrackMarkup();
+      this.handleUpdate();
+  }
+
+  drawSsffTrackMarkup () {
+      if (!this._markup_context) {
+          return;
+      }
+
+      this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
+
+      // draw moving boundary line if moving
+      if (this._moving_boundary_position) {
+          DrawHelperService.drawMovingBoundaryLine(
+              this._markup_context,
+              this._viewport_sample_start,
+              this._viewport_sample_end,
+              this._moving_boundary_position,
+              this._preselected_item.isLast,
+              this._mouseover_level
+          );
+      }
+
+      // draw current viewport selected
+      DrawHelperService.drawCurViewPortSelected(
+          this._markup_context,
+          false,
+          this._viewport_sample_start,
+          this._viewport_sample_end,
+          this._selection_sample_start,
+          this._selection_sample_end,
+          this._audio_buffer,
+          this._mouseover_level
+      );
+
+      DrawHelperService.drawCrossHairX(this._markup_context, this._crosshair_position);
+
+    /*
+      // draw min max an name of trac
+      var tr = scope.cps.getSsffTrackConfig(trackName);
+      var col = scope.ssffds.getColumnOfTrack(tr.name, tr.columnName);
+      var minMaxValLims = scope.cps.getValueLimsOfTrack(tr.name);
+
+      var minVal, maxVal;
+      if(!angular.equals(minMaxValLims, {})){
+        minVal = minMaxValLims.minVal;
+        maxVal = minMaxValLims.maxVal;
+      }else{
+        minVal = col._minVal;
+        maxVal = col._maxVal;
+      }
+
+      DrawHelperService.drawMinMaxAndName(this._markup_context, trackName, minVal, maxVal, 2);
+      */
+  }
 
   /**
    *
