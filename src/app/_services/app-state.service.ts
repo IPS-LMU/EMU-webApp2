@@ -40,7 +40,7 @@ export class AppStateService {
     this.loaded_meta_data_service.resetToInitState();
     this.sound_handler_service.audioBuffer = {};
     this.data_service.setData({});
-    console.error('DragnDropDataService.resetToInitState();')
+    console.error('DragnDropDataService.resetToInitState();');
     // DragnDropDataService.resetToInitState();
     // DragnDropService.resetToInitState();
     this.ssff_data_service.data = [];

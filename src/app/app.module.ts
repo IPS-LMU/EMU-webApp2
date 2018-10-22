@@ -41,6 +41,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { HandleGlobalKeyStrokesDirective } from './_directives/handle-global-key-strokes.directive';
 import { ConnectComponent } from './_dialogs/connect/connect.component';
+import { GhostLevelComponent } from './ghost-level/ghost-level.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { ConnectComponent } from './_dialogs/connect/connect.component';
     SsffTrackComponent,
     ConfirmDialogComponent,
     HandleGlobalKeyStrokesDirective,
-    ConnectComponent
+    ConnectComponent,
+    GhostLevelComponent
   ],
   imports: [
     BrowserModule,
