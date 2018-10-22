@@ -757,16 +757,16 @@ export class DrawHelperService {
 
     // draw trackName
     if (trackName !== '') {
-      FontScaleService.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2 - fontSize * scaleY / 2, 'HelveticaNeue', true);
+      FontScaleService.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2, 'HelveticaNeue', 'left', 'baseline');
     }
 
     // draw min/max vals
     if (max !== undefined) {
-      FontScaleService.drawUndistortedText(ctx, 'max: ' + MathHelperService.roundToNdigitsAfterDecPoint(max, round), smallFontSize, 'HelveticaNeue', 5, 5, 'grey', true);
+      FontScaleService.drawUndistortedText(ctx, 'max: ' + MathHelperService.roundToNdigitsAfterDecPoint(max, round), smallFontSize, 'HelveticaNeue', 5, 0, 'grey', 'left', 'top');
     }
     // draw min/max vals
     if (min !== undefined) {
-      FontScaleService.drawUndistortedText(ctx, 'min: ' + MathHelperService.roundToNdigitsAfterDecPoint(min, round), smallFontSize, 'HelveticaNeue', 5, ctx.canvas.height - th - 5, 'grey', true);
+      FontScaleService.drawUndistortedText(ctx, 'min: ' + MathHelperService.roundToNdigitsAfterDecPoint(min, round), smallFontSize, 'HelveticaNeue', 5, ctx.canvas.height, 'grey', 'left', 'bottom');
     }
   }
 
@@ -791,16 +791,13 @@ export class DrawHelperService {
     ctx.lineTo(ctx.canvas.width - 5, 5);
     ctx.closePath();
     ctx.stroke();
-    let scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
     let sTime;
     let eTime;
-    let space;
     //draw time and sample nr
     sTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 6);
     eTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample, sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', true);
-    space = DrawHelperService.getScaleWidth(ctx, viewportEndSample, eTime, scaleX);
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample, eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - space - 5, 0, 'black', false);
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample.toString(), sTime, fontSize, 'HelveticaNeue', 5, 2 * fontSize, 'black', 'left');
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample.toString(), eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - 5, 2 * fontSize, 'black', 'right');
   };
 
 }

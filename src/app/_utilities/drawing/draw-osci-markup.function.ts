@@ -39,4 +39,6 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
     );
 
     DrawHelperService.drawCrossHairX(context, crosshairPosition);
+
+    // DrawHelperService.drawViewPortTimes(context, viewportStartSample, viewportEndSample, audioBuffer.sampleRate);
 }

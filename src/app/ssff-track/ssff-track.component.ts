@@ -459,9 +459,9 @@ export class SsffTrackComponent implements OnInit {
     } else {
       this._main_context.strokeStyle = 'red';
       if (nrOfSamples <= 2) {
-        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom out to', 'see contour(s)', 12 / 1.05, 'HelveticaNeue', canvas.width / 2 - (this._main_context.measureText('see contour(s)').width * this._main_context.canvas.width / this._main_context.canvas.offsetWidth / 2), 25, 'red', false);
+        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom out to', 'see contour(s)', 12, 'HelveticaNeue', canvas.width / 2, canvas.height / 2, 'red', 'center');
       } else {
-        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom in to', 'see contour(s)', 12 / 1.05, 'HelveticaNeue', canvas.width / 2 - (this._main_context.measureText('see contour(s)').width * this._main_context.canvas.width / this._main_context.canvas.offsetWidth / 2), 25, 'red', false);
+        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom in to', 'see contour(s)', 12, 'HelveticaNeue', canvas.width / 2, canvas.height / 2, 'red', 'center');
       }
     }
   }

@@ -1132,7 +1132,7 @@ export class SpectroComponent implements OnInit {
         'black',
         'rgba(0,0,0, 0.3)'
     );
-    FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
+    FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, this._main_context.canvas.height / 2, 'black', 'left', 'baseline');
     if (this.worker !== null) {
       this.worker.terminate();
       this.worker = null;

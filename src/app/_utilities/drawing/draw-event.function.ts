@@ -37,21 +37,24 @@ export function drawEvent(context: CanvasRenderingContext2D,
         fontSize - 2,
         fontFamily,
         perc,
-        (context.canvas.height / 2) - (fontSize - 2) + 2,
+        context.canvas.height / 2,
         primaryFontColor,
-        false
+        'center',
+        'baseline'
+
     );
 
     if (!drawSmallVersion) {
         FontScaleService.drawUndistortedText(
             context,
-            item.samplePoint,
+            item.samplePoint.toString(),
             fontSize - 2,
             fontFamily,
             perc + 5,
             0,
             secondaryFontColor,
-            true
+            'left',
+            'top'
         );
     }
 }

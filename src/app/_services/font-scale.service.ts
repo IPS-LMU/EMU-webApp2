@@ -1,63 +1,92 @@
 export class FontScaleService {
 
-  public static spaceTop = 0;
-
-  /**
-   * In the old system, FontScaleService.scaleY and .scaleX would be their initial
-   * value of 0 until either drawUndistortedText() or drawUndistortedTextTwoLines()
-   * had been called. The new version, getScaleY and getScaleX do not do that.
-   */
-  public static getScaleY (ctx: CanvasRenderingContext2D): number {
-      return ctx.canvas.height / ctx.canvas.offsetHeight;
-  }
-
-  public static getScaleX (ctx: CanvasRenderingContext2D): number {
-    return ctx.canvas.width / ctx.canvas.offsetWidth;
-  }
-
-  /**
-   *
-   */
-  public static drawUndistortedText (ctxOriginal, text, fontPxSize, fontType, x, y, color, alignLeft) {
-    ctxOriginal.save();
-    ctxOriginal.font = (fontPxSize + 'px' + ' ' + fontType);
-    ctxOriginal.scale(FontScaleService.getScaleX(ctxOriginal), FontScaleService.getScaleY(ctxOriginal));
-    ctxOriginal.fillStyle = color;
-    if(alignLeft){
-      ctxOriginal.fillText(text, x / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
-    }else{
-      let alignLeftX = x  / FontScaleService.getScaleX(ctxOriginal) - ctxOriginal.measureText(text).width / 2;
-      ctxOriginal.fillText(text, alignLeftX, (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
+    /**
+     * In the old system, FontScaleService.scaleY and .scaleX would be their initial
+     * value of 0 until either drawUndistortedText() or drawUndistortedTextTwoLines()
+     * had been called. The new version, getScaleY and getScaleX do not do that.
+     */
+    public static getScaleY(ctx: CanvasRenderingContext2D): number {
+        return ctx.canvas.height / ctx.canvas.offsetHeight;
     }
-    ctxOriginal.scale(1, 1);
-    ctxOriginal.restore();
-  }
 
-  /**
-   *
-   */
-
-  public static drawUndistortedTextTwoLines(ctxOriginal, text, text2, fontPxSize, fontType, x, y, color, alignLeft) {
-    ctxOriginal.save();
-    ctxOriginal.font = (fontPxSize + 'px' + ' ' + fontType);
-    ctxOriginal.scale(FontScaleService.getScaleX(ctxOriginal), FontScaleService.getScaleY(ctxOriginal));
-    ctxOriginal.fillStyle = color;
-    if (alignLeft) {
-      ctxOriginal.fillText(text, x / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
-      ctxOriginal.fillText(text2, x / FontScaleService.getScaleX(ctxOriginal), (y + 2 * fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
-    } else {
-      let a = ctxOriginal.measureText(text).width;
-      let b = ctxOriginal.measureText(text2).width;
-      // var c;
-      if (a > b) {
-        ctxOriginal.fillText(text, x / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
-        ctxOriginal.fillText(text2, (x + (a - b)) / FontScaleService.getScaleX(ctxOriginal), (y + 2 * (fontPxSize) + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
-      } else {
-        ctxOriginal.fillText(text, (x + (b - a)) / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
-        ctxOriginal.fillText(text2, x / FontScaleService.getScaleX(ctxOriginal), y + 2 * ((fontPxSize) + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
-      }
+    public static getScaleX(ctx: CanvasRenderingContext2D): number {
+        return ctx.canvas.width / ctx.canvas.offsetWidth;
     }
-    ctxOriginal.scale(1, 1);
-    ctxOriginal.restore();
-  }
+
+    public static drawUndistortedText(context: CanvasRenderingContext2D,
+                                      text: string,
+                                      fontPxSize: number,
+                                      fontType: string,
+                                      x: number,
+                                      y: number,
+                                      color: string,
+                                      horizontalAnchor: 'left' | 'center' | 'right',
+                                      verticalAnchor: 'top' | 'baseline' | 'bottom') {
+        context.save();
+
+        context.scale(FontScaleService.getScaleX(context), FontScaleService.getScaleY(context));
+        context.font = (fontPxSize + 'px' + ' ' + fontType);
+        context.fillStyle = color;
+
+        let finalX;
+        let finalY;
+
+        if (horizontalAnchor === 'left') {
+            finalX = x / FontScaleService.getScaleX(context);
+        } else if (horizontalAnchor === 'right') {
+            finalX = x / FontScaleService.getScaleX(context) - context.measureText(text).width;
+        } else if (horizontalAnchor === 'center') {
+            finalX = x / FontScaleService.getScaleX(context) - context.measureText(text).width / 2;
+        }
+
+        if (verticalAnchor === 'bottom') {
+            finalY = y;
+        } else if (verticalAnchor === 'top') {
+            finalY = y / FontScaleService.getScaleY(context) + fontPxSize;
+        } else if (verticalAnchor === 'baseline') {
+            finalY = y / FontScaleService.getScaleY(context) + fontPxSize / 2;
+        }
+
+        context.fillText(text, finalX, finalY);
+
+        context.restore();
+    }
+
+    public static drawUndistortedTextTwoLines(context: CanvasRenderingContext2D,
+                                              text: string,
+                                              text2: string,
+                                              fontPxSize: number,
+                                              fontType: string,
+                                              x: number,
+                                              y: number,
+                                              color: string,
+                                              anchor: 'left' | 'center' | 'right') {
+        context.save();
+
+        context.scale(FontScaleService.getScaleX(context), FontScaleService.getScaleY(context));
+        context.font = (fontPxSize + 'px' + ' ' + fontType);
+        context.fillStyle = color;
+
+        let finalXUpperLine;
+        let finalXLowerLine;
+
+        const finalYUpperLine = y / FontScaleService.getScaleY(context);
+        const finalYLowerLine = finalYUpperLine + fontPxSize;
+
+        if (anchor === 'left') {
+            finalXUpperLine = x / FontScaleService.getScaleX(context);
+            finalXLowerLine = x / FontScaleService.getScaleX(context);
+        } else if (anchor === 'right') {
+            finalXUpperLine = x / FontScaleService.getScaleX(context) - context.measureText(text).width;
+            finalXLowerLine = x / FontScaleService.getScaleX(context) - context.measureText(text2).width;
+        } else {
+            finalXUpperLine = x / FontScaleService.getScaleX(context) - context.measureText(text).width / 2;
+            finalXLowerLine = x / FontScaleService.getScaleX(context) - context.measureText(text2).width / 2;
+        }
+
+        context.fillText(text, finalXUpperLine, finalYUpperLine);
+        context.fillText(text2, finalXLowerLine, finalYLowerLine);
+
+        context.restore();
+    }
 }
