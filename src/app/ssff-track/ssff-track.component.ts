@@ -271,6 +271,7 @@ export class SsffTrackComponent implements OnInit {
           this._audio_buffer,
           this._mouseover_level,
           'black',
+          'black',
           'rgba(0,0,0, 0.3)'
       );
 

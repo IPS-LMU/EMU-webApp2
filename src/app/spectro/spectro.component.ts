@@ -1108,6 +1108,7 @@ export class SpectroComponent implements OnInit {
         this._audio_buffer,
         this._mouseover_level,
         'black',
+        'black',
         'rgba(0,0,0, 0.3)'
     );
     // draw min max vals and name of track
@@ -1120,23 +1121,13 @@ export class SpectroComponent implements OnInit {
     this._main_context.fillStyle = 'lightgrey'; //ConfigProviderService.design.color.lightGrey;
     this._main_context.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     // draw current viewport selected
-    DrawHelperService.drawCurViewPortSelected(
-        this._markup_context,
-        false,
-        this._viewport_sample_start,
-        this._viewport_sample_end,
-        this._selection_sample_start,
-        this._selection_sample_end,
-        this._audio_buffer,
-        this._mouseover_level,
-        'black',
-        'rgba(0,0,0, 0.3)'
-    );
     FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, this._main_context.canvas.height / 2, 'black', 'left', 'baseline');
     if (this.worker !== null) {
       this.worker.terminate();
       this.worker = null;
     }
+
+    this.drawSpectMarkup();
   }
 
   setupEvent() {

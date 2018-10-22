@@ -336,7 +336,7 @@ export class ViewStateService {
     this.selectedItems = [];
     this.curMousePosSample = 0;
     this.preselectedItemInfo = null;
-    this.crosshairPosition = 0;
+    this.crosshairPosition = null;
     this.curMouseTrackName = undefined;
     this.currentMouseOverLevel = undefined;
     this.currentClickLevel = undefined;

@@ -27,13 +27,14 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
     // draw current viewport selected
     DrawHelperService.drawCurViewPortSelected(
         context,
-        false,
+        true,
         viewportStartSample,
         viewportEndSample,
         selectionStartSample,
         selectionEndSample,
         audioBuffer,
         currentMouseOverLevel,
+        'black',
         'black',
         'rgba(0,0,0, 0.3)'
     );

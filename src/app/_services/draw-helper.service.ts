@@ -10,16 +10,8 @@ import {ILevel} from '../_interfaces/annot-json.interface';
 
 export class DrawHelperService {
 
-  private static getScale(ctx, str, scale) {
-    return ctx.measureText(str).width * scale;
-  }
-
-  private static getScaleWidth(ctx, str1, str2, scaleX) {
-    if (str1 !== undefined && str1.toString().length > str2.toString().length) {
-      return DrawHelperService.getScale(ctx, str1, scaleX);
-    } else {
-      return DrawHelperService.getScale(ctx, str2, scaleX);
-    }
+  private static getScale(ctx, str) {
+    return ctx.measureText(str).width * FontScaleService.getScaleX(ctx);
   }
 
   /**
@@ -544,18 +536,13 @@ export class DrawHelperService {
                                         audioBuffer: AudioBuffer,
                                         currentMouseOverLevel: ILevel,
                                         primaryLineColor: string,
+                                        primaryFontColor: string,
                                         fillColor: string) {
-
-    let fontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
-    let xOffset, sDist, space, scaleX;
-    sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, ctx.canvas.width);
-
-    // calc. offset dependant on type of level of mousemove  -> default is sample exact
-    if (currentMouseOverLevel && currentMouseOverLevel.type === 'SEGMENT') {
-      xOffset = 0;
-    } else {
-      xOffset = (sDist / 2);
+    if (selectionStartSample === null || selectionEndSample === null) {
+      return;
     }
+
+    const fontSize = 12;
 
     const posS = getPixelPositionOfSampleInViewport(
         selectionStartSample,
@@ -573,13 +560,21 @@ export class DrawHelperService {
     if (posS === posE) {
 
       ctx.fillStyle = primaryLineColor;
-      ctx.fillRect(posS + xOffset, 0, 2, ctx.canvas.height);
+      ctx.fillRect(posS, 0, 2, ctx.canvas.height);
 
       if (drawTimeAndSamples) {
-        if (viewportStartSample !== selectionStartSample && selectionStartSample !== -1) {
-          scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-          space = DrawHelperService.getScaleWidth(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6), scaleX);
-          // FontScaleService.drawUndistortedTextTwoLines(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
+        if (viewportStartSample !== selectionStartSample) {
+          FontScaleService.drawUndistortedTextTwoLines(
+              ctx,
+              selectionStartSample.toString(),
+              MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
+              fontSize,
+              'HelveticaNeue',
+              posE + 5,
+              fontSize,
+              primaryFontColor,
+              'left'
+          );
         }
       }
     } else {
@@ -596,27 +591,54 @@ export class DrawHelperService {
 
       if (drawTimeAndSamples) {
         // start values
-        scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-        space = DrawHelperService.getScaleWidth(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6), scaleX);
-        // FontScaleService.drawUndistortedTextTwoLines(ctx, selectionStartSample, MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posS - space - 5, 0, ConfigProviderService.design.color.black, false);
+        FontScaleService.drawUndistortedTextTwoLines(
+            ctx,
+            selectionStartSample.toString(),
+            MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
+            fontSize,
+            'HelveticaNeue',
+            posS - 5,
+            fontSize,
+            primaryFontColor,
+            'right'
+        );
 
         // end values
-        // FontScaleService.drawUndistortedTextTwoLines(ctx, viewState.curViewPort.selectE, MathHelperService.roundToNdigitsAfterDecPoint(viewState.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate, 6), fontSize, ConfigProviderService.design.font.small.family, posE + 5, 0, ConfigProviderService.design.color.black, true);
+        FontScaleService.drawUndistortedTextTwoLines(
+            ctx,
+            selectionEndSample.toString(),
+            MathHelperService.roundToNdigitsAfterDecPoint(selectionEndSample / audioBuffer.sampleRate, 6).toString(),
+            fontSize,
+            'HelveticaNeue',
+            posE + 5,
+            fontSize,
+            primaryFontColor,
+            'left'
+        );
         // dur values
+        const str1 = (selectionEndSample - selectionStartSample - 1).toString();
+        const str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate), 6).toString();
+
         // check if space
-        space = DrawHelperService.getScale(ctx, MathHelperService.roundToNdigitsAfterDecPoint((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate, 6), scaleX);
+        const space = ctx.measureText(str2).width * FontScaleService.getScaleX(ctx);
 
         if (posE - posS > space) {
-          let str1 = selectionEndSample - selectionStartSample - 1;
-          let str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate), 6);
-          space = DrawHelperService.getScaleWidth(ctx, str1, str2, scaleX);
-          // FontScaleService.drawUndistortedTextTwoLines(ctx, str1, str2, fontSize, ConfigProviderService.design.font.small.family, posS + (posE - posS) / 2 - space / 2, 0, ConfigProviderService.design.color.black, false);
+          FontScaleService.drawUndistortedTextTwoLines(
+              ctx,
+              str1,
+              str2,
+              fontSize,
+              'HelveticaNeue',
+              posS + (posE - posS) / 2,
+              fontSize,
+              primaryFontColor,
+              'center'
+          );
         }
       }
 
     }
-
-  };
+  }
 
 
   /**
@@ -625,6 +647,9 @@ export class DrawHelperService {
    * on canvases where the mouse is currently not hovering over
    */
   public static drawCrossHairX(ctx, mouseX){
+    if (mouseX === null) {
+      return;
+    }
     ctx.strokeStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
     ctx.fillStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
     ctx.beginPath();

@@ -159,6 +159,10 @@ export class OsciComponent implements OnInit {
     }
 
     private drawOsciMarkup() {
+        if (!this.initalised || !this._audio_buffer) {
+            return;
+        }
+
         const context = this.markupCanvas.nativeElement.getContext('2d');
         drawOsciMarkup(
             context,
