@@ -43,18 +43,18 @@ export class FontScaleService {
     ctxOriginal.scale(FontScaleService.getScaleX(ctxOriginal), FontScaleService.getScaleY(ctxOriginal));
     ctxOriginal.fillStyle = color;
     if (alignLeft) {
-      ctxOriginal.fillText(text, x / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop));
-      ctxOriginal.fillText(text2, x / FontScaleService.getScaleX(ctxOriginal), (y + 2 * fontPxSize + FontScaleService.spaceTop));
+      ctxOriginal.fillText(text, x / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
+      ctxOriginal.fillText(text2, x / FontScaleService.getScaleX(ctxOriginal), (y + 2 * fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
     } else {
       let a = ctxOriginal.measureText(text).width;
       let b = ctxOriginal.measureText(text2).width;
       // var c;
       if (a > b) {
-        ctxOriginal.fillText(text, x / FontScaleService.getScaleX(ctxOriginal), y + fontPxSize + FontScaleService.spaceTop);
-        ctxOriginal.fillText(text2, (x + (a - b)) / FontScaleService.getScaleX(ctxOriginal), y + 2 * (fontPxSize) + FontScaleService.spaceTop);
+        ctxOriginal.fillText(text, x / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
+        ctxOriginal.fillText(text2, (x + (a - b)) / FontScaleService.getScaleX(ctxOriginal), (y + 2 * (fontPxSize) + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
       } else {
-        ctxOriginal.fillText(text, (x + (b - a)) / FontScaleService.getScaleX(ctxOriginal), y + fontPxSize + FontScaleService.spaceTop);
-        ctxOriginal.fillText(text2, x / FontScaleService.getScaleX(ctxOriginal), y + 2 * (fontPxSize) + FontScaleService.spaceTop);
+        ctxOriginal.fillText(text, (x + (b - a)) / FontScaleService.getScaleX(ctxOriginal), (y + fontPxSize + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
+        ctxOriginal.fillText(text2, x / FontScaleService.getScaleX(ctxOriginal), y + 2 * ((fontPxSize) + FontScaleService.spaceTop) / FontScaleService.getScaleY(ctxOriginal));
       }
     }
     ctxOriginal.scale(1, 1);

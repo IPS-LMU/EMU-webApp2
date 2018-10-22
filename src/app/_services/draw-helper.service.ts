@@ -536,13 +536,15 @@ export class DrawHelperService {
    */
 
   public static drawCurViewPortSelected(ctx: CanvasRenderingContext2D,
-                                 drawTimeAndSamples: boolean,
-                                 viewportStartSample: number,
-                                 viewportEndSample: number,
-                                 selectionStartSample: number,
-                                 selectionEndSample: number,
-                                 audioBuffer: AudioBuffer,
-                                 currentMouseOverLevel: ILevel) {
+                                        drawTimeAndSamples: boolean,
+                                        viewportStartSample: number,
+                                        viewportEndSample: number,
+                                        selectionStartSample: number,
+                                        selectionEndSample: number,
+                                        audioBuffer: AudioBuffer,
+                                        currentMouseOverLevel: ILevel,
+                                        primaryLineColor: string,
+                                        fillColor: string) {
 
     let fontSize = 12;//this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
     let xOffset, sDist, space, scaleX;
@@ -570,7 +572,7 @@ export class DrawHelperService {
 
     if (posS === posE) {
 
-      ctx.fillStyle = 'black';//ConfigProviderService.design.color.transparent.black;
+      ctx.fillStyle = primaryLineColor;
       ctx.fillRect(posS + xOffset, 0, 2, ctx.canvas.height);
 
       if (drawTimeAndSamples) {
@@ -581,9 +583,9 @@ export class DrawHelperService {
         }
       }
     } else {
-      ctx.fillStyle = 'grey';//ConfigProviderService.design.color.transparent.grey;
+      ctx.fillStyle = fillColor;
       ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
-      ctx.strokeStyle = 'black'; //ConfigProviderService.design.color.transparent.black;
+      ctx.strokeStyle = primaryLineColor;
       ctx.beginPath();
       ctx.moveTo(posS, 0);
       ctx.lineTo(posS, ctx.canvas.height);

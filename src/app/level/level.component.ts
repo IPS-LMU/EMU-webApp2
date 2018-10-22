@@ -199,6 +199,8 @@ export class LevelComponent {
           } else {
               this.moveEvent(this._preselected_item.item, moveBy);
           }
+
+          this.drawLevelDetails();
       } else if (this._database_configuration.restrictions.editItemSize && event.altKey && this._selected_items.length > 0) {
           if (this._level_annotation.type === 'SEGMENT') {
               this.moveSegments(this._selected_items, moveBy);
@@ -206,6 +208,8 @@ export class LevelComponent {
           else if (this._level_annotation.type === 'EVENT') {
               this.moveEvents(this._selected_items, moveBy);
           }
+
+          this.drawLevelDetails();
       } else {
           this.moving_boundary_move.emit(null);
           this.crosshair_move.emit(getMousePositionInCanvasX(event));
@@ -220,8 +224,6 @@ export class LevelComponent {
               });
           }
       }
-
-      this.drawLevelDetails();
   }
 
   private moveSegments(segments: IItem[], moveBy: number) {
@@ -319,7 +321,8 @@ export class LevelComponent {
           this._level_annotation,
           this._attributeDefinition,
           this._viewport_sample_start,
-          this._viewport_sample_end
+          this._viewport_sample_end,
+          false
       );
   }
 

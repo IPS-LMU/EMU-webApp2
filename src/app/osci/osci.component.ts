@@ -4,6 +4,7 @@ import {DrawHelperService} from '../_services/draw-helper.service';
 import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
 import {drawOsciMarkup} from '../_utilities/drawing/draw-osci-markup.function';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
+import {ILevel} from '../_interfaces/annot-json.interface';
 
 @Component({
     selector: 'app-osci',
@@ -20,6 +21,7 @@ export class OsciComponent implements OnInit {
     private _selection_sample_end: number;
     private _viewport_sample_start: number;
     private _viewport_sample_end: number;
+    private _mouseover_level: ILevel;
 
     private initalised: boolean = false;
 
@@ -30,14 +32,14 @@ export class OsciComponent implements OnInit {
         if (value instanceof AudioBuffer) {
             this._audio_buffer = value;
             this.osciPeaks = DrawHelperService.calculateOsciPeaks(this._audio_buffer);
-            this.drawOsci();
+            this.redraw();
         }
     }
 
     @Input()
     set channel(value: number) {
         this._channel = value;
-        this.drawOsci();
+        this.redraw();
     }
 
     @Input()
@@ -55,13 +57,13 @@ export class OsciComponent implements OnInit {
     @Input()
     set viewport_sample_start(value: number) {
         this._viewport_sample_start = value;
-        this.drawOsci();
+        this.redraw();
     }
 
     @Input()
     set viewport_sample_end(value: number) {
         this._viewport_sample_end = value;
-        this.drawOsci();
+        this.redraw();
     }
 
     @Input()
@@ -76,6 +78,10 @@ export class OsciComponent implements OnInit {
         this.drawOsciMarkup();
     }
 
+    @Input()
+    set mouseover_level (value: ILevel) {
+        this._mouseover_level = value;
+    }
 
     @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
     @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
@@ -85,7 +91,7 @@ export class OsciComponent implements OnInit {
 
     ngOnInit() {
         this.initalised = true;
-        this.drawOsci();
+        this.redraw();
     }
 
     public mousedown(event: MouseEvent) {
@@ -131,6 +137,11 @@ export class OsciComponent implements OnInit {
         }
     }
 
+    private redraw() {
+        this.drawOsci();
+        this.drawOsciMarkup();
+    }
+
     private drawOsci() {
         if (!this.initalised || !this._audio_buffer) {
             return;
@@ -153,8 +164,12 @@ export class OsciComponent implements OnInit {
             context,
             this._viewport_sample_start,
             this._viewport_sample_end,
+            this._selection_sample_start,
+            this._selection_sample_end,
             this._moving_boundary_position,
-            this._crosshair_position
+            this._crosshair_position,
+            this._audio_buffer,
+            this._mouseover_level
         );
     }
 
