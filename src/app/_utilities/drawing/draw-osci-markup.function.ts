@@ -33,7 +33,9 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
         selectionStartSample,
         selectionEndSample,
         audioBuffer,
-        currentMouseOverLevel
+        currentMouseOverLevel,
+        'black',
+        'rgba(0,0,0, 0.3)'
     );
 
     DrawHelperService.drawCrossHairX(context, crosshairPosition);

@@ -269,7 +269,9 @@ export class SsffTrackComponent implements OnInit {
           this._selection_sample_start,
           this._selection_sample_end,
           this._audio_buffer,
-          this._mouseover_level
+          this._mouseover_level,
+          'black',
+          'rgba(0,0,0, 0.3)'
       );
 
       DrawHelperService.drawCrossHairX(this._markup_context, this._crosshair_position);

@@ -1106,7 +1106,9 @@ export class SpectroComponent implements OnInit {
         this._selection_sample_start,
         this._selection_sample_end,
         this._audio_buffer,
-        this._mouseover_level
+        this._mouseover_level,
+        'black',
+        'rgba(0,0,0, 0.3)'
     );
     // draw min max vals and name of track
     DrawHelperService.drawMinMaxAndName(this._markup_context, '', this._spectrogram_settings.rangeFrom, this._spectrogram_settings.rangeTo, 2);
@@ -1126,7 +1128,9 @@ export class SpectroComponent implements OnInit {
         this._selection_sample_start,
         this._selection_sample_end,
         this._audio_buffer,
-        this._mouseover_level
+        this._mouseover_level,
+        'black',
+        'rgba(0,0,0, 0.3)'
     );
     FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
     if (this.worker !== null) {

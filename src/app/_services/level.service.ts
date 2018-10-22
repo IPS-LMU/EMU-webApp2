@@ -22,6 +22,15 @@ export class LevelService {
     return null;
   }
 
+  public static getLabelByAttribute(item: IItem, attributeName: string): string {
+    for (const label of item.labels) {
+      if (label.name === attributeName) {
+        return label.value;
+      }
+    }
+    return null;
+  }
+
   /**
    * gets element position inside a given level
    * by passing in the element id
