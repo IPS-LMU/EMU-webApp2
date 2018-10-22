@@ -34,7 +34,6 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         );
     }
 
-    // draw current viewport selected
     DrawHelperService.drawCurViewPortSelected(
         ctx,
         false,
@@ -50,54 +49,41 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
     );
 
 
-    let posS, posE, sDist, xOffset;
-    posS = getPixelPositionOfSampleInViewport(
-        selectionStartSample,
-        viewportStartSample,
-        viewportEndSample,
-        ctx.canvas.width
-    );
-    posE = getPixelPositionOfSampleInViewport(
-        selectionEndSample,
-        viewportStartSample,
-        viewportEndSample,
-        ctx.canvas.width
-    );
-    sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, ctx.canvas.width);
-
-
     if (selectedItems !== undefined) {
         // draw clicked on selected areas
         if (selected && selectedItems.length > 0) {
-            for (let item of selectedItems) {
+            for (const item of selectedItems) {
                 if (item !== undefined) {
+                    let itemStartPosition;
+                    let itemEndPosition;
+
                     // check if segment or event level
                     if (item.sampleStart !== undefined) {
-                        posS = Math.round(getPixelPositionOfSampleInViewport(
+                        itemStartPosition = getPixelPositionOfSampleInViewport(
                             item.sampleStart,
                             viewportStartSample,
                             viewportEndSample,
                             ctx.canvas.width
-                        ));
-                        posE = Math.round(getPixelPositionOfSampleInViewport(
-                            item.sampleStart + item.sampleDur + 1,
+                        ).start;
+                        itemEndPosition = getPixelPositionOfSampleInViewport(
+                            item.sampleStart + item.sampleDur,
                             viewportStartSample,
                             viewportEndSample,
                             ctx.canvas.width
-                        ));
+                        ).end;
                     } else {
-                        posS = Math.round(getPixelPositionOfSampleInViewport(
+                        itemStartPosition = getPixelPositionOfSampleInViewport(
                             item.samplePoint,
                             viewportStartSample,
                             viewportEndSample,
                             ctx.canvas.width
-                        ) + sDist / 2);
-                        posS = posS - 5;
-                        posE = posS + 10;
+                        ).center;
+                        itemStartPosition = itemStartPosition - 5;
+                        itemEndPosition = itemStartPosition + 10;
                     }
-                    ctx.fillStyle = 'rgba(255, 255, 22, 0.35)';//this.config_provider_service.design.color.transparent.yellow;
-                    ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
-                    ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
+                    ctx.fillStyle = 'rgba(255, 255, 22, 0.35)';
+                    ctx.fillRect(itemStartPosition, 0, itemEndPosition - itemStartPosition, ctx.canvas.height);
+                    ctx.fillStyle = 'black';
                 }
             }
         }
@@ -108,52 +94,49 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
 
     if (level.items.length > 0 && preselectedItem && level.name === mouseoverLevel.name) {
         let item = preselectedItem.item;
-        ctx.fillStyle = '#4fc3f7'; //this.config_provider_service.design.color.blue;
+        ctx.fillStyle = '#4fc3f7';
         if (preselectedItem.isFirst === true) { // before first segment
             if (level.type === 'SEGMENT') {
                 item = level.items[0]; // @todo this is superfluous
-                posS = Math.round(getPixelPositionOfSampleInViewport(
+                const boundaryPosition = getPixelPositionOfSampleInViewport(
                     item.sampleStart,
                     viewportStartSample,
                     viewportEndSample,
                     ctx.canvas.width
-                ));
-                ctx.fillRect(posS, 0, 3, ctx.canvas.height);
+                ).start;
+                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
             }
         } else if (preselectedItem.isLast === true) { // after last segment
             if (level.type === 'SEGMENT') {
                 item = level.items[level.items.length - 1];
-                posS = Math.round(getPixelPositionOfSampleInViewport(
-                    item.sampleStart + item.sampleDur + 1, // +1 because boundaries are drawn on sampleStart
+                const boundaryPosition = getPixelPositionOfSampleInViewport(
+                    item.sampleStart + item.sampleDur,
                     viewportStartSample,
                     viewportEndSample,
                     ctx.canvas.width
-                ));
-                ctx.fillRect(posS, 0, 3, ctx.canvas.height);
+                ).end;
+                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
             }
         } else { // in the middle
             if (level.type === 'SEGMENT') {
-                posS = Math.round(getPixelPositionOfSampleInViewport(
+                const boundaryPosition = getPixelPositionOfSampleInViewport(
                     item.sampleStart,
                     viewportStartSample,
                     viewportEndSample,
                     ctx.canvas.width
-                ));
-                ctx.fillRect(posS, 0, 3, ctx.canvas.height);
+                ).start;
+                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
             } else {
-                posS = Math.round(getPixelPositionOfSampleInViewport(
+                const boundaryPosition = getPixelPositionOfSampleInViewport(
                     item.samplePoint,
                     viewportStartSample,
                     viewportEndSample,
                     ctx.canvas.width
-                ));
-                xOffset = (sDist / 2);
-                ctx.fillRect(posS + xOffset, 0, 3, ctx.canvas.height);
-
+                ).center;
+                ctx.fillRect(boundaryPosition, 0, 3, ctx.canvas.height);
             }
         }
-        ctx.fillStyle = 'black'; //this.config_provider_service.design.color.black;
-
+        ctx.fillStyle = 'black';
     }
 
     // draw cursor

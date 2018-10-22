@@ -22,21 +22,18 @@ export function drawEvent(context: CanvasRenderingContext2D,
         viewportStartSample,
         viewportEndSample,
         context.canvas.width
-    );
-
-    const sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, context.canvas.width);
-    const perc = Math.round(position + (sDist / 2));
+    ).center;
 
     context.fillStyle = primaryLineColor;
-    context.fillRect(perc, 0, 1, context.canvas.height / 2 - context.canvas.height / 5);
-    context.fillRect(perc, context.canvas.height / 2 + context.canvas.height / 5, 1, context.canvas.height / 2 - context.canvas.height / 5);
+    context.fillRect(position, 0, 1, context.canvas.height / 2 - context.canvas.height / 5);
+    context.fillRect(position, context.canvas.height / 2 + context.canvas.height / 5, 1, context.canvas.height / 2 - context.canvas.height / 5);
 
     FontScaleService.drawUndistortedText(
         context,
         labelValue,
         fontSize - 2,
         fontFamily,
-        perc,
+        position,
         context.canvas.height / 2,
         primaryFontColor,
         'center',
@@ -50,7 +47,7 @@ export function drawEvent(context: CanvasRenderingContext2D,
             item.samplePoint.toString(),
             fontSize - 2,
             fontFamily,
-            perc + 5,
+            position + 5,
             0,
             secondaryFontColor,
             'left',

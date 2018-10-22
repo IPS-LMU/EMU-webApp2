@@ -1,4 +1,3 @@
-import {getPixelDistanceBetweenSamples, getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {FontScaleService} from '../../_services/font-scale.service';
 import {ILevel} from '../../_interfaces/annot-json.interface';
 import {drawEvent} from './draw-event.function';

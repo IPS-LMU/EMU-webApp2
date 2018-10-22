@@ -497,29 +497,24 @@ export class DrawHelperService {
                                 currentMouseItemIsLast: boolean,
                                 currentMouseOverLevel: ILevel) {
 
-    let xOffset, sDist;
-    sDist = getPixelDistanceBetweenSamples(viewportStartSample, viewportEndSample, ctx.canvas.width);
+    ctx.fillStyle = 'blue';
 
-    // calc. offset dependant on type of level of mousemove  -> default is sample exact
-    if (currentMouseOverLevel.type === 'SEGMENT') {
-      xOffset = 0;
-    } else {
-      xOffset = (sDist / 2);
-    }
-
-    ctx.fillStyle = 'blue'; //ConfigProviderService.design.color.blue;
-    const p = Math.round(getPixelPositionOfSampleInViewport(
+    const p = getPixelPositionOfSampleInViewport(
         position,
         viewportStartSample,
         viewportEndSample,
         ctx.canvas.width
-    ));
-    if (currentMouseItemIsLast) {
-      ctx.fillRect(p + sDist, 0, 1, ctx.canvas.height);
-    } else {
-      ctx.fillRect(p + xOffset, 0, 1, ctx.canvas.height);
-    }
+    );
 
+    if (currentMouseItemIsLast) {
+      ctx.fillRect(p.end, 0, 1, ctx.canvas.height);
+    } else {
+        if (currentMouseOverLevel.type === 'SEGMENT') {
+            ctx.fillRect(p.start, 0, 1, ctx.canvas.height);
+        } else {
+            ctx.fillRect(p.center, 0, 1, ctx.canvas.height);
+        }
+    }
   }
 
 
@@ -544,23 +539,16 @@ export class DrawHelperService {
 
     const fontSize = 12;
 
-    const posS = getPixelPositionOfSampleInViewport(
-        selectionStartSample,
-        viewportStartSample,
-        viewportEndSample,
-        ctx.canvas.width
-    );
-    const posE = getPixelPositionOfSampleInViewport(
-        selectionEndSample,
-        viewportStartSample,
-        viewportEndSample,
-        ctx.canvas.width
-    );
-
-    if (posS === posE) {
+    if (selectionStartSample === selectionEndSample) {
+      const selectionPosition = getPixelPositionOfSampleInViewport(
+          selectionStartSample,
+          viewportStartSample,
+          viewportEndSample,
+          ctx.canvas.width
+      ).center;
 
       ctx.fillStyle = primaryLineColor;
-      ctx.fillRect(posS, 0, 2, ctx.canvas.height);
+      ctx.fillRect(selectionPosition - 1, 0, 3, ctx.canvas.height);
 
       if (drawTimeAndSamples) {
         if (viewportStartSample !== selectionStartSample) {
@@ -570,7 +558,7 @@ export class DrawHelperService {
               MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
               fontSize,
               'HelveticaNeue',
-              posE + 5,
+                selectionPosition + 4,
               fontSize,
               primaryFontColor,
               'left'
@@ -578,15 +566,27 @@ export class DrawHelperService {
         }
       }
     } else {
+      const startOfSelection = getPixelPositionOfSampleInViewport(
+          selectionStartSample,
+          viewportStartSample,
+          viewportEndSample,
+          ctx.canvas.width
+      ).start;
+      const endOfSelection = getPixelPositionOfSampleInViewport(
+          selectionEndSample - 1,
+          viewportStartSample,
+          viewportEndSample,
+          ctx.canvas.width
+      ).end;
+
       ctx.fillStyle = fillColor;
-      ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
+      ctx.fillRect(startOfSelection, 0, endOfSelection - startOfSelection, ctx.canvas.height);
       ctx.strokeStyle = primaryLineColor;
       ctx.beginPath();
-      ctx.moveTo(posS, 0);
-      ctx.lineTo(posS, ctx.canvas.height);
-      ctx.moveTo(posE, 0);
-      ctx.lineTo(posE, ctx.canvas.height);
-      ctx.closePath();
+      ctx.moveTo(startOfSelection, 0);
+      ctx.lineTo(startOfSelection, ctx.canvas.height);
+      ctx.moveTo(endOfSelection, 0);
+      ctx.lineTo(endOfSelection, ctx.canvas.height);
       ctx.stroke();
 
       if (drawTimeAndSamples) {
@@ -597,7 +597,7 @@ export class DrawHelperService {
             MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
             fontSize,
             'HelveticaNeue',
-            posS - 5,
+            startOfSelection - 5,
             fontSize,
             primaryFontColor,
             'right'
@@ -610,7 +610,7 @@ export class DrawHelperService {
             MathHelperService.roundToNdigitsAfterDecPoint(selectionEndSample / audioBuffer.sampleRate, 6).toString(),
             fontSize,
             'HelveticaNeue',
-            posE + 5,
+            endOfSelection + 5,
             fontSize,
             primaryFontColor,
             'left'
@@ -622,14 +622,14 @@ export class DrawHelperService {
         // check if space
         const space = ctx.measureText(str2).width * FontScaleService.getScaleX(ctx);
 
-        if (posE - posS > space) {
+        if (endOfSelection - startOfSelection > space) {
           FontScaleService.drawUndistortedTextTwoLines(
               ctx,
               str1,
               str2,
               fontSize,
               'HelveticaNeue',
-              posS + (posE - posS) / 2,
+              Math.round(startOfSelection + (endOfSelection - startOfSelection) / 2),
               fontSize,
               primaryFontColor,
               'center'

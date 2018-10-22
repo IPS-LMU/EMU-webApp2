@@ -688,8 +688,8 @@ setState(nameOrObj) {
    * @param s is current sample to convert to pixel value
    */
   public getPos(w, s) {
-    return getPixelPositionOfSampleInViewport(s, this.curViewPort.sS, this.curViewPort.eS, w);
-  };
+    return getPixelPositionOfSampleInViewport(s, this.curViewPort.sS, this.curViewPort.eS, w).start;
+  }
 
   /**
    * calculate the pixel distance between two samples

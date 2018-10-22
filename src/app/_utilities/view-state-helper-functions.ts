@@ -1,14 +1,20 @@
-/**
- * get pixel position of a certain sample in current viewport, given the canvas width
- * @param sample is current sample to convert to pixel value
- * @param canvasWidth is width of canvas
- */
-export function getPixelPositionOfSampleInViewport(sample: number,
+export function getPixelPositionOfSampleInViewport(targetSample: number,
                                                    viewportStartSample: number,
                                                    viewportEndSample: number,
-                                                   canvasWidth: number): number {
-    return (canvasWidth * (sample - viewportStartSample) / (viewportEndSample - viewportStartSample + 1));
-    // + 1 because of view (displays all samples in view)
+                                                   canvasWidth: number): {start: number, center: number, end: number} {
+    const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
+    const sampleWidth = canvasWidth / numberOfSamplesInViewport;
+    const targetSampleRelativeToViewport = targetSample - viewportStartSample;
+
+    const pixelPositionOfSampleStart = Math.round(targetSampleRelativeToViewport * sampleWidth);
+    const pixelPositionOfSampleCenter = pixelPositionOfSampleStart + Math.round(sampleWidth / 2);
+    const pixelPositionOfSampleEnd = pixelPositionOfSampleStart + Math.round(sampleWidth);
+
+    return {
+        start: pixelPositionOfSampleStart,
+        center: pixelPositionOfSampleCenter,
+        end: pixelPositionOfSampleEnd
+    };
 }
 
 export function getSampleAtPixelPositionInViewport(pixel: number,

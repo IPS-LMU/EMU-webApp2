@@ -20,13 +20,13 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
     const labelValue = LevelService.getLabelByAttribute(item, attribute);
 
     // draw segment start
-    const posS = getPixelPositionOfSampleInViewport(item.sampleStart, viewportStartSample, viewportEndSample, ctx.canvas.width);
+    const posS = getPixelPositionOfSampleInViewport(item.sampleStart, viewportStartSample, viewportEndSample, ctx.canvas.width).start;
     const posE = getPixelPositionOfSampleInViewport(
-        item.sampleStart + item.sampleDur + 1,
+        item.sampleStart + item.sampleDur,
         viewportStartSample,
         viewportEndSample,
         ctx.canvas.width
-    );
+    ).end;
 
     ctx.fillStyle = primaryLineColor;
     ctx.fillRect(posS, 0, 2, ctx.canvas.height / 2);
