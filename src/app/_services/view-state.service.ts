@@ -4,7 +4,6 @@ import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
 import {
-    calculateSampleTime,
     getMousePositionInCanvasX, getMousePositionInCanvasY,
     getPixelDistanceBetweenSamples,
     getPixelPositionOfSampleInViewport, getSamplesPerCanvasWidthUnit
@@ -964,43 +963,6 @@ setState(nameOrObj) {
     let end = parseFloat(this.curViewPort.eS);
     return getSamplesPerCanvasWidthUnit(start, end, event.target);
   }
-
-
-  /**
-   * calcs and returns start in secs
-   */
-  public getViewPortStartTime() {
-    return (this.curViewPort.sS / this.sound_handler_service.audioBuffer.sampleRate) - 0.5 / this.sound_handler_service.audioBuffer.sampleRate;
-  }
-
-  /**
-   * calcs and returns end time in secs
-   */
-  public getViewPortEndTime() {
-    return (this.curViewPort.eS / this.sound_handler_service.audioBuffer.sampleRate) + 0.5 / this.sound_handler_service.audioBuffer.sampleRate;
-  }
-
-  // /**
-  //  * calcs and returns start in secs
-  //  */
-  // sServObj.getSelectedStartTime = function () {
-  //   return (this.curViewPort.selectS / Soundhandlerservice.audioBuffer.sampleRate) - 0.5 / Soundhandlerservice.audioBuffer.sampleRate;
-  // };
-  //
-  // /**
-  //  * calcs and returns end time in secs
-  //  */
-  // sServObj.getSelectedEndTime = function () {
-  //   return (this.curViewPort.selectE / Soundhandlerservice.audioBuffer.sampleRate) + 0.5 / Soundhandlerservice.audioBuffer.sampleRate;
-  // };
-
-  /**
-   * calcs sample time in seconds
-   */
-  calcSampleTime(sample) {
-    return calculateSampleTime(sample, this.sound_handler_service.audioBuffer.sampleRate);
-  }
-
 
   /**
    * set view port to start and end sample

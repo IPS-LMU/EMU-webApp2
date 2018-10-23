@@ -1,10 +1,8 @@
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
 import {
-    calculateSampleTime,
-    getPixelDistanceBetweenSamples,
     getPixelPositionOfSampleInViewport,
-    getSampleAtPixelPositionInViewport
+    getSampleAtPixelPositionInViewport, getTimeOfSample
 } from '../_utilities/view-state-helper-functions';
 import {ILevel} from '../_interfaces/annot-json.interface';
 
@@ -259,8 +257,8 @@ export class DrawHelperService {
 
   public static findMinMaxPeaks(sS, eS, winIdx, audioBuffer: AudioBuffer, osciPeaks) {
 
-    const ssT = calculateSampleTime(sS, audioBuffer.sampleRate);
-    const esT = calculateSampleTime(eS, audioBuffer.sampleRate);
+    const ssT = getTimeOfSample(sS, audioBuffer.sampleRate).end;
+    const esT = getTimeOfSample(eS, audioBuffer.sampleRate).end;
 
     // calc exact peaks per second value (should be very close to or exactly 400|10|1 depending on  winSize)
     let pps = osciPeaks.sampleRate / osciPeaks.winSizes[winIdx];
@@ -325,7 +323,7 @@ export class DrawHelperService {
       // use pre calcuated peaks
       allPeakVals = DrawHelperService.findMinMaxPeaks(sS, eS, winIdx, audioBuffer, osciPeaks);
 
-      let ssT = calculateSampleTime(sS, audioBuffer.sampleRate);
+      let ssT = getTimeOfSample(sS, audioBuffer.sampleRate).end;
 
       // calc exact peaks per second value (should be very close to or exactly 400|10|1 depending on  winSize)
       let pps = osciPeaks.sampleRate / osciPeaks.winSizes[winIdx];
@@ -347,7 +345,7 @@ export class DrawHelperService {
       for (let curPxIdx = 1; curPxIdx < canvas.width; curPxIdx++) {
         curSample = getSampleAtPixelPositionInViewport(curPxIdx, sS, eS, canvas.width);
         // calculate cur pixel sample time
-        sT = calculateSampleTime(curSample, audioBuffer.sampleRate);
+        sT = getTimeOfSample(curSample, audioBuffer.sampleRate).end;
         peakIdx = Math.round(sT * pps);
         yMax = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].maxPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
         yMin = ((allPeakVals.maxMaxPeak - osciPeaks.channelOsciPeaks[0].minPeaks[winIdx][peakIdx]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
@@ -696,6 +694,7 @@ export class DrawHelperService {
   //     var tW = ctx.measureText(mouseFreq + unit).width * fontScaleService.scaleX;
   //     var tH = fontSize * fontScaleService.scaleY;
   //     var s1 = Math.round(viewState.curViewPort.sS + mouseX / ctx.canvas.width * (viewState.curViewPort.eS - viewState.curViewPort.sS));
+  //     NOTE viewState.getViewPortStartTime() is now getTimeOfSample(this._viewport_sample_start, this._audio_buffer.sampleRate).start;
   //     var s2 = MathHelperService.roundToNdigitsAfterDecPoint(viewState.getViewPortStartTime() + mouseX / ctx.canvas.width * (viewState.getViewPortEndTime() - viewState.getViewPortStartTime()), 6);
   //
   //     var y;

@@ -4,7 +4,7 @@ import { FontScaleService } from '../_services/font-scale.service';
 import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
-import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
+import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent, getTimeOfSample} from '../_utilities/view-state-helper-functions';
 import {ILevel} from '../_interfaces/annot-json.interface';
 import {DrawHelperService} from '../_services/draw-helper.service';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
@@ -364,8 +364,9 @@ export class SsffTrackComponent implements OnInit {
       maxVal = minMaxValLims.maxVal;
     }
 
-    let startTimeVP = this.view_state_service.getViewPortStartTime();
-    let endTimeVP = this.view_state_service.getViewPortEndTime();
+    // @todo in the old system, startTimeVP allowed a negative value for sample 0. Now, sample 0 starts at time 0. According to spec.
+    const startTimeVP = getTimeOfSample(this._viewport_sample_start, this._audio_buffer.sampleRate).start;
+    const endTimeVP = getTimeOfSample(this._viewport_sample_end, this._audio_buffer.sampleRate).end;
     let colStartSampleNr = Math.round(startTimeVP * sR + sT);
     let colEndSampleNr = Math.round(endTimeVP * sR + sT);
     let nrOfSamples = colEndSampleNr - colStartSampleNr;

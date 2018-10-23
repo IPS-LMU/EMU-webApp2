@@ -17,6 +17,23 @@ export function getPixelPositionOfSampleInViewport(targetSample: number,
     };
 }
 
+export function getTimeOfSample(targetSample: number,
+                                sampleRate: number): { start: number, center: number, end: number } {
+    let startOfSample = (targetSample - 0.5) / sampleRate;
+    const centerOfSample = targetSample / sampleRate;
+    const endOfSample = (targetSample + 0.5) / sampleRate;
+
+    if (targetSample === 0) {
+        startOfSample = 0;
+    }
+
+    return {
+        start: startOfSample,
+        center: centerOfSample,
+        end: endOfSample
+    };
+}
+
 export function getSampleAtPixelPositionInViewport(pixel: number,
                                                    viewportStartSample: number,
                                                    viewportEndSample: number,
@@ -66,8 +83,4 @@ export function getSampleNumberAtCanvasMouseEvent(event: MouseEvent,
         event.target as HTMLCanvasElement
     );
     return Math.round(viewportStartSample + position * samplesPerUnit);
-}
-
-export function calculateSampleTime(sample: number, sampleRate: number): number {
-    return (sample + 0.5) / sampleRate;
 }
