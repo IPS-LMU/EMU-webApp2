@@ -1,25 +1,23 @@
 import {DrawHelperService} from '../../_services/draw-helper.service';
 import {ILevel} from '../../_interfaces/annot-json.interface';
+import {MovingBoundary} from '../../_interfaces/moving-boundary.interface';
 
 export function drawOsciMarkup(context: CanvasRenderingContext2D,
                                viewportStartSample: number,
                                viewportEndSample: number,
                                selectionStartSample: number,
                                selectionEndSample: number,
-                               movingBoundaryPosition: number,
+                               movingBoundary: MovingBoundary,
                                crosshairPosition: number,
                                audioBuffer: AudioBuffer) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-    // draw moving boundary line if moving
-    if (movingBoundaryPosition) {
+    if (movingBoundary) {
         DrawHelperService.drawMovingBoundaryLine(
             context,
             viewportStartSample,
             viewportEndSample,
-            movingBoundaryPosition,
-            false, //@todo preselectedItem.isLast,
-            {type: 'SEGMENT'} as ILevel // mouseoverLevel
+            movingBoundary,
         );
     }
 

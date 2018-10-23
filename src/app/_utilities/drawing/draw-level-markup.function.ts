@@ -2,6 +2,7 @@ import {DrawHelperService} from '../../_services/draw-helper.service';
 import {IItem, ILevel} from '../../_interfaces/annot-json.interface';
 import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
+import {MovingBoundary} from '../../_interfaces/moving-boundary.interface';
 
 export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 level: ILevel,
@@ -13,7 +14,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 selectedItems: IItem[],
                                 preselectedItem: PreselectedItemInfo,
                                 crosshairPosition: number,
-                                movingBoundaryPosition: number,
+                                movingBoundary: MovingBoundary,
                                 audioBuffer: AudioBuffer,
                                 mouseoverLevel: ILevel) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -22,15 +23,12 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
-    // draw moving boundary line if moving
-    if (movingBoundaryPosition) {
+    if (movingBoundary) {
         DrawHelperService.drawMovingBoundaryLine(
             ctx,
             viewportStartSample,
             viewportEndSample,
-            movingBoundaryPosition,
-            preselectedItem.isLast,
-            mouseoverLevel
+            movingBoundary
         );
     }
 

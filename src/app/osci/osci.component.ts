@@ -4,6 +4,7 @@ import {DrawHelperService} from '../_services/draw-helper.service';
 import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
 import {drawOsciMarkup} from '../_utilities/drawing/draw-osci-markup.function';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
+import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
 
 @Component({
     selector: 'app-osci',
@@ -13,7 +14,7 @@ import {adjustSelection} from '../_utilities/adjust-selection.function';
 export class OsciComponent implements OnInit {
     private _audio_buffer: AudioBuffer;
     private _channel: number;
-    private _moving_boundary_position: number;
+    private _moving_boundary: MovingBoundary;
     private _crosshair_position: number;
     private _selection_sample_start: number;
     private _selection_sample_end: number;
@@ -37,8 +38,8 @@ export class OsciComponent implements OnInit {
         this.redraw();
     }
 
-    @Input() set moving_boundary_position(value: number) {
-        this._moving_boundary_position = value;
+    @Input() set moving_boundary(value: MovingBoundary) {
+        this._moving_boundary = value;
         this.drawOsciMarkup();
     }
 
@@ -154,7 +155,7 @@ export class OsciComponent implements OnInit {
             this._viewport_sample_end,
             this._selection_sample_start,
             this._selection_sample_end,
-            this._moving_boundary_position,
+            this._moving_boundary,
             this._crosshair_position,
             this._audio_buffer
         );

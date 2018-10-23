@@ -9,6 +9,7 @@ import {ILevel} from '../_interfaces/annot-json.interface';
 import {DrawHelperService} from '../_services/draw-helper.service';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
+import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
 
 @Component({
   selector: 'app-ssff-track',
@@ -20,7 +21,7 @@ export class SsffTrackComponent implements OnInit {
   private _audio_buffer: AudioBuffer;
   private _crosshair_position: number;
   private _mouseover_level: ILevel;
-  private _moving_boundary_position: number;
+  private _moving_boundary: MovingBoundary;
   private _name: string;
   private _preselected_item: PreselectedItemInfo;
   private _selection_sample_start: number;
@@ -51,8 +52,8 @@ export class SsffTrackComponent implements OnInit {
       this._mouseover_level = value;
   }
 
-  @Input() set moving_boundary_position (value: number) {
-      this._moving_boundary_position = value;
+  @Input() set moving_boundary (value: MovingBoundary) {
+      this._moving_boundary = value;
       if (this._markup_context) {
           this.drawSsffTrackMarkup();
       }
@@ -245,14 +246,12 @@ export class SsffTrackComponent implements OnInit {
       this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
       // draw moving boundary line if moving
-      if (this._moving_boundary_position) {
+      if (this._moving_boundary) {
           DrawHelperService.drawMovingBoundaryLine(
               this._markup_context,
               this._viewport_sample_start,
               this._viewport_sample_end,
-              this._moving_boundary_position,
-              this._preselected_item.isLast,
-              this._mouseover_level
+              this._moving_boundary
           );
       }
 

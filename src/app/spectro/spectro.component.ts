@@ -12,6 +12,7 @@ import {WindowType} from '../_interfaces/window-type.type';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {ILevel} from '../_interfaces/annot-json.interface';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
+import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
 
 @Component({
   selector: 'app-spectro',
@@ -28,7 +29,7 @@ export class SpectroComponent implements OnInit {
   private _selection_sample_end: number;
   private _preselected_item: PreselectedItemInfo;
   private _crosshair_position: number;
-  private _moving_boundary_position: number;
+  private _moving_boundary: MovingBoundary;
   private _spectrogram_settings: SpectrogramSettings;
   private _mouseover_level: ILevel;
   private _main_context;
@@ -84,8 +85,8 @@ export class SpectroComponent implements OnInit {
     }
   }
 
-  @Input() set moving_boundary_position (value: number) {
-    this._moving_boundary_position = value;
+  @Input() set moving_boundary (value: MovingBoundary) {
+    this._moving_boundary = value;
     if (this._markup_context) {
       this.drawSpectMarkup();
     }
@@ -1078,14 +1079,12 @@ export class SpectroComponent implements OnInit {
     this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
     // draw moving boundary line if moving
-    if (this._moving_boundary_position) {
+    if (this._moving_boundary) {
       DrawHelperService.drawMovingBoundaryLine(
           this._markup_context,
           this._viewport_sample_start,
           this._viewport_sample_end,
-          this._moving_boundary_position,
-          this._preselected_item.isLast,
-          this._mouseover_level
+          this._moving_boundary
       );
     }
 

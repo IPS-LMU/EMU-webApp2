@@ -4,7 +4,7 @@ import {
     getPixelPositionOfSampleInViewport,
     getSampleAtPixelPositionInViewport, getTimeOfSample
 } from '../_utilities/view-state-helper-functions';
-import {ILevel} from '../_interfaces/annot-json.interface';
+import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
 
 export class DrawHelperService {
 
@@ -484,36 +484,22 @@ export class DrawHelperService {
   }
 
 
-  /**
-   * drawing method to drawMovingBoundaryLine
-   */
+public static drawMovingBoundaryLine(context: CanvasRenderingContext2D,
+                                     viewportStartSample: number,
+                                     viewportEndSample: number,
+                                     movingBoundary: MovingBoundary) {
 
-  public static drawMovingBoundaryLine(ctx: CanvasRenderingContext2D,
-                                viewportStartSample: number,
-                                viewportEndSample: number,
-                                position: number,
-                                currentMouseItemIsLast: boolean,
-                                currentMouseOverLevel: ILevel) {
+    context.fillStyle = 'blue';
 
-    ctx.fillStyle = 'blue';
-
-    const p = getPixelPositionOfSampleInViewport(
-        position,
+    const x = getPixelPositionOfSampleInViewport(
+        movingBoundary.sample,
         viewportStartSample,
         viewportEndSample,
-        ctx.canvas.width
-    );
+        context.canvas.width
+    )[movingBoundary.positionInSample];
 
-    if (currentMouseItemIsLast) {
-      ctx.fillRect(p.end, 0, 1, ctx.canvas.height);
-    } else {
-        if (currentMouseOverLevel.type === 'SEGMENT') {
-            ctx.fillRect(p.start, 0, 1, ctx.canvas.height);
-        } else {
-            ctx.fillRect(p.center, 0, 1, ctx.canvas.height);
-        }
-    }
-  }
+    context.fillRect(x, 0, 1, context.canvas.height);
+}
 
 
   /**
