@@ -1,6 +1,6 @@
 export function adjustSelection(newBoundary: number,
                                 selectionStartSample: number,
-                                selectionEndSample: number): {start: number, end: number} {
+                                selectionEndSample: number): { start: number, end: number } {
     const distanceToStartOfSelection = Math.abs(newBoundary - selectionStartSample);
     const distanceToEndOfSelection = Math.abs(newBoundary - selectionEndSample);
 

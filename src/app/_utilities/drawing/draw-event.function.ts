@@ -1,5 +1,5 @@
 import {LevelService} from '../../_services/level.service';
-import {getPixelDistanceBetweenSamples, getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
+import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {FontScaleService} from '../../_services/font-scale.service';
 import {IItem} from '../../_interfaces/annot-json.interface';
 
@@ -38,7 +38,6 @@ export function drawEvent(context: CanvasRenderingContext2D,
         primaryFontColor,
         'center',
         'middle'
-
     );
 
     if (!drawSmallVersion) {

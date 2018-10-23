@@ -1,6 +1,6 @@
 import {DrawHelperService} from '../../_services/draw-helper.service';
 import {IItem, ILevel} from '../../_interfaces/annot-json.interface';
-import {getPixelDistanceBetweenSamples, getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
+import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
 
 export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
@@ -18,7 +18,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 mouseoverLevel: ILevel) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     if (selected) {
-        ctx.fillStyle = 'rgba(22, 22, 22, 0.1)'; //this.config_provider_service.design.color.transparent.grey;
+        ctx.fillStyle = 'rgba(22, 22, 22, 0.1)';
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
