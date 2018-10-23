@@ -21,7 +21,7 @@ export class FontScaleService {
                                       y: number,
                                       color: string,
                                       horizontalAnchor: 'left' | 'center' | 'right',
-                                      verticalAnchor: 'top' | 'baseline' | 'bottom') {
+                                      verticalAnchor: 'top' | 'middle' | 'bottom') {
         context.save();
 
         context.scale(FontScaleService.getScaleX(context), FontScaleService.getScaleY(context));
@@ -43,7 +43,7 @@ export class FontScaleService {
             finalY = y;
         } else if (verticalAnchor === 'top') {
             finalY = y / FontScaleService.getScaleY(context) + fontPxSize;
-        } else if (verticalAnchor === 'baseline') {
+        } else if (verticalAnchor === 'middle') {
             finalY = y / FontScaleService.getScaleY(context) + fontPxSize / 2;
         }
 
@@ -60,7 +60,8 @@ export class FontScaleService {
                                               x: number,
                                               y: number,
                                               color: string,
-                                              anchor: 'left' | 'center' | 'right') {
+                                              horizontalAnchor: 'left' | 'center' | 'right',
+                                              verticalAnchor: 'top' | 'middle' | 'bottom') {
         context.save();
 
         context.scale(FontScaleService.getScaleX(context), FontScaleService.getScaleY(context));
@@ -70,18 +71,29 @@ export class FontScaleService {
         let finalXUpperLine;
         let finalXLowerLine;
 
-        const finalYUpperLine = y / FontScaleService.getScaleY(context);
-        const finalYLowerLine = finalYUpperLine + fontPxSize;
+        let finalYUpperLine;
+        let finalYLowerLine;
 
-        if (anchor === 'left') {
+        if (horizontalAnchor === 'left') {
             finalXUpperLine = x / FontScaleService.getScaleX(context);
             finalXLowerLine = x / FontScaleService.getScaleX(context);
-        } else if (anchor === 'right') {
+        } else if (horizontalAnchor === 'right') {
             finalXUpperLine = x / FontScaleService.getScaleX(context) - context.measureText(text).width;
             finalXLowerLine = x / FontScaleService.getScaleX(context) - context.measureText(text2).width;
         } else {
             finalXUpperLine = x / FontScaleService.getScaleX(context) - context.measureText(text).width / 2;
             finalXLowerLine = x / FontScaleService.getScaleX(context) - context.measureText(text2).width / 2;
+        }
+
+        if (verticalAnchor === 'bottom') {
+            finalYLowerLine = y / FontScaleService.getScaleY(context);
+            finalYUpperLine = finalYLowerLine - fontPxSize;
+        } else if (verticalAnchor === 'middle') {
+            finalYUpperLine = y / FontScaleService.getScaleY(context);
+            finalYLowerLine = finalYUpperLine + fontPxSize;
+        } else {
+            finalYUpperLine = y / FontScaleService.getScaleY(context) + fontPxSize;
+            finalYLowerLine = finalYUpperLine + fontPxSize;
         }
 
         context.fillText(text, finalXUpperLine, finalYUpperLine);

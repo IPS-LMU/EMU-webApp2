@@ -558,10 +558,11 @@ export class DrawHelperService {
               MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
               fontSize,
               'HelveticaNeue',
-                selectionPosition + 4,
-              fontSize,
+              selectionPosition + 4,
+              0,
               primaryFontColor,
-              'left'
+              'left',
+              'top'
           );
         }
       }
@@ -598,9 +599,10 @@ export class DrawHelperService {
             fontSize,
             'HelveticaNeue',
             startOfSelection - 5,
-            fontSize,
+            0,
             primaryFontColor,
-            'right'
+            'right',
+            'top'
         );
 
         // end values
@@ -611,9 +613,10 @@ export class DrawHelperService {
             fontSize,
             'HelveticaNeue',
             endOfSelection + 5,
-            fontSize,
+            0,
             primaryFontColor,
-            'left'
+            'left',
+            'top'
         );
         // dur values
         const str1 = (selectionEndSample - selectionStartSample - 1).toString();
@@ -630,9 +633,10 @@ export class DrawHelperService {
               fontSize,
               'HelveticaNeue',
               Math.round(startOfSelection + (endOfSelection - startOfSelection) / 2),
-              fontSize,
+              0,
               primaryFontColor,
-              'center'
+              'center',
+              'top'
           );
         }
       }
@@ -782,7 +786,7 @@ export class DrawHelperService {
 
     // draw trackName
     if (trackName !== '') {
-      FontScaleService.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2, 'HelveticaNeue', 'left', 'baseline');
+      FontScaleService.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2, 'HelveticaNeue', 'left', 'middle');
     }
 
     // draw min/max vals
@@ -821,8 +825,8 @@ export class DrawHelperService {
     //draw time and sample nr
     sTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 6);
     eTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample.toString(), sTime, fontSize, 'HelveticaNeue', 5, 2 * fontSize, 'black', 'left');
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample.toString(), eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - 5, 2 * fontSize, 'black', 'right');
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample.toString(), sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', 'left', 'top');
+    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample.toString(), eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - 5, 0, 'black', 'right', 'top');
   };
 
 }

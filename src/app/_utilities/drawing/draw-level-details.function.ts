@@ -45,9 +45,9 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
     const y = context.canvas.height / 2;
 
     if (drawSmallVersion) {
-        FontScaleService.drawUndistortedText(context, levelLabel, fontSize, fontFamily, x, y, primaryFontColor, 'left', 'baseline');
+        FontScaleService.drawUndistortedText(context, levelLabel, fontSize, fontFamily, x, y, primaryFontColor, 'left', 'middle');
     } else {
-        FontScaleService.drawUndistortedTextTwoLines(context, levelLabel, typeLabel, fontSize, fontFamily, x, y, primaryFontColor, 'left');
+        FontScaleService.drawUndistortedTextTwoLines(context, levelLabel, typeLabel, fontSize, fontFamily, x, y, primaryFontColor, 'left', 'middle');
     }
 
     if (level.type === 'SEGMENT') {

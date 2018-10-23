@@ -37,7 +37,7 @@ export function drawEvent(context: CanvasRenderingContext2D,
         context.canvas.height / 2,
         primaryFontColor,
         'center',
-        'baseline'
+        'middle'
 
     );
 

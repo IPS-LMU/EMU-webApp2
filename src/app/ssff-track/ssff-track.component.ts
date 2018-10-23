@@ -459,11 +459,13 @@ export class SsffTrackComponent implements OnInit {
       });
     } else {
       this._main_context.strokeStyle = 'red';
+      let firstLine;
       if (nrOfSamples <= 2) {
-        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom out to', 'see contour(s)', 12, 'HelveticaNeue', canvas.width / 2, canvas.height / 2, 'red', 'center');
+        firstLine = 'Zoom out to';
       } else {
-        FontScaleService.drawUndistortedTextTwoLines(this._main_context, 'Zoom in to', 'see contour(s)', 12, 'HelveticaNeue', canvas.width / 2, canvas.height / 2, 'red', 'center');
+        firstLine = 'Zoom in to';
       }
+      FontScaleService.drawUndistortedTextTwoLines(this._main_context, firstLine, 'see contour(s)', 12, 'HelveticaNeue', canvas.width / 2, canvas.height / 2, 'red', 'center', 'middle');
     }
   }
 

@@ -38,9 +38,9 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
     // check for enough space to stroke text
     if ((labelValue !== undefined) && posE - posS > (widthOfAnM * labelValue.length)) {
         if (drawSmallVersion) {
-            FontScaleService.drawUndistortedText(ctx, labelValue, fontSize - 2, fontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), primaryFontColor, 'center', 'baseline');
+            FontScaleService.drawUndistortedText(ctx, labelValue, fontSize - 2, fontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), primaryFontColor, 'center', 'middle');
         } else {
-            FontScaleService.drawUndistortedText(ctx, labelValue, fontSize - 2, fontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), primaryFontColor, 'center', 'baseline');
+            FontScaleService.drawUndistortedText(ctx, labelValue, fontSize - 2, fontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), primaryFontColor, 'center', 'middle');
         }
     }
 

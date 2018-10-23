@@ -1121,7 +1121,7 @@ export class SpectroComponent implements OnInit {
     this._main_context.fillStyle = 'lightgrey'; //ConfigProviderService.design.color.lightGrey;
     this._main_context.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     // draw current viewport selected
-    FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, this._main_context.canvas.height / 2, 'black', 'left', 'baseline');
+    FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, this._main_context.canvas.height / 2, 'black', 'left', 'middle');
     if (this.worker !== null) {
       this.worker.terminate();
       this.worker = null;
