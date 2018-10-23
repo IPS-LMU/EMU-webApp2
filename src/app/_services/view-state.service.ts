@@ -63,7 +63,6 @@ export class ViewStateService {
   hierarchyState;
 
 
-  timelineSize;
   somethingInProgress;
   somethingInProgressTxt;
   historyActionTxt;
@@ -324,7 +323,6 @@ export class ViewStateService {
   //     }
     };
 
-    this.timelineSize = -1;
     this.somethingInProgress = false;
     this.somethingInProgressTxt = '';
     this.historyActionTxt = '';
@@ -723,22 +721,6 @@ setState(nameOrObj) {
   //  */
   // sServObj.setsubmenuOpen = function (s) {
   //   this.submenuOpen = s;
-  // };
-  //
-  //
-  // /**
-  //  * get the height of the osci
-  //  */
-  // sServObj.setenlarge = function (s) {
-  //   this.timelineSize = s;
-  // };
-  //
-  //
-  // /**
-  //  * get the height of the osci
-  //  */
-  // sServObj.getenlarge = function () {
-  //   return this.timelineSize;
   // };
   //
   // /**

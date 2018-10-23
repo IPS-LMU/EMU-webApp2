@@ -8,8 +8,7 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
                                selectionEndSample: number,
                                movingBoundaryPosition: number,
                                crosshairPosition: number,
-                               audioBuffer: AudioBuffer,
-                               currentMouseOverLevel: ILevel) {
+                               audioBuffer: AudioBuffer) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
     // draw moving boundary line if moving
@@ -33,7 +32,6 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
         selectionStartSample,
         selectionEndSample,
         audioBuffer,
-        currentMouseOverLevel,
         'black',
         'black',
         'rgba(0,0,0, 0.3)'

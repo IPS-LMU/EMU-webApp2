@@ -42,7 +42,6 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         selectionStartSample,
         selectionEndSample,
         audioBuffer,
-        mouseoverLevel,
         'white',
         'white',
         'rgba(255, 255, 255, 0.3)'

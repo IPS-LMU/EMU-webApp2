@@ -173,10 +173,6 @@ export class SsffTrackComponent implements OnInit {
   //   }
   // });
   //
-  // //
-  // scope.$watch('vs.timelineSize', function () {
-  //   $timeout(scope.drawSsffTrackMarkup, ConfigProviderService.design.animation.duration);
-  // });
   //
   // scope.$watch('vs.curViewPort', function () {
   //   if (!$.isEmptyObject(scope.shs)) {
@@ -269,7 +265,6 @@ export class SsffTrackComponent implements OnInit {
           this._selection_sample_start,
           this._selection_sample_end,
           this._audio_buffer,
-          this._mouseover_level,
           'black',
           'black',
           'rgba(0,0,0, 0.3)'

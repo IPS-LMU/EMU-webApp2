@@ -527,7 +527,6 @@ export class DrawHelperService {
                                         selectionStartSample: number,
                                         selectionEndSample: number,
                                         audioBuffer: AudioBuffer,
-                                        currentMouseOverLevel: ILevel,
                                         primaryLineColor: string,
                                         primaryFontColor: string,
                                         fillColor: string) {

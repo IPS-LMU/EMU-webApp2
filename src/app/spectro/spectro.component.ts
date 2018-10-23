@@ -959,14 +959,6 @@ export class SpectroComponent implements OnInit {
 //   ///////////////
 //   // watches
 //
-//   //
-//   scope.$watch('vs.timelineSize', function () {
-//     if (!$.isEmptyObject(scope.shs)) {
-//       if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-//         $timeout(scope.clearAndDrawSpectMarkup, ConfigProviderService.design.animation.duration);
-//       }
-//     }
-//   });
 //
 //   //
 //   scope.$watch('viewState.lastUpdate', function (newValue, oldValue) {
@@ -1106,7 +1098,6 @@ export class SpectroComponent implements OnInit {
         this._selection_sample_start,
         this._selection_sample_end,
         this._audio_buffer,
-        this._mouseover_level,
         'black',
         'black',
         'rgba(0,0,0, 0.3)'
