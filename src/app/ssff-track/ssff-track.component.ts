@@ -5,9 +5,7 @@ import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
 import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent, getTimeOfSample} from '../_utilities/view-state-helper-functions';
-import {ILevel} from '../_interfaces/annot-json.interface';
 import {DrawHelperService} from '../_services/draw-helper.service';
-import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
 
@@ -20,10 +18,8 @@ export class SsffTrackComponent implements OnInit {
 
   private _audio_buffer: AudioBuffer;
   private _crosshair_position: number;
-  private _mouseover_level: ILevel;
   private _moving_boundary: MovingBoundary;
   private _name: string;
-  private _preselected_item: PreselectedItemInfo;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
   private _viewport_sample_start: number;
@@ -48,19 +44,11 @@ export class SsffTrackComponent implements OnInit {
     this.drawSsffTrackMarkup();
   }
 
-  @Input() set mouseover_level (value: ILevel) {
-      this._mouseover_level = value;
-  }
-
   @Input() set moving_boundary (value: MovingBoundary) {
       this._moving_boundary = value;
       if (this._markup_context) {
           this.drawSsffTrackMarkup();
       }
-  }
-
-  @Input() set preselected_item (value: PreselectedItemInfo) {
-      this._preselected_item = value;
   }
 
   @Input() set selection_sample_start(value: number) {

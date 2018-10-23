@@ -9,8 +9,6 @@ import {
 } from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
-import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
-import {ILevel} from '../_interfaces/annot-json.interface';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
 
@@ -27,11 +25,9 @@ export class SpectroComponent implements OnInit {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
-  private _preselected_item: PreselectedItemInfo;
   private _crosshair_position: number;
   private _moving_boundary: MovingBoundary;
   private _spectrogram_settings: SpectrogramSettings;
-  private _mouseover_level: ILevel;
   private _main_context;
   private _markup_context: CanvasRenderingContext2D;
   private worker;
@@ -90,14 +86,6 @@ export class SpectroComponent implements OnInit {
     if (this._markup_context) {
       this.drawSpectMarkup();
     }
-  }
-
-  @Input() set preselected_item (value: PreselectedItemInfo) {
-    this._preselected_item = value;
-  }
-
-  @Input() set mouseover_level (value: ILevel) {
-    this._mouseover_level = value;
   }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();

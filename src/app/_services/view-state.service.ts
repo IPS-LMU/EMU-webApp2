@@ -336,7 +336,7 @@ export class ViewStateService {
     this.preselectedItemInfo = null;
     this.crosshairPosition = null;
     this.curMouseTrackName = undefined;
-    this.currentMouseOverLevel = undefined;
+    this.currentMouseOverLevel = null;
     this.currentClickLevel = undefined;
     this.curPreselColumnSample = 2;
     this.curCorrectionToolNr = undefined;
@@ -1012,14 +1012,14 @@ setState(nameOrObj) {
       let zoomAnchor;
       const preselectSegment = this.getPreselectedItemInfo().item;
 
-      if (this.getCurrentMouseOverLevel().type === 'SEGMENT') {
-        if (this.getPreselectedItemInfo().isLast) {
-          zoomAnchor = preselectSegment.sampleStart + preselectSegment.sampleDur;
-        } else {
-          zoomAnchor = preselectSegment.sampleStart;
-        }
+      if (preselectSegment.samplePoint) {
+          zoomAnchor = preselectSegment.samplePoint;
       } else {
-        zoomAnchor = preselectSegment.samplePoint;
+          if (this.getPreselectedItemInfo().isLast) {
+              zoomAnchor = preselectSegment.sampleStart + preselectSegment.sampleDur;
+          } else {
+              zoomAnchor = preselectSegment.sampleStart;
+          }
       }
       let d1 = zoomAnchor - this.curViewPort.sS;
       let d2 = this.curViewPort.eS - zoomAnchor;
