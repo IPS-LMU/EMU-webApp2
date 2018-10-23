@@ -4,7 +4,7 @@ import {
     getPixelPositionOfSampleInViewport,
     getSampleAtPixelPositionInViewport, getTimeOfSample
 } from '../_utilities/view-state-helper-functions';
-import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
+import {Boundary} from '../_interfaces/boundary.interface';
 
 export class DrawHelperService {
 
@@ -487,7 +487,7 @@ export class DrawHelperService {
 public static drawMovingBoundaryLine(context: CanvasRenderingContext2D,
                                      viewportStartSample: number,
                                      viewportEndSample: number,
-                                     movingBoundary: MovingBoundary) {
+                                     movingBoundary: Boundary) {
 
     context.fillStyle = 'blue';
 

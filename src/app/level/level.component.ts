@@ -6,7 +6,7 @@ import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
 import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.function';
-import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
+import {Boundary} from '../_interfaces/boundary.interface';
 
 @Component({
   selector: 'app-level',
@@ -24,7 +24,7 @@ export class LevelComponent {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
-  private _moving_boundary: MovingBoundary;
+  private _moving_boundary: Boundary;
   private _crosshair_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
@@ -69,7 +69,7 @@ export class LevelComponent {
     this._selected_items = value;
     this.drawLevelMarkup();
   }
-  @Input() set moving_boundary(value: MovingBoundary) {
+  @Input() set moving_boundary(value: Boundary) {
     this._moving_boundary = value;
     this.drawLevelMarkup();
   }
@@ -89,7 +89,7 @@ export class LevelComponent {
   }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
-  @Output() moving_boundary_move: EventEmitter<MovingBoundary> = new EventEmitter<MovingBoundary>();
+  @Output() moving_boundary_move: EventEmitter<Boundary> = new EventEmitter<Boundary>();
 
   @Output() preselect_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
   @Output() select_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
@@ -217,11 +217,33 @@ export class LevelComponent {
 
           const itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
           if (itemNearCursor.current && itemNearCursor.nearest) {
+              let selectedBoundary: Boundary;
+
+              if (this._level_annotation.type === 'EVENT') {
+                  selectedBoundary = {
+                      sample: itemNearCursor.nearest.samplePoint,
+                      positionInSample: 'center'
+                  };
+              } else {
+                  if (itemNearCursor.isLast) {
+                      selectedBoundary = {
+                          sample: itemNearCursor.nearest.sampleStart + itemNearCursor.nearest.sampleDur,
+                          positionInSample: 'end'
+                      };
+                  } else {
+                      selectedBoundary = {
+                          sample: itemNearCursor.nearest.sampleStart,
+                          positionInSample: 'start'
+                      };
+                  }
+              }
+
               this.preselect_item.emit({
                   item: itemNearCursor.nearest,
                   neighbours: LevelService.getItemNeighboursFromLevel(this._level_annotation, itemNearCursor.nearest.id, itemNearCursor.nearest.id),
                   isFirst: itemNearCursor.isFirst,
-                  isLast: itemNearCursor.isLast
+                  isLast: itemNearCursor.isLast,
+                  selectedBoundary: selectedBoundary
               });
           }
       }

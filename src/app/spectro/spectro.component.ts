@@ -10,7 +10,7 @@ import {
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {WindowType} from '../_interfaces/window-type.type';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
-import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
+import {Boundary} from '../_interfaces/boundary.interface';
 
 @Component({
   selector: 'app-spectro',
@@ -26,7 +26,7 @@ export class SpectroComponent implements OnInit {
   private _selection_sample_start: number;
   private _selection_sample_end: number;
   private _crosshair_position: number;
-  private _moving_boundary: MovingBoundary;
+  private _moving_boundary: Boundary;
   private _spectrogram_settings: SpectrogramSettings;
   private _main_context;
   private _markup_context: CanvasRenderingContext2D;
@@ -81,7 +81,7 @@ export class SpectroComponent implements OnInit {
     }
   }
 
-  @Input() set moving_boundary (value: MovingBoundary) {
+  @Input() set moving_boundary (value: Boundary) {
     this._moving_boundary = value;
     if (this._markup_context) {
       this.drawSpectMarkup();

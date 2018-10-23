@@ -1,4 +1,4 @@
-export interface MovingBoundary {
+export interface Boundary {
     sample: number;
     positionInSample: 'start' | 'center' | 'end';
 }

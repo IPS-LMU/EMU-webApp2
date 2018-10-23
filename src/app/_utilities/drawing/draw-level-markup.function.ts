@@ -2,7 +2,7 @@ import {DrawHelperService} from '../../_services/draw-helper.service';
 import {IItem, ILevel} from '../../_interfaces/annot-json.interface';
 import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
-import {MovingBoundary} from '../../_interfaces/moving-boundary.interface';
+import {Boundary} from '../../_interfaces/boundary.interface';
 
 export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 level: ILevel,
@@ -14,7 +14,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 selectedItems: IItem[],
                                 preselectedItem: PreselectedItemInfo,
                                 crosshairPosition: number,
-                                movingBoundary: MovingBoundary,
+                                movingBoundary: Boundary,
                                 audioBuffer: AudioBuffer,
                                 mouseoverLevel: ILevel) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);

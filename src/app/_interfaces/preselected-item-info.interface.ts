@@ -1,4 +1,5 @@
 import {IItem} from './annot-json.interface';
+import {Boundary} from './boundary.interface';
 
 export interface PreselectedItemInfo {
     /// Object representing the current mouse item
@@ -11,4 +12,7 @@ export interface PreselectedItemInfo {
     /// @todo this description is wrong, this is actually true only if the last item's right boundary is selected
     /// however anyway, this should be renamed
     isLast: boolean;
+
+    // This will succeed isFirst and isLast
+    selectedBoundary: Boundary;
 }

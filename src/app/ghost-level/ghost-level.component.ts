@@ -12,7 +12,7 @@ import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function'
 import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.function';
 import { DrawHelperService } from '../_services/draw-helper.service';
 import { FontScaleService } from '../_services/font-scale.service';
-import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
+import {Boundary} from '../_interfaces/boundary.interface';
 
 @Component({
   selector: 'app-ghost-level',
@@ -30,7 +30,7 @@ export class GhostLevelComponent {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
-  private _moving_boundary: MovingBoundary;
+  private _moving_boundary: Boundary;
   private _crosshair_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
@@ -79,7 +79,7 @@ export class GhostLevelComponent {
     this._selected_items = value;
     this.drawLevelMarkup();
   }
-  @Input() set moving_boundary(value: MovingBoundary) {
+  @Input() set moving_boundary(value: Boundary) {
     this._moving_boundary = value;
     this.drawLevelMarkup();
   }

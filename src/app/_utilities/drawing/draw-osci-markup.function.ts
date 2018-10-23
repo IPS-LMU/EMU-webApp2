@@ -1,13 +1,13 @@
 import {DrawHelperService} from '../../_services/draw-helper.service';
 import {ILevel} from '../../_interfaces/annot-json.interface';
-import {MovingBoundary} from '../../_interfaces/moving-boundary.interface';
+import {Boundary} from '../../_interfaces/boundary.interface';
 
 export function drawOsciMarkup(context: CanvasRenderingContext2D,
                                viewportStartSample: number,
                                viewportEndSample: number,
                                selectionStartSample: number,
                                selectionEndSample: number,
-                               movingBoundary: MovingBoundary,
+                               movingBoundary: Boundary,
                                crosshairPosition: number,
                                audioBuffer: AudioBuffer) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);

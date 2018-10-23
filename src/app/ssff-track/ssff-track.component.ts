@@ -7,7 +7,7 @@ import { ViewStateService } from '../_services/view-state.service';
 import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent, getTimeOfSample} from '../_utilities/view-state-helper-functions';
 import {DrawHelperService} from '../_services/draw-helper.service';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
-import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
+import {Boundary} from '../_interfaces/boundary.interface';
 
 @Component({
   selector: 'app-ssff-track',
@@ -18,7 +18,7 @@ export class SsffTrackComponent implements OnInit {
 
   private _audio_buffer: AudioBuffer;
   private _crosshair_position: number;
-  private _moving_boundary: MovingBoundary;
+  private _moving_boundary: Boundary;
   private _name: string;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
@@ -44,7 +44,7 @@ export class SsffTrackComponent implements OnInit {
     this.drawSsffTrackMarkup();
   }
 
-  @Input() set moving_boundary (value: MovingBoundary) {
+  @Input() set moving_boundary (value: Boundary) {
       this._moving_boundary = value;
       if (this._markup_context) {
           this.drawSsffTrackMarkup();

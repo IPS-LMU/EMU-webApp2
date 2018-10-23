@@ -10,7 +10,7 @@ import {
 } from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
-import {MovingBoundary} from '../_interfaces/moving-boundary.interface';
+import {Boundary} from '../_interfaces/boundary.interface';
 
 
 @Injectable({
@@ -83,7 +83,7 @@ export class ViewStateService {
   start;
   TransitionTime;
   showDropZone;
-  movingBoundary: MovingBoundary;
+  movingBoundary: Boundary;
   focusInTextField;
   curTaskPercCompl;
   curPerspectiveIdx;
