@@ -789,10 +789,6 @@ setState(nameOrObj) {
       return this.preselectedItemInfo;
   }
 
-  public removePreselection() {
-    this.preselectedItemInfo = null;
-  }
-
   // /**
   //  * Getter for current Mouse Item Neighbours (left and right)
   //  * @return Object representing the current mouse item neighbours
