@@ -19,104 +19,101 @@ import {Boundary} from '../_interfaces/boundary.interface';
 })
 export class SpectroComponent implements OnInit {
 
-  private _audio_buffer: AudioBuffer;
-  private _channel: number;
-  private _viewport_sample_start: number;
-  private _viewport_sample_end: number;
-  private _selection_sample_start: number;
-  private _selection_sample_end: number;
-  private _crosshair_position: number;
-  private _moving_boundary: Boundary;
-  private _spectrogram_settings: SpectrogramSettings;
-  private _main_context;
-  private _markup_context: CanvasRenderingContext2D;
-  private worker;
-  private workerFunctionURL;
+    private _audio_buffer: AudioBuffer;
+    private _channel: number;
+    private _viewport_sample_start: number;
+    private _viewport_sample_end: number;
+    private _selection_sample_start: number;
+    private _selection_sample_end: number;
+    private _crosshair_position: number;
+    private _moving_boundary: Boundary;
+    private _spectrogram_settings: SpectrogramSettings;
+    private _main_context;
+    private _markup_context: CanvasRenderingContext2D;
+    private worker;
+    private workerFunctionURL;
+    private initialised: boolean = false;
 
-  // FFT default vars
-  // default alpha for Window Function
-  private alpha: number = 0.16;
-  private devicePixelRatio = window.devicePixelRatio || 1;
+    // FFT default vars
+    // default alpha for Window Function
+    private alpha: number = 0.16;
+    private devicePixelRatio = window.devicePixelRatio || 1;
 
-  @Input() set spectrogram_settings(value: SpectrogramSettings) {
-    this._spectrogram_settings = value;
-  }
-
-  @Input() set audio_buffer(value: AudioBuffer) {
-    this._audio_buffer = value;
-    console.log(value);
-  }
-
-  @Input() set channel (value: number) {
-      this._channel = value;
-  }
-
-  @Input() set viewport_sample_start(value: number){
-    this._viewport_sample_start = value;
-    console.log("setting _viewport_sample_start");
-    // this.redraw();
-  }
-  @Input() set viewport_sample_end(value: number){
-    this._viewport_sample_end = value;
-    console.log("setting _viewport_sample_end");
-    if (this._markup_context) {
-      this.redraw();
+    @Input() set spectrogram_settings(value: SpectrogramSettings) {
+        this._spectrogram_settings = value;
+        this.redraw();
     }
-  }
-  @Input() set selection_sample_start(value: number){
-      this._selection_sample_start = value;
-      this.drawSpectMarkup();
-  }
-  @Input() set selection_sample_end(value: number){
-      this._selection_sample_end = value;
-        if(this._selection_sample_end !== 0){ // SIC this has to be done better!
-        this.drawSpectMarkup();
-      }
-  }
 
-  @Input() set crosshair_position (value: number) {
-    this._crosshair_position = value;
-    if (this._markup_context) {
+    @Input() set audio_buffer(value: AudioBuffer) {
+        this._audio_buffer = value;
+        this.redraw();
+    }
+
+    @Input() set channel(value: number) {
+        this._channel = value;
+        this.redraw();
+    }
+
+    @Input() set viewport_sample_start(value: number) {
+        this._viewport_sample_start = value;
+        this.redraw();
+    }
+
+    @Input() set viewport_sample_end(value: number) {
+        this._viewport_sample_end = value;
+        this.redraw();
+    }
+
+    @Input() set selection_sample_start(value: number) {
+        this._selection_sample_start = value;
         this.drawSpectMarkup();
     }
-  }
 
-  @Input() set moving_boundary (value: Boundary) {
-    this._moving_boundary = value;
-    if (this._markup_context) {
-      this.drawSpectMarkup();
+    @Input() set selection_sample_end(value: number) {
+        this._selection_sample_end = value;
+        this.drawSpectMarkup();
     }
-  }
 
-  @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
-  @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
+    @Input() set crosshair_position(value: number) {
+        this._crosshair_position = value;
+        this.drawSpectMarkup();
+    }
 
-  @ViewChild('mainCanvas') mainCanvas: ElementRef;
-  @ViewChild('markupCanvas') markupCanvas: ElementRef;
+    @Input() set moving_boundary(value: Boundary) {
+        this._moving_boundary = value;
+        this.drawSpectMarkup();
+    }
 
-  constructor() {
+    @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+    @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
 
-    let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
-    this.workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
-    this.worker = new Worker(this.workerFunctionURL);
+    @ViewChild('mainCanvas') mainCanvas: ElementRef;
+    @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
-  }
+    constructor() {
 
-  ngOnInit() {
+        let workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
+        this.workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
+        this.worker = new Worker(this.workerFunctionURL);
 
-    this._main_context = this.mainCanvas.nativeElement.getContext('2d');
-    this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
+    }
 
-    this.worker.onmessage = (mesg) => {
-      console.log("gotmessage from spectro worker: ", mesg);
-      // if (mesg.data.status.type === 'SUCCESS') {
-      //   this.subj.next(mesg.data);
-      // } else {
-      //   this.subj.reject(mesg.data);
-      // }
-    };
+    ngOnInit() {
+        this.initialised = true;
 
-  }
+        this._main_context = this.mainCanvas.nativeElement.getContext('2d');
+        this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
+
+        this.worker.onmessage = (mesg) => {
+            console.log('gotmessage from spectro worker: ', mesg);
+            // if (mesg.data.status.type === 'SUCCESS') {
+            //   this.subj.next(mesg.data);
+            // } else {
+            //   this.subj.reject(mesg.data);
+            // }
+        };
+
+    }
 
   public mousedown(event: MouseEvent) {
       const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
@@ -1041,26 +1038,25 @@ export class SpectroComponent implements OnInit {
 //
 //
 
-  ///////////////
-  // bindings
+    redraw() {
+        this.drawSpectMarkup();
+        this.drawSpectro();
+    }
 
-  redraw() {
-    this.drawSpectMarkup();
-    this.drawSpectro(this._audio_buffer.getChannelData(this._channel));
-  }
+    drawSpectro() {
+        if (!this.initialised || !this._audio_buffer) {
+            return;
+        }
 
-  drawSpectro(buffer) {
-    this.killSpectroRenderingThread();
-    this.startSpectroRenderingThread(buffer);
-  }
+        const buffer = this._audio_buffer.getChannelData(this._channel);
 
-//   scope.clearAndDrawSpectMarkup = function () {
-//     scope.markupCtx.clearRect(0, 0, scope.canvas1.width, scope.canvas1.height);
-//     scope.drawSpectMarkup();
-//   };
+        this.killSpectroRenderingThread();
+        this.startSpectroRenderingThread(buffer);
+    }
+
 
   drawSpectMarkup() {
-    if (!this._markup_context) {
+    if (!this.initialised || !this._audio_buffer) {
       return;
     }
 

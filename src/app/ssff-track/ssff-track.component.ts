@@ -16,81 +16,77 @@ import {Boundary} from '../_interfaces/boundary.interface';
 })
 export class SsffTrackComponent implements OnInit {
 
-  private _audio_buffer: AudioBuffer;
-  private _crosshair_position: number;
-  private _moving_boundary: Boundary;
-  private _name: string;
-  private _selection_sample_start: number;
-  private _selection_sample_end: number;
-  private _viewport_sample_start: number;
-  private _viewport_sample_end: number;
+    private _audio_buffer: AudioBuffer;
+    private _crosshair_position: number;
+    private _moving_boundary: Boundary;
+    private _name: string;
+    private _selection_sample_start: number;
+    private _selection_sample_end: number;
+    private _viewport_sample_start: number;
+    private _viewport_sample_end: number;
 
-  private _main_context;
-  private _markup_context: CanvasRenderingContext2D;
-  private assTrackName: string;
-  private initalised: boolean;
+    private _main_context;
+    private _markup_context: CanvasRenderingContext2D;
+    private assTrackName: string;
+    private initialised: boolean = false;
 
-  @Input() set name(value: any){
-    this._name = value;
-    console.log(value);
-  }
-
-  @Input() set audio_buffer(value: AudioBuffer) {
-      this._audio_buffer = value;
-  }
-
-  @Input() set crosshair_position(value: number) {
-    this._crosshair_position = value;
-    this.drawSsffTrackMarkup();
-  }
-
-  @Input() set moving_boundary (value: Boundary) {
-      this._moving_boundary = value;
-      if (this._markup_context) {
-          this.drawSsffTrackMarkup();
-      }
-  }
-
-  @Input() set selection_sample_start(value: number) {
-      this._selection_sample_start = value;
-      this.drawSsffTrackMarkup();
-  }
-  @Input() set selection_sample_end(value: number) {
-      this._selection_sample_end = value;
-      if (this._selection_sample_end !== 0) { // SIC this has to be done better!
-          this.drawSsffTrackMarkup();
-      }
-  }
-
-  @Input() set viewport_sample_start(value: number) {
-    this._viewport_sample_start = value;
-    // this.redraw();
-  }
-  @Input() set viewport_sample_end(value: number) {
-    this._viewport_sample_end = value;
-    if (this._viewport_sample_end !== 0) { // SIC this has to be done better!
-      this.redraw();
+    @Input() set name(value: any) {
+        this._name = value;
     }
-  }
 
-  @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
-  @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
+    @Input() set audio_buffer(value: AudioBuffer) {
+        this._audio_buffer = value;
+    }
+
+    @Input() set crosshair_position(value: number) {
+        this._crosshair_position = value;
+        this.drawSsffTrackMarkup();
+    }
+
+    @Input() set moving_boundary(value: Boundary) {
+        this._moving_boundary = value;
+        this.drawSsffTrackMarkup();
+    }
+
+    @Input() set selection_sample_start(value: number) {
+        this._selection_sample_start = value;
+        this.drawSsffTrackMarkup();
+    }
+
+    @Input() set selection_sample_end(value: number) {
+        this._selection_sample_end = value;
+        this.drawSsffTrackMarkup();
+    }
+
+    @Input() set viewport_sample_start(value: number) {
+        this._viewport_sample_start = value;
+        this.redraw();
+    }
+
+    @Input() set viewport_sample_end(value: number) {
+        this._viewport_sample_end = value;
+        this.redraw();
+    }
+
+    @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
+    @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
 
 
-  @ViewChild('mainCanvas') mainCanvas: ElementRef;
-  @ViewChild('markupCanvas') markupCanvas: ElementRef;
+    @ViewChild('mainCanvas') mainCanvas: ElementRef;
+    @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
-  constructor(private ssff_data_service: SsffDataService,
-              private config_provider_service: ConfigProviderService,
-              private view_state_service: ViewStateService) { }
+    constructor(private ssff_data_service: SsffDataService,
+                private config_provider_service: ConfigProviderService,
+                private view_state_service: ViewStateService) {
+    }
 
-  ngOnInit() {
-    this._main_context = this.mainCanvas.nativeElement.getContext('2d');
-    this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
+    ngOnInit() {
+        this._main_context = this.mainCanvas.nativeElement.getContext('2d');
+        this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
 
-    this.initalised = true;
-    this.redraw();
-  }
+        this.initialised = true;
+        this.redraw();
+    }
 
   public mousedown(event: MouseEvent) {
       const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
@@ -227,7 +223,7 @@ export class SsffTrackComponent implements OnInit {
   }
 
   drawSsffTrackMarkup () {
-      if (!this._markup_context) {
+      if (!this.initialised || !this._audio_buffer) {
           return;
       }
 
@@ -282,7 +278,7 @@ export class SsffTrackComponent implements OnInit {
    *
    */
   handleUpdate() {
-    if (!this.initalised) {
+    if (!this.initialised || !this._audio_buffer) {
       return;
     }
 

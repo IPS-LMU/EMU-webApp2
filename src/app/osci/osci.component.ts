@@ -21,11 +21,10 @@ export class OsciComponent implements OnInit {
     private _viewport_sample_start: number;
     private _viewport_sample_end: number;
 
-    private initalised: boolean = false;
+    private initialised: boolean = false;
     private osciPeaks;
 
-    @Input()
-    set audio_buffer(value: AudioBuffer) {
+    @Input() set audio_buffer(value: AudioBuffer) {
         if (value instanceof AudioBuffer) {
             this._audio_buffer = value;
             this.osciPeaks = DrawHelperService.calculateOsciPeaks(this._audio_buffer);
@@ -75,7 +74,7 @@ export class OsciComponent implements OnInit {
     @ViewChild('markupCanvas') markupCanvas: ElementRef;
 
     ngOnInit() {
-        this.initalised = true;
+        this.initialised = true;
         this.redraw();
     }
 
@@ -128,7 +127,7 @@ export class OsciComponent implements OnInit {
     }
 
     private drawOsci() {
-        if (!this.initalised || !this._audio_buffer) {
+        if (!this.initialised || !this._audio_buffer) {
             return;
         }
 
@@ -144,7 +143,7 @@ export class OsciComponent implements OnInit {
     }
 
     private drawOsciMarkup() {
-        if (!this.initalised || !this._audio_buffer) {
+        if (!this.initialised || !this._audio_buffer) {
             return;
         }
 
