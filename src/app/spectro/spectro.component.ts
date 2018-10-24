@@ -12,6 +12,7 @@ import {WindowType} from '../_interfaces/window-type.type';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
+import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
 
 @Component({
   selector: 'app-spectro',
@@ -1071,7 +1072,7 @@ export class SpectroComponent implements OnInit {
     );
 
     // draw current viewport selected
-    DrawHelperService.drawCurViewPortSelected(
+      drawSelection(
         this._markup_context,
         false,
         this._viewport_sample_start,

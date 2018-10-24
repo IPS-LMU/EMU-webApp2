@@ -9,6 +9,7 @@ import {DrawHelperService} from '../_services/draw-helper.service';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
+import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
 
 @Component({
   selector: 'app-ssff-track',
@@ -241,7 +242,7 @@ export class SsffTrackComponent implements OnInit {
       }
 
       // draw current viewport selected
-      DrawHelperService.drawCurViewPortSelected(
+      drawSelection(
           this._markup_context,
           false,
           this._viewport_sample_start,

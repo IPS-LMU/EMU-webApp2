@@ -4,6 +4,7 @@ import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-lines.function';
+import {drawSelection} from './markup-elements/draw-selection.function';
 
 export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 level: ILevel,
@@ -31,7 +32,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         movingBoundaries
     );
 
-    DrawHelperService.drawCurViewPortSelected(
+    drawSelection(
         ctx,
         false,
         viewportStartSample,
