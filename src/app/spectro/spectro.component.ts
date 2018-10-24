@@ -923,38 +923,8 @@ export class SpectroComponent implements OnInit {
 
   }
 
-//   scope.shs = Soundhandlerservice;
-//   scope.order = attrs.order;
-//   scope.vs = viewState;
-//   scope.cps = ConfigProviderService;
-//   scope.dhs = Drawhelperservice;
-//   scope.lmds = loadedMetaDataService;
-//   scope.trackName = attrs.trackName;
-//   // select the needed DOM elements from the template
-//   scope.canvas0 = element.find('canvas')[0];
-//   scope.canvas1 = element.find('canvas')[element.find('canvas').length - 1];
-//   scope.context = scope.canvas0.getContext('2d');
-//   scope.markupCtx = scope.canvas1.getContext('2d');
-//
-//   // FFT default vars
-//   // default alpha for Window Function
-//   scope.alpha = 0.16;
-//   scope.devicePixelRatio = window.devicePixelRatio || 1;
-//
 //   // Spectro Worker
 //   scope.woker = new SpectroDrawingWorker();
-//
-//
-//   ///////////////
-//   // watches
-//
-//
-//   //
-//   scope.$watch('viewState.lastUpdate', function (newValue, oldValue) {
-//     if (newValue !== oldValue && !$.isEmptyObject(scope.shs) && !$.isEmptyObject(scope.shs.audioBuffer)) {
-//       scope.clearAndDrawSpectMarkup();
-//     }
-//   });
 //
 //
 //   scope.$watch('vs.submenuOpen', function () {
@@ -964,49 +934,6 @@ export class SpectroComponent implements OnInit {
 //       }
 //     }
 //   });
-//
-//
-//   scope.$watch('vs.curViewPort', function (newValue, oldValue) {
-//     if (!$.isEmptyObject(scope.shs)) {
-//       if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-//         // check for changed zoom
-//         if (oldValue.sS !== newValue.sS || oldValue.eS !== newValue.eS) {
-//           scope.redraw();
-//         }
-//         scope.clearAndDrawSpectMarkup();
-//       }
-//     }
-//   }, true);
-//
-//   scope.$watch('vs.movingBoundarySample', function () {
-//     if (!$.isEmptyObject(scope.shs)) {
-//       if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-//         scope.clearAndDrawSpectMarkup();
-//       }
-//     }
-//   }, true);
-//
-//   scope.$watch('vs.movingBoundary', function () {
-//     if (!$.isEmptyObject(scope.shs)) {
-//       if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-//         // scope.redraw();
-//         scope.clearAndDrawSpectMarkup();
-//       }
-//     }
-//   }, true);
-//
-//   scope.$watch('vs.curMouseX', function () {
-//     if (!$.isEmptyObject(scope.shs)) {
-//       if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-//         // scope.redraw();
-//         // only draw corsshair x line if mouse currently not over canvas
-//         if(scope.vs.curMouseTrackName !== scope.trackName){
-//           scope.clearAndDrawSpectMarkup();
-//         }
-//       }
-//     }
-//   }, true);
-//
 //
 //   scope.$watch('vs.spectroSettings', function () {
 //     if (!$.isEmptyObject(scope.shs)) {
@@ -1026,20 +953,6 @@ export class SpectroComponent implements OnInit {
 //       }
 //     }
 //   }, true);
-//
-//
-//   //
-//   scope.$watch('lmds.getCurBndl()', function (newValue, oldValue) {
-//     if (!$.isEmptyObject(scope.shs)) {
-//       if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-//         if (newValue.name !== oldValue.name || newValue.session !== oldValue.session) {
-//           scope.redraw();
-//         }
-//       }
-//     }
-//   }, true);
-//
-//
 
     redraw() {
         this.drawSpectMarkup();
@@ -1072,7 +985,6 @@ export class SpectroComponent implements OnInit {
         this._moving_boundaries
     );
 
-    // draw current viewport selected
       drawSelection(
         this._markup_context,
         false,

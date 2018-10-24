@@ -133,42 +133,6 @@ export class SsffTrackComponent implements OnInit {
     }
   }
 
-  // // select the needed DOM elements from the template
-  // var canvasLength = element.find('canvas').length;
-  // var markupCanvas = element.find('canvas')[canvasLength - 1];
-  // // var context = canvas0.getContext('2d');
-  // var markupCtx = markupCanvas.getContext('2d');
-  // var trackName;
-  // scope.lmds = loadedMetaDataService;
-  //
-  // attrs.$observe('trackName', function (val) {
-  //   if (val) {
-  //     trackName = val;
-  //   }
-  // });
-  // scope.order = attrs.order;
-  //
-  //
-  // /////////////////////
-  // // watches
-  //
-  // //
-  // //
-  // scope.$watch('vs.lastUpdate', function (newValue, oldValue) {
-  //   if (newValue !== oldValue) {
-  //     scope.drawSsffTrackMarkup();
-  //   }
-  // });
-  //
-  //
-  // scope.$watch('vs.curViewPort', function () {
-  //   if (!$.isEmptyObject(scope.shs)) {
-  //     if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-  //       scope.drawSsffTrackMarkup();
-  //     }
-  //   }
-  // }, true);
-  //
   // scope.$watch('ssffds.data.length', function () {
   //   if (!$.isEmptyObject(scope.shs)) {
   //     if (!$.isEmptyObject(scope.shs.audioBuffer)) {
@@ -176,48 +140,6 @@ export class SsffTrackComponent implements OnInit {
   //     }
   //   }
   // }, true);
-  //
-  // scope.$watch('vs.movingBoundary', function () {
-  //   if (!$.isEmptyObject(scope.shs)) {
-  //     if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-  //       scope.drawSsffTrackMarkup();
-  //     }
-  //   }
-  // }, true);
-  //
-  //
-  // scope.$watch('vs.movingBoundarySample', function () {
-  //   if (!$.isEmptyObject(scope.shs)) {
-  //     if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-  //       scope.drawSsffTrackMarkup();
-  //     }
-  //   }
-  // }, true);
-  //
-  // scope.$watch('vs.curMouseX', function () {
-  //   if (!$.isEmptyObject(scope.shs)) {
-  //     if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-  //       // only draw corsshair x line if mouse currently not over canvas
-  //       if(viewState.curMouseTrackName !== trackName) {
-  //         scope.drawSsffTrackMarkup();
-  //       }
-  //     }
-  //   }
-  // }, true);
-  //
-  // //
-  // scope.$watch('lmds.getCurBndl()', function (newValue, oldValue) {
-  //   if (!$.isEmptyObject(scope.shs)) {
-  //     if (!$.isEmptyObject(scope.shs.audioBuffer)) {
-  //       if (newValue.name !== oldValue.name || newValue.session !== oldValue.session) {
-  //         scope.drawSsffTrackMarkup();
-  //       }
-  //     }
-  //   }
-  // }, true);
-  //
-  // //
-  // /////////////////////
 
   redraw() {
       this.drawSsffTrackMarkup();
