@@ -11,6 +11,7 @@ import {
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../_interfaces/boundary.interface';
+import {PlayHeadAnimationInfo} from '../_interfaces/play-head-animation-info.interface';
 
 
 @Injectable({
@@ -59,7 +60,7 @@ export class ViewStateService {
 
   osciSettings;
 
-  playHeadAnimationInfos;
+  playHeadAnimationInfos: PlayHeadAnimationInfo;
 
   hierarchyState;
 
@@ -80,7 +81,6 @@ export class ViewStateService {
   currentClickLevel: ILevel;
   curPreselColumnSample;
   curCorrectionToolNr;
-  start;
   TransitionTime;
   showDropZone;
   movingBoundaries: Boundary[];
@@ -147,7 +147,8 @@ export class ViewStateService {
       eS: -1,
       curS: null,
       endFreezeSample: -1,
-      autoscroll: false
+      autoscroll: false,
+      startTimestamp: null
     };
 
 
@@ -340,7 +341,6 @@ export class ViewStateService {
     this.currentClickLevel = undefined;
     this.curPreselColumnSample = 2;
     this.curCorrectionToolNr = undefined;
-    this.start = null;
     this.TransitionTime = undefined;
     this.showDropZone = true;
     this.movingBoundaries = [];
@@ -430,15 +430,15 @@ setState(nameOrObj) {
   public updatePlayHead(timestamp) {
     // at first push animation !!!
     if (this.sound_handler_service.isPlaying) {
-      window.requestAnimationFrame(this.updatePlayHead);
+      window.requestAnimationFrame(this.updatePlayHead.bind(this));
     }
 
     // do work in this animation round now
-    if (this.start === null) {
-      this.start = timestamp;
+    if (this.playHeadAnimationInfos.startTimestamp === null) {
+      this.playHeadAnimationInfos.startTimestamp = timestamp;
     }
 
-    let samplesPassed = (Math.floor(timestamp - this.start) / 1000) * this.sound_handler_service.audioBuffer.sampleRate;
+    const samplesPassed = (Math.floor(timestamp - this.playHeadAnimationInfos.startTimestamp) / 1000) * this.sound_handler_service.audioBuffer.sampleRate;
     this.playHeadAnimationInfos.curS = Math.floor(this.playHeadAnimationInfos.sS + samplesPassed);
 
     if (this.sound_handler_service.isPlaying && this.playHeadAnimationInfos.curS <= this.playHeadAnimationInfos.eS) {
@@ -453,16 +453,16 @@ setState(nameOrObj) {
       this.playHeadAnimationInfos.sS = -1;
       this.playHeadAnimationInfos.eS = -1;
       this.playHeadAnimationInfos.curS = 0;
-      this.start = null;
+      this.playHeadAnimationInfos.startTimestamp = null;
     }
 
-    // $rootScope.$apply();
+    this.playHeadAnimationInfos = JSON.parse(JSON.stringify(this.playHeadAnimationInfos));
   }
 
   /**
    *
    */
-  public animatePlayHead(startS, endS, autoscroll) {
+  public animatePlayHead(startS: number, endS: number, autoscroll: boolean) {
     this.playHeadAnimationInfos.sS = startS;
     this.playHeadAnimationInfos.eS = endS;
     this.playHeadAnimationInfos.endFreezeSample = endS;
@@ -470,7 +470,7 @@ setState(nameOrObj) {
     if(autoscroll){
       this.playHeadAnimationInfos.autoscroll = autoscroll;
     }
-    window.requestAnimationFrame(this.updatePlayHead);
+    window.requestAnimationFrame(this.updatePlayHead.bind(this));
   }
 
 

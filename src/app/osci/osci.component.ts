@@ -20,6 +20,7 @@ export class OsciComponent implements OnInit {
     private _selection_sample_end: number;
     private _viewport_sample_start: number;
     private _viewport_sample_end: number;
+    private _play_head_info;
 
     private initialised: boolean = false;
     private osciPeaks;
@@ -64,6 +65,11 @@ export class OsciComponent implements OnInit {
 
     @Input() set selection_sample_end(value: number) {
         this._selection_sample_end = value;
+        this.drawOsciMarkup();
+    }
+
+    @Input() set play_head_info(value) {
+        this._play_head_info = value;
         this.drawOsciMarkup();
     }
 
@@ -156,36 +162,8 @@ export class OsciComponent implements OnInit {
             this._selection_sample_end,
             this._moving_boundaries,
             this._crosshair_position,
+            this._play_head_info,
             this._audio_buffer
         );
     }
-
-    // scope.$watch('viewState.lastUpdate', function (newValue, oldValue) {
-    //   if (newValue !== oldValue) {
-    //     scope.drawVpOsciMarkup(scope, ConfigProviderService, true);
-    //   }
-    // });
-    //
-    // scope.$watch('viewState.curPerspectiveIdx', function () {
-    //   scope.drawVpOsciMarkup(scope, ConfigProviderService, true);
-    // }, true);
-    //
-    // //
-    // scope.$watch('viewState.playHeadAnimationInfos', function () {
-    //   if (!$.isEmptyObject(Soundhandlerservice)) {
-    //     if (!$.isEmptyObject(Soundhandlerservice.audioBuffer)) {
-    //       scope.drawPlayHead(scope, ConfigProviderService);
-    //     }
-    //   }
-    // }, true);
-    //
-    // scope.drawPlayHead = function (scope, config) {
-    //   var ctx = markupCanvas.getContext('2d');
-    //   ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //   var posS = viewState.getPos(markupCanvas.width, viewState.playHeadAnimationInfos.sS);
-    //   var posCur = viewState.getPos(markupCanvas.width, viewState.playHeadAnimationInfos.curS);
-    //   ctx.fillStyle = ConfigProviderService.design.color.transparent.grey;
-    //   ctx.fillRect(posS, 0, posCur - posS, canvas.height);
-    //   scope.drawVpOsciMarkup(scope, config, false);
-    // };
 }
