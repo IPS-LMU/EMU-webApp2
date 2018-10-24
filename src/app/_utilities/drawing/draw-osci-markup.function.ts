@@ -1,5 +1,4 @@
 import {DrawHelperService} from '../../_services/draw-helper.service';
-import {ILevel} from '../../_interfaces/annot-json.interface';
 import {Boundary} from '../../_interfaces/boundary.interface';
 
 export function drawOsciMarkup(context: CanvasRenderingContext2D,
@@ -7,19 +6,17 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
                                viewportEndSample: number,
                                selectionStartSample: number,
                                selectionEndSample: number,
-                               movingBoundary: Boundary,
+                               movingBoundaries: Boundary[],
                                crosshairPosition: number,
                                audioBuffer: AudioBuffer) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-    if (movingBoundary) {
-        DrawHelperService.drawMovingBoundaryLine(
-            context,
-            viewportStartSample,
-            viewportEndSample,
-            movingBoundary,
-        );
-    }
+    DrawHelperService.drawMovingBoundaryLines(
+        context,
+        viewportStartSample,
+        viewportEndSample,
+        movingBoundaries
+    );
 
     // draw current viewport selected
     DrawHelperService.drawCurViewPortSelected(

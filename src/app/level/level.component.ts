@@ -24,7 +24,7 @@ export class LevelComponent {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
-  private _moving_boundary: Boundary;
+  private _moving_boundaries: Boundary[];
   private _crosshair_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
@@ -69,8 +69,8 @@ export class LevelComponent {
     this._selected_items = value;
     this.drawLevelMarkup();
   }
-  @Input() set moving_boundary(value: Boundary) {
-    this._moving_boundary = value;
+  @Input() set moving_boundaries(value: Boundary[]) {
+    this._moving_boundaries = value;
     this.drawLevelMarkup();
   }
   @Input() set crosshair_position(value: number) {
@@ -89,7 +89,7 @@ export class LevelComponent {
   }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
-  @Output() moving_boundary_move: EventEmitter<Boundary> = new EventEmitter<Boundary>();
+  @Output() moving_boundary_move: EventEmitter<Boundary[]> = new EventEmitter<Boundary[]>();
 
   @Output() preselect_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
   @Output() select_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
@@ -212,7 +212,7 @@ export class LevelComponent {
 
           this.drawLevelDetails();
       } else {
-          this.moving_boundary_move.emit(null);
+          this.moving_boundary_move.emit([]);
           this.crosshair_move.emit(getMousePositionInCanvasX(event));
 
           const itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
@@ -278,15 +278,15 @@ export class LevelComponent {
 
   private moveSegmentBoundary (segment: IItem, moveBy: number) {
       if (this._preselected_item.isLast) {
-          this.moving_boundary_move.emit({
+          this.moving_boundary_move.emit([{
               sample: segment.sampleStart + segment.sampleDur + moveBy,
               positionInSample: 'end'
-          });
+          }]);
       } else {
-          this.moving_boundary_move.emit({
+          this.moving_boundary_move.emit([{
               sample: segment.sampleStart + moveBy,
               positionInSample: 'start'
-          });
+          }]);
       }
 
       LevelService.moveBoundary(
@@ -310,10 +310,10 @@ export class LevelComponent {
   }
 
   private moveEvent (event: IItem, moveBy: number) {
-      this.moving_boundary_move.emit({
+      this.moving_boundary_move.emit([{
           sample: event.samplePoint + moveBy,
           positionInSample: 'center'
-      });
+      }]);
 
       LevelService.moveEvent(this._level_annotation, event.id, moveBy, this._audio_buffer.length);
 
@@ -366,7 +366,7 @@ export class LevelComponent {
           this._selected_items,
           this._preselected_item,
           this._crosshair_position,
-          this._moving_boundary,
+          this._moving_boundaries,
           this._audio_buffer,
           this._mouseover_level
       );

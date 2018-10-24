@@ -18,7 +18,7 @@ export class SsffTrackComponent implements OnInit {
 
     private _audio_buffer: AudioBuffer;
     private _crosshair_position: number;
-    private _moving_boundary: Boundary;
+    private _moving_boundaries: Boundary[];
     private _name: string;
     private _selection_sample_start: number;
     private _selection_sample_end: number;
@@ -43,8 +43,8 @@ export class SsffTrackComponent implements OnInit {
         this.drawSsffTrackMarkup();
     }
 
-    @Input() set moving_boundary(value: Boundary) {
-        this._moving_boundary = value;
+    @Input() set moving_boundaries(value: Boundary[]) {
+        this._moving_boundaries = value;
         this.drawSsffTrackMarkup();
     }
 
@@ -230,12 +230,12 @@ export class SsffTrackComponent implements OnInit {
       this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
       // draw moving boundary line if moving
-      if (this._moving_boundary) {
-          DrawHelperService.drawMovingBoundaryLine(
+      if (this._moving_boundaries) {
+          DrawHelperService.drawMovingBoundaryLines(
               this._markup_context,
               this._viewport_sample_start,
               this._viewport_sample_end,
-              this._moving_boundary
+              this._moving_boundaries
           );
       }
 

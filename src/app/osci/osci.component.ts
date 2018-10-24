@@ -14,7 +14,7 @@ import {Boundary} from '../_interfaces/boundary.interface';
 export class OsciComponent implements OnInit {
     private _audio_buffer: AudioBuffer;
     private _channel: number;
-    private _moving_boundary: Boundary;
+    private _moving_boundaries: Boundary[];
     private _crosshair_position: number;
     private _selection_sample_start: number;
     private _selection_sample_end: number;
@@ -37,8 +37,8 @@ export class OsciComponent implements OnInit {
         this.redraw();
     }
 
-    @Input() set moving_boundary(value: Boundary) {
-        this._moving_boundary = value;
+    @Input() set moving_boundaries(value: Boundary[]) {
+        this._moving_boundaries = value;
         this.drawOsciMarkup();
     }
 
@@ -154,7 +154,7 @@ export class OsciComponent implements OnInit {
             this._viewport_sample_end,
             this._selection_sample_start,
             this._selection_sample_end,
-            this._moving_boundary,
+            this._moving_boundaries,
             this._crosshair_position,
             this._audio_buffer
         );

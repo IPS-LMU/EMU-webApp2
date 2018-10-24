@@ -484,21 +484,24 @@ export class DrawHelperService {
   }
 
 
-public static drawMovingBoundaryLine(context: CanvasRenderingContext2D,
-                                     viewportStartSample: number,
-                                     viewportEndSample: number,
-                                     movingBoundary: Boundary) {
+public static drawMovingBoundaryLines(context: CanvasRenderingContext2D,
+                                      viewportStartSample: number,
+                                      viewportEndSample: number,
+                                      movingBoundaries: Boundary[]) {
 
     context.fillStyle = 'blue';
 
-    const x = getPixelPositionOfSampleInViewport(
-        movingBoundary.sample,
-        viewportStartSample,
-        viewportEndSample,
-        context.canvas.width
-    )[movingBoundary.positionInSample];
+    for (const movingBoundary of movingBoundaries) {
 
-    context.fillRect(x, 0, 1, context.canvas.height);
+        const x = getPixelPositionOfSampleInViewport(
+            movingBoundary.sample,
+            viewportStartSample,
+            viewportEndSample,
+            context.canvas.width
+        )[movingBoundary.positionInSample];
+
+        context.fillRect(x, 0, 1, context.canvas.height);
+    }
 }
 
 

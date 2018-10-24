@@ -14,7 +14,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 selectedItems: IItem[],
                                 preselectedItem: PreselectedItemInfo,
                                 crosshairPosition: number,
-                                movingBoundary: Boundary,
+                                movingBoundaries: Boundary[],
                                 audioBuffer: AudioBuffer,
                                 mouseoverLevel: ILevel) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -23,14 +23,12 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
-    if (movingBoundary) {
-        DrawHelperService.drawMovingBoundaryLine(
-            ctx,
-            viewportStartSample,
-            viewportEndSample,
-            movingBoundary
-        );
-    }
+    DrawHelperService.drawMovingBoundaryLines(
+        ctx,
+        viewportStartSample,
+        viewportEndSample,
+        movingBoundaries
+    );
 
     DrawHelperService.drawCurViewPortSelected(
         ctx,

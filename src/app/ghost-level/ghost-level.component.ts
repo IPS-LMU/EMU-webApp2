@@ -30,7 +30,7 @@ export class GhostLevelComponent {
   private _viewport_sample_end: number;
   private _selection_sample_start: number;
   private _selection_sample_end: number;
-  private _moving_boundary: Boundary;
+  private _moving_boundaries: Boundary[];
   private _crosshair_position: number;
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
@@ -79,8 +79,8 @@ export class GhostLevelComponent {
     this._selected_items = value;
     this.drawLevelMarkup();
   }
-  @Input() set moving_boundary(value: Boundary) {
-    this._moving_boundary = value;
+  @Input() set moving_boundaries(value: Boundary[]) {
+    this._moving_boundaries = value;
     this.drawLevelMarkup();
   }
   @Input() set crosshair_position(value: number) {
@@ -383,7 +383,7 @@ export class GhostLevelComponent {
       this._selected_items,
       this._preselected_item,
       this._crosshair_position,
-      this._moving_boundary,
+      this._moving_boundaries,
       this._audio_buffer,
       this._mouseover_level
     );
