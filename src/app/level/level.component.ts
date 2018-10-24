@@ -258,7 +258,27 @@ export class LevelComponent implements OnInit {
   }
 
   private moveSegments(segments: IItem[], moveBy: number) {
+      if (segments.length === 0) {
+          return;
+      }
+
       LevelService.moveSegment(this._level_annotation, segments[0].id, segments.length, moveBy, this._audio_buffer.length);
+
+      const movingBoundaries: Boundary[] = [];
+
+      for (const segment of segments) {
+          movingBoundaries.push({
+              sample: segment.sampleStart,
+              positionInSample: 'start'
+          });
+      }
+
+      movingBoundaries.push({
+          sample: segments[segments.length - 1].sampleStart + segments[segments.length - 1].sampleDur,
+          positionInSample: 'end'
+      });
+
+      this.moving_boundary_move.emit(movingBoundaries);
 
       this.history_service.updateCurChangeObj({
           'type': 'ANNOT',
@@ -271,6 +291,21 @@ export class LevelComponent implements OnInit {
   }
 
   private moveEvents(events: IItem[], moveBy: number) {
+      if (events.length === 0) {
+          return;
+      }
+
+      const movingBoundaries: Boundary[] = [];
+
+      for (const event of events) {
+          movingBoundaries.push({
+              sample: event.samplePoint,
+              positionInSample: 'center'
+          });
+      }
+
+      this.moving_boundary_move.emit(movingBoundaries);
+
       for (let event of events) {
           LevelService.moveEvent(this._level_annotation, event.id, moveBy, this._audio_buffer.length);
 
