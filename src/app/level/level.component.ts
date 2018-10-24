@@ -209,6 +209,7 @@ export class LevelComponent implements OnInit {
               this.moveEvent(this._preselected_item.item, moveBy);
           }
 
+          this.refreshPreselectedItem();
           this.drawLevelDetails();
       } else if (this._database_configuration.restrictions.editItemSize && event.altKey && this._selected_items.length > 0) {
           if (this._level_annotation.type === 'SEGMENT') {
@@ -218,6 +219,7 @@ export class LevelComponent implements OnInit {
               this.moveEvents(this._selected_items, moveBy);
           }
 
+          this.refreshPreselectedItem();
           this.drawLevelDetails();
       } else {
           this.moving_boundary_move.emit([]);
@@ -255,6 +257,31 @@ export class LevelComponent implements OnInit {
               });
           }
       }
+  }
+
+  private refreshPreselectedItem() {
+      let selectedBoundaryPosition: number;
+
+      if (this._level_annotation.type === 'EVENT') {
+          selectedBoundaryPosition = this._preselected_item.item.samplePoint;
+      } else {
+          if (this._preselected_item.isLast) {
+              selectedBoundaryPosition = this._preselected_item.item.sampleStart + this._preselected_item.item.sampleDur;
+          } else {
+              selectedBoundaryPosition = this._preselected_item.item.sampleStart;
+          }
+      }
+
+      this.preselect_item.emit({
+          item: this._preselected_item.item,
+          neighbours: this._preselected_item.neighbours,
+          isFirst: this._preselected_item.isFirst,
+          isLast: this._preselected_item.isLast,
+          selectedBoundary: {
+              sample: selectedBoundaryPosition,
+              positionInSample: this._preselected_item.selectedBoundary.positionInSample
+          }
+      });
   }
 
   private moveSegments(segments: IItem[], moveBy: number) {
