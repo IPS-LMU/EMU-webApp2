@@ -8,6 +8,7 @@ import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent, getTimeOfS
 import {DrawHelperService} from '../_services/draw-helper.service';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
+import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 
 @Component({
   selector: 'app-ssff-track',
@@ -231,7 +232,7 @@ export class SsffTrackComponent implements OnInit {
 
       // draw moving boundary line if moving
       if (this._moving_boundaries) {
-          DrawHelperService.drawMovingBoundaryLines(
+          drawMovingBoundaryLines(
               this._markup_context,
               this._viewport_sample_start,
               this._viewport_sample_end,

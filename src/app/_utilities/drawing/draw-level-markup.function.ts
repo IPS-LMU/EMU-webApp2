@@ -3,6 +3,7 @@ import {IItem, ILevel} from '../../_interfaces/annot-json.interface';
 import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../../_interfaces/boundary.interface';
+import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-lines.function';
 
 export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 level: ILevel,
@@ -23,7 +24,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
-    DrawHelperService.drawMovingBoundaryLines(
+    drawMovingBoundaryLines(
         ctx,
         viewportStartSample,
         viewportEndSample,

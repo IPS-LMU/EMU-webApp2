@@ -11,6 +11,7 @@ import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface
 import {WindowType} from '../_interfaces/window-type.type';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
+import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 
 @Component({
   selector: 'app-spectro',
@@ -1062,7 +1063,7 @@ export class SpectroComponent implements OnInit {
 
     this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
-    DrawHelperService.drawMovingBoundaryLines(
+    drawMovingBoundaryLines(
         this._markup_context,
         this._viewport_sample_start,
         this._viewport_sample_end,
