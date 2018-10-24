@@ -483,24 +483,6 @@ export class DrawHelperService {
     }
   }
 
-  /**
-   * only draw x (= vertical) line of crosshair
-   * this is used to draw a red line at the current mouse position
-   * on canvases where the mouse is currently not hovering over
-   */
-  public static drawCrossHairX(ctx, mouseX){
-    if (mouseX === null) {
-      return;
-    }
-    ctx.strokeStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
-    ctx.fillStyle = 'red'; //ConfigProviderService.design.color.transparent.red;
-    ctx.beginPath();
-    ctx.moveTo(mouseX, 0);
-    ctx.lineTo(mouseX, ctx.canvas.height);
-    ctx.stroke();
-  }
-
-
   // /**
   //  * drawing method to drawCrossHairs
   //  */

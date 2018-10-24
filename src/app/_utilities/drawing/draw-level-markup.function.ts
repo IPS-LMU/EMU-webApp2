@@ -1,10 +1,10 @@
-import {DrawHelperService} from '../../_services/draw-helper.service';
 import {IItem, ILevel} from '../../_interfaces/annot-json.interface';
 import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from './markup-elements/draw-selection.function';
+import {drawVerticalCrossHair} from './markup-elements/draw-vertical-cross-hair.function';
 
 export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 level: ILevel,
@@ -102,5 +102,5 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
     }
 
     // draw cursor
-    DrawHelperService.drawCrossHairX(ctx, crosshairPosition);
+    drawVerticalCrossHair(ctx, crosshairPosition);
 }

@@ -13,6 +13,7 @@ import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
+import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
 
 @Component({
   selector: 'app-spectro',
@@ -1086,7 +1087,7 @@ export class SpectroComponent implements OnInit {
     );
     // draw min max vals and name of track
     DrawHelperService.drawMinMaxAndName(this._markup_context, '', this._spectrogram_settings.rangeFrom, this._spectrogram_settings.rangeTo, 2);
-    DrawHelperService.drawCrossHairX(this._markup_context, this._crosshair_position);
+    drawVerticalCrossHair(this._markup_context, this._crosshair_position);
 
   }
 

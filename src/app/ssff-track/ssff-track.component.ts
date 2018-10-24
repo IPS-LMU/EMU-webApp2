@@ -5,11 +5,11 @@ import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
 import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent, getTimeOfSample} from '../_utilities/view-state-helper-functions';
-import {DrawHelperService} from '../_services/draw-helper.service';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
+import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
 
 @Component({
   selector: 'app-ssff-track',
@@ -255,7 +255,7 @@ export class SsffTrackComponent implements OnInit {
           'rgba(0,0,0, 0.3)'
       );
 
-      DrawHelperService.drawCrossHairX(this._markup_context, this._crosshair_position);
+      drawVerticalCrossHair(this._markup_context, this._crosshair_position);
 
     /*
       // draw min max an name of trac

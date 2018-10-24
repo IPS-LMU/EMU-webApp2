@@ -1,9 +1,9 @@
-import {DrawHelperService} from '../../_services/draw-helper.service';
 import {Boundary} from '../../_interfaces/boundary.interface';
 import {drawPlayHead} from './draw-playhead.function';
 import {PlayHeadAnimationInfo} from '../../_interfaces/play-head-animation-info.interface';
 import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from './markup-elements/draw-selection.function';
+import {drawVerticalCrossHair} from './markup-elements/draw-vertical-cross-hair.function';
 
 export function drawOsciMarkup(context: CanvasRenderingContext2D,
                                viewportStartSample: number,
@@ -37,7 +37,7 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
         'rgba(0,0,0, 0.3)'
     );
 
-    DrawHelperService.drawCrossHairX(context, crosshairPosition);
+    drawVerticalCrossHair(context, crosshairPosition);
 
     // DrawHelperService.drawViewPortTimes(context, viewportStartSample, viewportEndSample, audioBuffer.sampleRate);
 
