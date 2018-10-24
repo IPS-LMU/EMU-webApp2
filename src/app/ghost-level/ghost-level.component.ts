@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef, EventEmitter, Output, OnInit} from '@angular/core';
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
@@ -19,7 +19,7 @@ import {Boundary} from '../_interfaces/boundary.interface';
   templateUrl: './ghost-level.component.html',
   styleUrls: ['./ghost-level.component.scss']
 })
-export class GhostLevelComponent {
+export class GhostLevelComponent implements OnInit {
 
   private _database_configuration: {restrictions: any, perspectives: any[]};
   private _preselected_item: PreselectedItemInfo;
@@ -35,6 +35,8 @@ export class GhostLevelComponent {
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
   private _mouseover_level: ILevel;
+
+  private initialised: boolean = false;
 
   private _worker;
   private _workerFunctionURL;
@@ -117,6 +119,12 @@ export class GhostLevelComponent {
     this._workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
     this._worker = new Worker(this._workerFunctionURL);
 
+  }
+
+  ngOnInit() {
+      this.initialised = true;
+      this.drawHierarchyDetails();
+      this.drawLevelMarkup();
   }
 
   workerFunction() {
@@ -371,6 +379,9 @@ export class GhostLevelComponent {
   // }
 
   private drawLevelMarkup() {
+    if (!this.initialised || !this._audio_buffer) {
+      return;
+    }
     const context = this.levelMarkupCanvas.nativeElement.getContext('2d');
     drawLevelMarkup(
       context,
@@ -442,6 +453,9 @@ export class GhostLevelComponent {
    * draw level hierarchy
    */
   private drawHierarchyDetails() {
+    if (!this.initialised || !this._audio_buffer) {
+      return;
+    }
 
     this.killHierarchyRenderingThread();
     this._worker = new Worker(this._workerFunctionURL);

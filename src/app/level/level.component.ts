@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef, EventEmitter, Output, OnInit} from '@angular/core';
 import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
@@ -13,7 +13,7 @@ import {Boundary} from '../_interfaces/boundary.interface';
   templateUrl: './level.component.html',
   styleUrls: ['./level.component.scss']
 })
-export class LevelComponent {
+export class LevelComponent implements OnInit {
 
   private _database_configuration: {restrictions: any, perspectives: any[]};
   private _preselected_item: PreselectedItemInfo;
@@ -29,6 +29,8 @@ export class LevelComponent {
   private _audio_buffer: AudioBuffer;
   private _selected: boolean;
   private _mouseover_level: ILevel;
+
+  private initialised: boolean = false;
 
   @Input() set database_configuration(value: {restrictions: any, perspectives: any[]}) {
     // @todo make sure, database_configuration is loaded before the other @Inputs
@@ -102,6 +104,12 @@ export class LevelComponent {
 
 
   constructor(private history_service: HistoryService) { }
+
+    ngOnInit() {
+        this.initialised = true;
+        this.drawLevelDetails();
+        this.drawLevelMarkup();
+    }
 
 
   public mouseclick(event: MouseEvent){
@@ -342,6 +350,9 @@ export class LevelComponent {
   }
 
   private drawLevelDetails() {
+      if (!this.initialised || !this._audio_buffer) {
+          return;
+      }
       const context = this.levelCanvas.nativeElement.getContext('2d');
       drawLevelDetails(
           context,
@@ -354,6 +365,10 @@ export class LevelComponent {
   }
 
   private drawLevelMarkup() {
+      if (!this.initialised || !this._audio_buffer) {
+          return;
+      }
+
       const context = this.levelMarkupCanvas.nativeElement.getContext('2d');
       drawLevelMarkup(
           context,
