@@ -1005,18 +1005,8 @@ setState(nameOrObj) {
     const d = this.curViewPort.eS - this.curViewPort.sS;
 
     if (this.getPreselectedItemInfo()) {
-      let zoomAnchor;
-      const preselectSegment = this.getPreselectedItemInfo().item;
+      const zoomAnchor = this.getPreselectedItemInfo().selectedBoundary.sample;
 
-      if (preselectSegment.samplePoint) {
-          zoomAnchor = preselectSegment.samplePoint;
-      } else {
-          if (this.getPreselectedItemInfo().isLast) {
-              zoomAnchor = preselectSegment.sampleStart + preselectSegment.sampleDur;
-          } else {
-              zoomAnchor = preselectSegment.sampleStart;
-          }
-      }
       let d1 = zoomAnchor - this.curViewPort.sS;
       let d2 = this.curViewPort.eS - zoomAnchor;
 
@@ -1038,7 +1028,7 @@ setState(nameOrObj) {
       }
     }
     this.setViewPort(newStartS, newEndS);
-  };
+  }
 
   /**
    * moves view port to the right or to the left

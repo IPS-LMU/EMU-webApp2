@@ -347,18 +347,6 @@ export class LevelComponent implements OnInit {
   }
 
   private moveSegmentBoundary (segment: IItem, moveBy: number) {
-      if (this._preselected_item.isLast) {
-          this.moving_boundary_move.emit([{
-              sample: segment.sampleStart + segment.sampleDur + moveBy,
-              positionInSample: 'end'
-          }]);
-      } else {
-          this.moving_boundary_move.emit([{
-              sample: segment.sampleStart + moveBy,
-              positionInSample: 'start'
-          }]);
-      }
-
       LevelService.moveBoundary(
           this._level_annotation,
           segment.id,
@@ -367,6 +355,11 @@ export class LevelComponent implements OnInit {
           this._preselected_item.isLast,
           this._audio_buffer.length
       );
+
+      this.moving_boundary_move.emit([{
+          sample: this._preselected_item.selectedBoundary.sample + moveBy,
+          positionInSample: this._preselected_item.selectedBoundary.positionInSample
+      }]);
 
       this.history_service.updateCurChangeObj({
           'type': 'ANNOT',
