@@ -76,7 +76,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                             ctx.canvas.width
                         ).center;
                         itemStartPosition = itemStartPosition - 5;
-                        itemEndPosition = itemStartPosition + 10;
+                        itemEndPosition = itemStartPosition + 11;
                     }
                     ctx.fillStyle = 'rgba(255, 255, 22, 0.35)';
                     ctx.fillRect(itemStartPosition, 0, itemEndPosition - itemStartPosition, ctx.canvas.height);
@@ -130,7 +130,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                     viewportEndSample,
                     ctx.canvas.width
                 ).center;
-                ctx.fillRect(boundaryPosition, 0, 3, ctx.canvas.height);
+                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
             }
         }
         ctx.fillStyle = 'black';

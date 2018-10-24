@@ -6,14 +6,14 @@ export function getPixelPositionOfSampleInViewport(targetSample: number,
     const sampleWidth = canvasWidth / numberOfSamplesInViewport;
     const targetSampleRelativeToViewport = targetSample - viewportStartSample;
 
-    const pixelPositionOfSampleStart = Math.round(targetSampleRelativeToViewport * sampleWidth);
-    const pixelPositionOfSampleCenter = pixelPositionOfSampleStart + Math.round(sampleWidth / 2);
-    const pixelPositionOfSampleEnd = pixelPositionOfSampleStart + Math.round(sampleWidth);
+    const pixelPositionOfSampleStart = targetSampleRelativeToViewport * sampleWidth;
+    const pixelPositionOfSampleCenter = pixelPositionOfSampleStart + sampleWidth / 2;
+    const pixelPositionOfSampleEnd = pixelPositionOfSampleStart + sampleWidth;
 
     return {
-        start: pixelPositionOfSampleStart,
-        center: pixelPositionOfSampleCenter,
-        end: pixelPositionOfSampleEnd
+        start: Math.round(pixelPositionOfSampleStart),
+        center: Math.round(pixelPositionOfSampleCenter),
+        end: Math.round(pixelPositionOfSampleEnd)
     };
 }
 
