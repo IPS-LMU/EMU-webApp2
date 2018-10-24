@@ -87,50 +87,15 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
 
     // draw preselected boundary
 
-    if (level.items.length > 0 && preselectedItem && level.name === mouseoverLevel.name) {
-        let item = preselectedItem.item;
+    if (preselectedItem && level.name === mouseoverLevel.name) {
         ctx.fillStyle = '#4fc3f7';
-        if (preselectedItem.isFirst === true) { // before first segment
-            if (level.type === 'SEGMENT') {
-                item = level.items[0]; // @todo this is superfluous
-                const boundaryPosition = getPixelPositionOfSampleInViewport(
-                    item.sampleStart,
-                    viewportStartSample,
-                    viewportEndSample,
-                    ctx.canvas.width
-                ).start;
-                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
-            }
-        } else if (preselectedItem.isLast === true) { // after last segment
-            if (level.type === 'SEGMENT') {
-                item = level.items[level.items.length - 1];
-                const boundaryPosition = getPixelPositionOfSampleInViewport(
-                    item.sampleStart + item.sampleDur,
-                    viewportStartSample,
-                    viewportEndSample,
-                    ctx.canvas.width
-                ).end;
-                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
-            }
-        } else { // in the middle
-            if (level.type === 'SEGMENT') {
-                const boundaryPosition = getPixelPositionOfSampleInViewport(
-                    item.sampleStart,
-                    viewportStartSample,
-                    viewportEndSample,
-                    ctx.canvas.width
-                ).start;
-                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
-            } else {
-                const boundaryPosition = getPixelPositionOfSampleInViewport(
-                    item.samplePoint,
-                    viewportStartSample,
-                    viewportEndSample,
-                    ctx.canvas.width
-                ).center;
-                ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
-            }
-        }
+        const boundaryPosition = getPixelPositionOfSampleInViewport(
+            preselectedItem.selectedBoundary.sample,
+            viewportStartSample,
+            viewportEndSample,
+            ctx.canvas.width
+        )[preselectedItem.selectedBoundary.positionInSample];
+        ctx.fillRect(boundaryPosition - 1, 0, 3, ctx.canvas.height);
         ctx.fillStyle = 'black';
     }
 
