@@ -43,5 +43,5 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
 
     drawViewportTimes(context, viewportStartSample, viewportEndSample, audioBuffer.sampleRate, emuWebappTheme);
 
-    drawPlayHead(context, playHeadInfo, viewportStartSample, viewportEndSample);
+    drawPlayHead(context, playHeadInfo, viewportStartSample, viewportEndSample, emuWebappTheme);
 }
