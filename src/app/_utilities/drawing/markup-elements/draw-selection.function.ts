@@ -31,7 +31,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
                 FontScaleService.drawUndistortedTextTwoLines(
                     ctx,
                     selectionStartSample.toString(),
-                    MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
+                    MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 4).toString(),
                     emuWebappTheme.primaryFontSize,
                     emuWebappTheme.primaryFontFamily,
                     selectionPosition + 4,
@@ -71,7 +71,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             FontScaleService.drawUndistortedTextTwoLines(
                 ctx,
                 selectionStartSample.toString(),
-                MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
+                MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 4).toString(),
                 emuWebappTheme.primaryFontSize,
                 emuWebappTheme.primaryFontFamily,
                 startOfSelection - 5,
@@ -85,7 +85,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             FontScaleService.drawUndistortedTextTwoLines(
                 ctx,
                 selectionEndSample.toString(),
-                MathHelperService.roundToNdigitsAfterDecPoint(selectionEndSample / audioBuffer.sampleRate, 6).toString(),
+                MathHelperService.roundToNdigitsAfterDecPoint(selectionEndSample / audioBuffer.sampleRate, 4).toString(),
                 emuWebappTheme.primaryFontSize,
                 emuWebappTheme.primaryFontFamily,
                 endOfSelection + 5,
@@ -96,7 +96,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             );
             // dur values
             const str1 = (selectionEndSample - selectionStartSample - 1).toString();
-            const str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate), 6).toString();
+            const str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate), 4).toString();
 
             // check if space
             const space = ctx.measureText(str2).width * FontScaleService.getScaleX(ctx);

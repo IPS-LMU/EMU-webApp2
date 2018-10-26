@@ -7,8 +7,8 @@ export function drawViewportTimes(context: CanvasRenderingContext2D,
                                   viewportEndSample: number,
                                   sampleRate: number,
                                   emuWebappTheme: EmuWebappTheme) {
-    const viewportStartTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 6);
-    const viewportEndTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
+    const viewportStartTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 4);
+    const viewportEndTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 4);
 
     FontScaleService.drawUndistortedTextTwoLines(
         context,
