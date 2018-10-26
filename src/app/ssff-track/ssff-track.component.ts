@@ -174,7 +174,16 @@ export class SsffTrackComponent implements OnInit {
           emuWebappTheme
       );
 
-      drawVerticalCrossHair(this._markup_context, this._crosshair_position, emuWebappTheme);
+      drawVerticalCrossHair(
+          this._markup_context,
+          this._crosshair_position,
+          this._audio_buffer.sampleRate,
+          false,
+          this._viewport_sample_start,
+          this._viewport_sample_end,
+          emuWebappTheme
+      );
+
 
       // draw min max and name of track
       const tr = this.config_provider_service.getSsffTrackConfig(this._name);

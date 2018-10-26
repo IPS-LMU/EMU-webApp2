@@ -103,5 +103,13 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
     }
 
     // draw cursor
-    drawVerticalCrossHair(ctx, crosshairPosition, emuWebappTheme);
+    drawVerticalCrossHair(
+        ctx,
+        crosshairPosition,
+        audioBuffer.sampleRate,
+        false,
+        viewportStartSample,
+        viewportEndSample,
+        emuWebappTheme
+    );
 }

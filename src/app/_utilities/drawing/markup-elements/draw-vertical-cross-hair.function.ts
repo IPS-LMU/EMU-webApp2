@@ -1,7 +1,14 @@
 import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';
+import {FontScaleService} from '../../../_services/font-scale.service';
+import {MathHelperService} from '../../../_services/math-helper.service';
+import {getSampleAtPixelPositionInViewport} from '../../view-state-helper-functions';
 
 export function drawVerticalCrossHair(context: CanvasRenderingContext2D,
                                       mouseX: number,
+                                      sampleRate: number,
+                                      drawTimeAndSamples: boolean,
+                                      viewportStartSample: number,
+                                      viewportEndSample: number,
                                       emuWebappTheme: EmuWebappTheme) {
     if (mouseX === null) {
         return;
@@ -11,4 +18,26 @@ export function drawVerticalCrossHair(context: CanvasRenderingContext2D,
     context.moveTo(mouseX, 0);
     context.lineTo(mouseX, context.canvas.height);
     context.stroke();
+
+    const sample = getSampleAtPixelPositionInViewport(
+        mouseX,
+        viewportStartSample,
+        viewportEndSample,
+        context.canvas.width,
+    );
+
+    if (drawTimeAndSamples) {
+        FontScaleService.drawUndistortedTextTwoLines(
+            context,
+            Math.round(sample).toString(),
+            MathHelperService.roundToNdigitsAfterDecPoint(sample / sampleRate, 4).toString(),
+            emuWebappTheme.primaryFontSize,
+            emuWebappTheme.primaryFontFamily,
+            mouseX + 4,
+            0,
+            emuWebappTheme.crossHairColor,
+            'left',
+            'top'
+        );
+    }
 }

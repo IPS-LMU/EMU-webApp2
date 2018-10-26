@@ -39,7 +39,7 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
         emuWebappTheme
     );
 
-    drawVerticalCrossHair(context, crosshairPosition, emuWebappTheme);
+    drawVerticalCrossHair(context, crosshairPosition, audioBuffer.sampleRate, true, viewportStartSample, viewportEndSample, emuWebappTheme);
 
     drawViewportTimes(context, viewportStartSample, viewportEndSample, audioBuffer.sampleRate, emuWebappTheme);
 
