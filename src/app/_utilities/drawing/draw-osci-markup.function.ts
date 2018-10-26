@@ -30,7 +30,7 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
     // draw current viewport selected
     drawSelection(
         context,
-        true,
+        false,
         viewportStartSample,
         viewportEndSample,
         selectionStartSample,
@@ -39,9 +39,7 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
         emuWebappTheme
     );
 
-    drawVerticalCrossHair(context, crosshairPosition, audioBuffer.sampleRate, true, viewportStartSample, viewportEndSample, emuWebappTheme);
-
-    drawViewportTimes(context, viewportStartSample, viewportEndSample, audioBuffer.sampleRate, emuWebappTheme);
+    drawVerticalCrossHair(context, crosshairPosition, audioBuffer.sampleRate, false, viewportStartSample, viewportEndSample, emuWebappTheme);
 
     drawPlayHead(context, playHeadInfo, viewportStartSample, viewportEndSample, emuWebappTheme);
 }

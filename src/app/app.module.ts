@@ -42,6 +42,7 @@ import { environment } from '../environments/environment';
 import { HandleGlobalKeyStrokesDirective } from './_directives/handle-global-key-strokes.directive';
 import { ConnectComponent } from './_dialogs/connect/connect.component';
 import { GhostLevelComponent } from './ghost-level/ghost-level.component';
+import { ViewportInfoComponent } from './viewport-info/viewport-info.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { GhostLevelComponent } from './ghost-level/ghost-level.component';
     ConfirmDialogComponent,
     HandleGlobalKeyStrokesDirective,
     ConnectComponent,
-    GhostLevelComponent
+    GhostLevelComponent,
+    ViewportInfoComponent
   ],
   imports: [
     BrowserModule,
