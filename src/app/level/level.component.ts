@@ -418,7 +418,7 @@ export class LevelComponent implements OnInit {
       } else {
           this.selection_change.emit({
               start: items[0].sampleStart,
-              end: items[items.length - 1].sampleStart + items[items.length - 1].sampleDur
+              end: items[items.length - 1].sampleStart + items[items.length - 1].sampleDur + 1
           });
       }
   }
