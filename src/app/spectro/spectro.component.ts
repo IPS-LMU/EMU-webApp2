@@ -16,6 +16,7 @@ import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selectio
 import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
 import {spectrogramWorker} from '../_workers/spectrogram-worker.function';
 import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
+import {drawMinMaxAndName} from '../_utilities/drawing/markup-elements/draw-min-max-and-name.function';
 
 @Component({
     selector: 'app-spectro',
@@ -195,12 +196,13 @@ export class SpectroComponent implements OnInit {
         );
 
         // draw min max vals and name of track
-        DrawHelperService.drawMinMaxAndName(
+        drawMinMaxAndName(
             this._markup_context,
             '',
             this._spectrogram_settings.rangeFrom,
             this._spectrogram_settings.rangeTo,
-            2
+            2,
+            emuWebappTheme
         );
 
         drawVerticalCrossHair(this._markup_context, this._crosshair_position, emuWebappTheme);

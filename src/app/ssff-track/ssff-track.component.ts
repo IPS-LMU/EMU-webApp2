@@ -11,6 +11,7 @@ import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/dra
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
 import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
 import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
+import {drawMinMaxAndName} from '../_utilities/drawing/markup-elements/draw-min-max-and-name.function';
 
 @Component({
   selector: 'app-ssff-track',
@@ -154,18 +155,14 @@ export class SsffTrackComponent implements OnInit {
 
       this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
-      // draw moving boundary line if moving
-      if (this._moving_boundaries) {
-          drawMovingBoundaryLines(
-              this._markup_context,
-              this._viewport_sample_start,
-              this._viewport_sample_end,
-              this._moving_boundaries,
-              emuWebappTheme
-          );
-      }
+      drawMovingBoundaryLines(
+          this._markup_context,
+          this._viewport_sample_start,
+          this._viewport_sample_end,
+          this._moving_boundaries,
+          emuWebappTheme
+      );
 
-      // draw current viewport selected
       drawSelection(
           this._markup_context,
           false,
@@ -179,22 +176,23 @@ export class SsffTrackComponent implements OnInit {
 
       drawVerticalCrossHair(this._markup_context, this._crosshair_position, emuWebappTheme);
 
-    /*
-      // draw min max an name of trac
-      var tr = scope.cps.getSsffTrackConfig(trackName);
-      var col = scope.ssffds.getColumnOfTrack(tr.name, tr.columnName);
-      var minMaxValLims = scope.cps.getValueLimsOfTrack(tr.name);
+      // draw min max and name of track
+      const tr = this.config_provider_service.getSsffTrackConfig(this._name);
+      const col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
+      if (col) {
+          drawMinMaxAndName(this._markup_context, this._name, col._minVal, col._maxVal, 2, emuWebappTheme);
+      }
 
+      /*
+      var minMaxValLims = scope.cps.getValueLimsOfTrack(tr.name);
       var minVal, maxVal;
       if(!angular.equals(minMaxValLims, {})){
         minVal = minMaxValLims.minVal;
         maxVal = minMaxValLims.maxVal;
-      }else{
+      } else {
         minVal = col._minVal;
         maxVal = col._maxVal;
       }
-
-      DrawHelperService.drawMinMaxAndName(this._markup_context, trackName, minVal, maxVal, 2);
       */
   }
 
