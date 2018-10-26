@@ -30,7 +30,7 @@ export function drawVerticalCrossHair(context: CanvasRenderingContext2D,
         FontScaleService.drawUndistortedTextTwoLines(
             context,
             Math.round(sample).toString(),
-            MathHelperService.roundToNdigitsAfterDecPoint(sample / sampleRate, 4).toString(),
+            MathHelperService.roundToNdigitsAfterDecPoint(sample / sampleRate * 1000, 1).toString() + ' ms',
             emuWebappTheme.primaryFontSize,
             emuWebappTheme.primaryFontFamily,
             mouseX + 4,

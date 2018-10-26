@@ -7,13 +7,13 @@ export function drawViewportTimes(context: CanvasRenderingContext2D,
                                   viewportEndSample: number,
                                   sampleRate: number,
                                   emuWebappTheme: EmuWebappTheme) {
-    const viewportStartTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 4);
-    const viewportEndTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 4);
+    const viewportStartTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate * 1000, 1);
+    const viewportEndTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate * 1000, 1);
 
     FontScaleService.drawUndistortedTextTwoLines(
         context,
         viewportStartSample.toString(),
-        viewportStartTime.toString(),
+        viewportStartTime.toString() + ' ms',
         emuWebappTheme.primaryFontSize,
         emuWebappTheme.primaryFontFamily,
         5,
@@ -25,7 +25,7 @@ export function drawViewportTimes(context: CanvasRenderingContext2D,
     FontScaleService.drawUndistortedTextTwoLines(
         context,
         viewportEndSample.toString(),
-        viewportEndTime.toString(),
+        viewportEndTime.toString() + ' ms',
         emuWebappTheme.primaryFontSize,
         emuWebappTheme.primaryFontFamily,
         context.canvas.width - 5,
