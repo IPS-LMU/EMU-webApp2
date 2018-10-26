@@ -621,35 +621,4 @@ export class DrawHelperService {
       FontScaleService.drawUndistortedText(ctx, 'min: ' + MathHelperService.roundToNdigitsAfterDecPoint(min, round), smallFontSize, 'HelveticaNeue', 5, ctx.canvas.height, 'grey', 'left', 'bottom');
     }
   }
-
-  /**
-   *
-   */
-  public static drawViewPortTimes(ctx: CanvasRenderingContext2D,
-                    viewportStartSample: number,
-                    viewportEndSample: number,
-                    sampleRate: number) {
-    ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
-    ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
-    ctx.font = 'HelveticaNeue';//(ConfigProviderService.design.font.small.size + ' ' + ConfigProviderService.design.font.small.family);
-
-    let fontSize = 12;//ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-
-    // lines to corners
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(5, 5);
-    ctx.moveTo(ctx.canvas.width, 0);
-    ctx.lineTo(ctx.canvas.width - 5, 5);
-    ctx.closePath();
-    ctx.stroke();
-    let sTime;
-    let eTime;
-    //draw time and sample nr
-    sTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 6);
-    eTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample.toString(), sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', 'left', 'top');
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample.toString(), eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - 5, 0, 'black', 'right', 'top');
-  };
-
 }
