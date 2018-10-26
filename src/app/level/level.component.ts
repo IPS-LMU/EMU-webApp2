@@ -98,6 +98,7 @@ export class LevelComponent implements OnInit {
   @Output() select_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
   @Output() preselect_item: EventEmitter<PreselectedItemInfo> = new EventEmitter<PreselectedItemInfo>();
   @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
+  @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
 
 
   @ViewChild('levelCanvas') levelCanvas: ElementRef;
@@ -123,8 +124,10 @@ export class LevelComponent implements OnInit {
     const itemNearCursor = LevelService.getClosestItem(clickedSample, this._level_annotation, this._audio_buffer.length);
     if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined) {
         this.select_items.emit([itemNearCursor.current]);
+        this.adjustSelectionToItems([itemNearCursor.current]);
     } else {
       this.select_items.emit([]);
+      this.adjustSelectionToItems([]);
     }
   }
 
@@ -402,6 +405,21 @@ export class LevelComponent implements OnInit {
           const items = [...this._selected_items, item];
           items.sort(LevelService.sortItemsByStart);
           this.select_items.emit(items);
+          this.adjustSelectionToItems(items);
+      }
+  }
+
+  private adjustSelectionToItems (items: IItem[]) {
+      if (this._level_annotation.type === 'EVENT') {
+          this.selection_change.emit({
+              start: items[0].samplePoint,
+              end: items[items.length - 1].samplePoint,
+          });
+      } else {
+          this.selection_change.emit({
+              start: items[0].sampleStart,
+              end: items[items.length - 1].sampleStart + items[items.length - 1].sampleDur
+          });
       }
   }
 

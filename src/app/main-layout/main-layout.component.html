@@ -192,7 +192,8 @@
                 (select_level)="view_state_service.setCurrentClickLevel($event)"
                 (preselect_item)="view_state_service.preselectItem($event)"
                 (select_items)="view_state_service.selectItems($event)"
-        ></app-level>
+                (selection_change)="view_state_service.select($event)"
+          ></app-level>
 
       </div>
         <!--end: levels with time-->
