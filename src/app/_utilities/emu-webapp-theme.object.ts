@@ -24,7 +24,7 @@ export const emuWebappTheme: EmuWebappTheme = {
     secondaryLineColor: 'grey',
 
     canvasBackgroundColor: 'black',
-    osciZeroLineColor: '4fc3f7',
+    osciZeroLineColor: '#4fc3f7',
     selectionOverlayColor: 'rgba(255, 255, 255, 0.4)',
     movingBoundaryLineColor: 'blue',
     crossHairColor: 'red',

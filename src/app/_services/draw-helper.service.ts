@@ -458,31 +458,32 @@ export class DrawHelperService {
       }
     }
 
-    // if (ConfigProviderService.vals.restrictions.drawZeroLine) {
-    if (true) {
       // draw zero line
       ctx.strokeStyle = emuWebappTheme.osciZeroLineColor;
-      ctx.fillStyle = emuWebappTheme.osciZeroLineColor;
 
       let zeroLineY;
 
       if (samplesPerPx >= 1) {
         zeroLineY = canvas.height - ((0 - allPeakVals.minMinPeak) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak) * canvas.height);
-        ctx.beginPath();
-        ctx.moveTo(0, zeroLineY);
-        ctx.lineTo(canvas.width, zeroLineY);
-        ctx.stroke();
-        ctx.fillText('0', 5, zeroLineY - 5, canvas.width);
       } else {
         zeroLineY = canvas.height - ((0 - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height);
-        ctx.beginPath();
-        ctx.moveTo(0, zeroLineY);
-        ctx.lineTo(canvas.width, zeroLineY);
-        ctx.stroke();
-        ctx.fill();
-        ctx.fillText('0', 5, canvas.height - ((0 - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height) - 5, canvas.width);
       }
-    }
+
+      ctx.beginPath();
+      ctx.moveTo(0, zeroLineY);
+      ctx.lineTo(canvas.width, zeroLineY);
+      ctx.stroke();
+      FontScaleService.drawUndistortedText(
+          ctx,
+          '0',
+          emuWebappTheme.primaryFontSize - 2,
+          emuWebappTheme.primaryFontFamily,
+          5,
+          zeroLineY,
+          emuWebappTheme.osciZeroLineColor,
+          'left',
+          'bottom'
+      );
   }
 
   // /**
