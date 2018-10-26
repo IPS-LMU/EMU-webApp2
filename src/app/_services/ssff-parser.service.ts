@@ -16,7 +16,7 @@ export class SsffParserService {
 
     // add event listener to worker to respond to messages
     this.worker.onmessage = (mesg) => {
-      console.log("gotmessage from worker: ", mesg);
+      // console.log("gotmessage from worker: ", mesg);
       if (mesg.data.status.type === 'SUCCESS') {
         this.subj.next(mesg.data);
       } else {
@@ -546,7 +546,7 @@ export class SsffParserService {
 
 
     selfAny.onmessage = function (msg) {
-      console.log("worker got message", msg);
+      // console.log("worker got message", msg);
       if (msg.data !== undefined) {
         switch (msg.data.cmd) {
           case 'parseArr':

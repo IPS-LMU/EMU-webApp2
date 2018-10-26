@@ -278,7 +278,7 @@ export class ValidationService {
     let url: string;
     this.names.forEach(n => {
       url = 'assets/schemaFiles/' + n + '.json';
-      console.log(url);
+      // console.log(url);
         // todo error handeling
         obs.push(this.http.get(url));
     });

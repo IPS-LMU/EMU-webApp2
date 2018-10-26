@@ -48,7 +48,7 @@ export class DbObjLoadSaveService {
       this.config_provider_service.vals.activeButtons.saveBundle)) {
       let curBndl = this.loaded_meta_data_service.getCurBndl();
       if (bndl !== curBndl) {
-        console.log('skldfjadsklfjkl');
+        // console.log('skldfjadsklfjkl');
   //       // $scope.lastclickedutt = bndl;
   //       modalService.open('views/saveChanges.html', curBndl.session + ':' + curBndl.name).then(function (messModal) {
   //         if (messModal === 'saveChanges') {
@@ -67,7 +67,7 @@ export class DbObjLoadSaveService {
       }
     } else {
       if (bndl !== this.loaded_meta_data_service.getCurBndl()) {
-        console.log('here');
+        // console.log('here');
         // reset history
         this.history_service.resetToInitState();
         // reset hierarchy

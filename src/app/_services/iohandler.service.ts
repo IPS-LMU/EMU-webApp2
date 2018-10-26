@@ -47,7 +47,7 @@ export class IohandlerService {
    *
    */
   public getProtocol() {
-    console.log('in ioh getProtocol');
+    // console.log('in ioh getProtocol');
     let getSubj;
 
     if (this.cps.vals.main.comMode === 'CORS') {
@@ -63,7 +63,7 @@ export class IohandlerService {
    *
    */
   getDoUserManagement() {
-    console.log('in ioh getDoUserManagement');
+    // console.log('in ioh getDoUserManagement');
     let getSubj;
 
     if (this.cps.vals.main.comMode === 'CORS') {

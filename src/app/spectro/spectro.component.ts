@@ -109,7 +109,7 @@ export class SpectroComponent implements OnInit {
         this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
 
         this.worker.onmessage = (mesg) => {
-            console.log('gotmessage from spectro worker: ', mesg);
+            // console.log('gotmessage from spectro worker: ', mesg);
             // if (mesg.data.status.type === 'SUCCESS') {
             //   this.subj.next(mesg.data);
             // } else {
@@ -240,7 +240,7 @@ export class SpectroComponent implements OnInit {
           this.drawSpectMarkup();
         }
       } else {
-        console.error('Error rendering spectrogram:', event.data.status.message);
+        // console.error('Error rendering spectrogram:', event.data.status.message);
       }
     };
   };

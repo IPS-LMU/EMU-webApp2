@@ -30,7 +30,6 @@ export class AppComponent implements OnInit {
 
     this.activated_route.queryParams.subscribe(params => {
       this.autoConnect = params['autoConnect'];
-      console.log(this.autoConnect);
     });
 
   }
@@ -45,13 +44,13 @@ export class AppComponent implements OnInit {
     this.view_state_service.somethingInProgressTxt = 'Loading schema files';
     // load schemas first
     this.validationservice.loadSchemas().subscribe(schemas => {
-      console.log(schemas);
+      // console.log(schemas);
       this.validationservice.setSchemas(schemas);
       // this.iohs.httpGetDefaultDesign().subscribe(response => {
       //   console.log(response);
       // });
       this.iohs.httpGetDefaultConfig().subscribe(response => {
-        console.log(response);
+        // console.log(response);
         // var validRes = Validationservice.validateJSO('emuwebappConfigSchema', response.data);
         //         var validRes = Validationservice.validateJSO('emuwebappConfigSchema', response.data);
         //         if (validRes === true) {
@@ -117,7 +116,7 @@ export class AppComponent implements OnInit {
   //     }
       this.wsh.initConnect(this.config_provider_service.vals.main.serverUrl).subscribe(
         (message) => {
-          console.log('observerA: ' + message);
+          // console.log('observerA: ' + message);
 
   //       if (message.type === 'error') {
   //         modalService.open('views/error.html', 'Could not connect to websocket server: ' + ConfigProviderService.vals.main.serverUrl).then(function () {
@@ -237,7 +236,7 @@ innerHandleConnectedToWSserver(data) {
                 session = this.loaded_meta_data_service.getBundleList()[0];
               }
               this.db_obj_load_save_service.loadBundle(session).subscribe(() => {
-                console.log('everything loaded!');
+                // console.log('everything loaded!');
                 // FOR DEVELOPMENT:
                 // this.saveBundle(); // for testing save function
                 // this.menuBundleSaveBtnClick(); // for testing save button

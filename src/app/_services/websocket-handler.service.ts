@@ -31,11 +31,11 @@ export class WebsocketHandlerService {
 
   private listener(data) {
     let messageObj = data;
-    console.log('Received data from websocket: ', messageObj);
+    // console.log('Received data from websocket: ', messageObj);
     // If an object exists with callbackID in our callbacks object, resolve it
     if (this.callbacks.hasOwnProperty(messageObj.callbackID)) {
-      console.log(this.callbacks[messageObj.callbackID]);
-      console.log('resolving callback: ' + messageObj.type + ' Nr.: ' + messageObj.callbackID);
+      // console.log(this.callbacks[messageObj.callbackID]);
+      // console.log('resolving callback: ' + messageObj.type + ' Nr.: ' + messageObj.callbackID);
       switch (messageObj.type) {
         case 'getESPSfile':
           alert('espsfile');
@@ -81,19 +81,19 @@ export class WebsocketHandlerService {
 
   // broadcast on open
   private wsonopen(message: MessageEvent): void {
-    console.log('in wsonopen', this);
+    // console.log('in wsonopen', this);
     this.connected = true;
     this.subject.next(message);
     // $rootScope.$apply(conPromise.resolve(message));
   }
 
   wsonmessage(message) {
-    console.log('in wsh wsonmessage');
+    // console.log('in wsh wsonmessage');
     try{
       let jsonMessage = JSON.parse(message.data);
       this.listener(jsonMessage);
     }catch(e){
-      console.error(e);
+      // console.error(e);
       // modalService.open('views/error.html', 'Got non-JSON string as message from server! This is not allowed! The message was: ' + message.data + ' which caused the angular.fromJson error: ' + e).then(function () {
       //   sServObj.closeConnect();
       //   $rootScope.$broadcast('resetToInitState');
@@ -102,7 +102,7 @@ export class WebsocketHandlerService {
   }
 
   wsonerror(message) {
-    console.error('WEBSOCKET ERROR!!!!!');
+    // console.error('WEBSOCKET ERROR!!!!!');
     // $rootScope.$apply(conPromise.resolve(message));
   }
 
@@ -117,7 +117,7 @@ export class WebsocketHandlerService {
   }
 
   private sendRequest(request) {
-    console.log('in wsh sendRequest');
+    // console.log('in wsh sendRequest');
     // var defer = $q.defer();
     let sbj = new Subject();
     let callbackId = this.getCallbackId();
@@ -148,7 +148,7 @@ export class WebsocketHandlerService {
   ///////////////////////////////////////////
   // public api
   initConnect(url) {
-    console.log(url);
+    // console.log(url);
     this.subject = new Subject();
 
     try{
@@ -158,7 +158,7 @@ export class WebsocketHandlerService {
       this.ws.onerror = this.wsonerror.bind(this);
       this.ws.onclose = this.wsonclose.bind(this);
     }catch (err){
-      console.log('askldfjöaskdjfklafjökdas');
+      // console.log('askldfjöaskdjfklafjökdas');
       // return $q.reject('A malformed websocket URL that does not start with ws:// or wss:// was provided.');
     }
     // this.ws = WebSocketSubject.create(url)

@@ -92,7 +92,7 @@ export class WavParserService {
       curBufferView = new Uint8Array(curBuffer);
       let cur4chars = this.ab2str(curBufferView);
       if(cur4chars === 'fmt '){
-        console.log('found fmt chunk at' + fmtBinIdx);
+        // console.log('found fmt chunk at' + fmtBinIdx);
         headerInfos.FmtSubchunkID = 'fmt ';
         foundChunk = true;
 
@@ -169,7 +169,7 @@ export class WavParserService {
     curBufferView = new Uint16Array(curBuffer);
     headerInfos.BitsPerSample = curBufferView[0];
 
-    console.log(headerInfos);
+    // console.log(headerInfos);
 
     // look for data chunk size
     foundChunk = false;
