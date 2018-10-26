@@ -448,7 +448,7 @@ export class DrawHelperService {
             ctx.stroke();
             ctx.fill();
             // if (ConfigProviderService.vals.restrictions.drawSampleNrs) {
-            if(true){
+            if(false){
               ctx.fillText(sNr.toString(), i / allPeakVals.samplePerPx - hDbS, canvas.height - (allPeakVals.samples[i] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height - 10);
               sNr = sNr + 1;
             }
