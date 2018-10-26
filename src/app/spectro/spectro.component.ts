@@ -1,10 +1,9 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
-import {DrawHelperService} from '../_services/draw-helper.service';
 import {MathHelperService} from '../_services/math-helper.service';
 import {FontScaleService} from '../_services/font-scale.service';
 import {
-    getMousePositionInCanvasX,
+    getMousePositionInCanvasX, getMousePositionInCanvasY,
     getSampleNumberAtCanvasMouseEvent,
     getSamplesPerCanvasWidthUnit
 } from '../_utilities/view-state-helper-functions';
@@ -17,6 +16,7 @@ import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-
 import {spectrogramWorker} from '../_workers/spectrogram-worker.function';
 import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
 import {drawMinMaxAndName} from '../_utilities/drawing/markup-elements/draw-min-max-and-name.function';
+import {drawHorizontalCrossHair} from '../_utilities/drawing/markup-elements/draw-horizontal-cross-hair.function';
 
 @Component({
     selector: 'app-spectro',
@@ -39,6 +39,7 @@ export class SpectroComponent implements OnInit {
     private worker;
     private workerFunctionURL;
     private initialised: boolean = false;
+    private mouseY: number = null;
 
     // FFT default vars
     // default alpha for Window Function
@@ -127,8 +128,14 @@ export class SpectroComponent implements OnInit {
         }
     }
 
+    public mouseleave(event: MouseEvent) {
+        this.mouseY = null;
+    }
+
     public mousemove(event: MouseEvent) {
         this.crosshair_move.emit(getMousePositionInCanvasX(event));
+        this.mouseY = getMousePositionInCanvasY(event);
+        this.drawSpectMarkup();
 
         let mouseButton: number;
         if (event.buttons === undefined) {
@@ -214,6 +221,20 @@ export class SpectroComponent implements OnInit {
             this._viewport_sample_end,
             emuWebappTheme
         );
+
+        if (this.mouseY !== null) {
+            const max = this._spectrogram_settings.rangeTo;
+            let valueAtMousePosition = max - this.mouseY / this._markup_context.canvas.height * max; // SIC only uses max
+            valueAtMousePosition = MathHelperService.roundToNdigitsAfterDecPoint(valueAtMousePosition, 2);
+
+            drawHorizontalCrossHair(
+                this._markup_context,
+                this.mouseY,
+                valueAtMousePosition,
+                'Hz',
+                emuWebappTheme
+            );
+        }
     }
 
     killSpectroRenderingThread() {

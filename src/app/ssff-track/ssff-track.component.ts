@@ -4,7 +4,12 @@ import { FontScaleService } from '../_services/font-scale.service';
 import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
-import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent, getTimeOfSample} from '../_utilities/view-state-helper-functions';
+import {
+    getMousePositionInCanvasX,
+    getMousePositionInCanvasY,
+    getSampleNumberAtCanvasMouseEvent,
+    getTimeOfSample
+} from '../_utilities/view-state-helper-functions';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
@@ -12,6 +17,8 @@ import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selectio
 import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
 import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
 import {drawMinMaxAndName} from '../_utilities/drawing/markup-elements/draw-min-max-and-name.function';
+import {drawHorizontalCrossHair} from '../_utilities/drawing/markup-elements/draw-horizontal-cross-hair.function';
+import {MathHelperService} from '../_services/math-helper.service';
 
 @Component({
   selector: 'app-ssff-track',
@@ -33,6 +40,7 @@ export class SsffTrackComponent implements OnInit {
     private _markup_context: CanvasRenderingContext2D;
     private assTrackName: string;
     private initialised: boolean = false;
+    private mouseY: number = null;
 
     @Input() set name(value: any) {
         this._name = value;
@@ -110,8 +118,14 @@ export class SsffTrackComponent implements OnInit {
       }
   }
 
+  public mouseleave(event: MouseEvent) {
+      this.mouseY = null;
+  }
+
   public mousemove(event: MouseEvent){
     this.crosshair_move.emit(getMousePositionInCanvasX(event));
+    this.mouseY = getMousePositionInCanvasY(event);
+    this.drawSsffTrackMarkup();
 
     let mouseButton: number;
     if (event.buttons === undefined) {
@@ -174,6 +188,23 @@ export class SsffTrackComponent implements OnInit {
           emuWebappTheme
       );
 
+      const tr = this.config_provider_service.getSsffTrackConfig(this._name);
+      const col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
+      if (col) {
+          drawMinMaxAndName(this._markup_context, this._name, col._minVal, col._maxVal, 2, emuWebappTheme);
+            /*
+            var minMaxValLims = scope.cps.getValueLimsOfTrack(tr.name);
+            var minVal, maxVal;
+            if(!angular.equals(minMaxValLims, {})){
+              minVal = minMaxValLims.minVal;
+              maxVal = minMaxValLims.maxVal;
+            } else {
+              minVal = col._minVal;
+              maxVal = col._maxVal;
+            }
+            */
+      }
+
       drawVerticalCrossHair(
           this._markup_context,
           this._crosshair_position,
@@ -184,25 +215,18 @@ export class SsffTrackComponent implements OnInit {
           emuWebappTheme
       );
 
+      if (this.mouseY !== null) {
+          let valueAtMousePosition = col._maxVal - (this.mouseY / this._markup_context.canvas.height * (col._maxVal - col._minVal));
+          valueAtMousePosition = MathHelperService.roundToNdigitsAfterDecPoint(valueAtMousePosition, 2);
 
-      // draw min max and name of track
-      const tr = this.config_provider_service.getSsffTrackConfig(this._name);
-      const col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
-      if (col) {
-          drawMinMaxAndName(this._markup_context, this._name, col._minVal, col._maxVal, 2, emuWebappTheme);
+          drawHorizontalCrossHair(
+              this._markup_context,
+              this.mouseY,
+              valueAtMousePosition,
+              'Hz',
+              emuWebappTheme
+          );
       }
-
-      /*
-      var minMaxValLims = scope.cps.getValueLimsOfTrack(tr.name);
-      var minVal, maxVal;
-      if(!angular.equals(minMaxValLims, {})){
-        minVal = minMaxValLims.minVal;
-        maxVal = minMaxValLims.maxVal;
-      } else {
-        minVal = col._minVal;
-        maxVal = col._maxVal;
-      }
-      */
   }
 
   /**
