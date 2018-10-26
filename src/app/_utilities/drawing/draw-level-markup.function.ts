@@ -5,6 +5,7 @@ import {Boundary} from '../../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from './markup-elements/draw-selection.function';
 import {drawVerticalCrossHair} from './markup-elements/draw-vertical-cross-hair.function';
+import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 
 export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 level: ILevel,
@@ -18,7 +19,8 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 crosshairPosition: number,
                                 movingBoundaries: Boundary[],
                                 audioBuffer: AudioBuffer,
-                                mouseoverLevel: ILevel) {
+                                mouseoverLevel: ILevel,
+                                emuWebappTheme: EmuWebappTheme) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     if (selected) {
         ctx.fillStyle = 'rgba(22, 22, 22, 0.1)';
@@ -29,7 +31,8 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         ctx,
         viewportStartSample,
         viewportEndSample,
-        movingBoundaries
+        movingBoundaries,
+        emuWebappTheme
     );
 
     drawSelection(
@@ -40,9 +43,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
         selectionStartSample,
         selectionEndSample,
         audioBuffer,
-        'white',
-        'white',
-        'rgba(255, 255, 255, 0.3)'
+        emuWebappTheme
     );
 
 
@@ -102,5 +103,5 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
     }
 
     // draw cursor
-    drawVerticalCrossHair(ctx, crosshairPosition);
+    drawVerticalCrossHair(ctx, crosshairPosition, emuWebappTheme);
 }

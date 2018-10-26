@@ -1,10 +1,10 @@
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
 import {
-    getPixelPositionOfSampleInViewport,
-    getSampleAtPixelPositionInViewport, getTimeOfSample
+    getSampleAtPixelPositionInViewport,
+    getTimeOfSample
 } from '../_utilities/view-state-helper-functions';
-import {Boundary} from '../_interfaces/boundary.interface';
+import {EmuWebappTheme} from '../_interfaces/emu-webapp-theme.interface';
 
 export class DrawHelperService {
 
@@ -295,11 +295,13 @@ export class DrawHelperService {
                                             eS: number,
                                             osciPeaks,
                                             audioBuffer: AudioBuffer,
-                                            currentChannel: number) {
+                                            currentChannel: number,
+                                            emuWebappTheme: EmuWebappTheme) {
     const canvas = ctx.canvas;
 
     // clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = emuWebappTheme.canvasBackgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // samples per pixel + one to correct for subtraction
     let samplesPerPx = (eS + 1 - sS) / canvas.width;
@@ -330,7 +332,7 @@ export class DrawHelperService {
 
       let startPeakWinIdx = ssT * pps;
 
-      ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
+      ctx.strokeStyle = emuWebappTheme.primaryLineColor;
 
       let peakIdx = Math.round(startPeakWinIdx);
       ctx.beginPath();
@@ -374,7 +376,7 @@ export class DrawHelperService {
       // check if envelope is to be drawn
       if (allPeakVals.minPeaks && allPeakVals.maxPeaks && allPeakVals.samplePerPx >= 1) {
         // draw envelope
-        ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
+        ctx.strokeStyle = emuWebappTheme.primaryLineColor;
 
         ctx.beginPath();
         yMax = ((allPeakVals.maxMaxPeak - allPeakVals.maxPeaks[0]) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak)) * canvas.height;
@@ -410,8 +412,8 @@ export class DrawHelperService {
         let hDbS = (1 / allPeakVals.samplePerPx) / 2; // half distance between samples
         let sNr = sS;
         // over sample exact
-        ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
-        ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
+        ctx.strokeStyle = emuWebappTheme.primaryLineColor;
+        ctx.fillStyle = emuWebappTheme.primaryLineColor;
         // ctx.beginPath();
         if (sS === 0) {
           ctx.moveTo(hDbS, (allPeakVals.samples[0] - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height);
@@ -459,8 +461,8 @@ export class DrawHelperService {
     // if (ConfigProviderService.vals.restrictions.drawZeroLine) {
     if (true) {
       // draw zero line
-      ctx.strokeStyle = '#4fc3f7';//ConfigProviderService.design.color.blue;
-      ctx.fillStyle = '#4fc3f7'; //ConfigProviderService.design.color.blue;
+      ctx.strokeStyle = emuWebappTheme.osciZeroLineColor;
+      ctx.fillStyle = emuWebappTheme.osciZeroLineColor;
 
       let zeroLineY;
 

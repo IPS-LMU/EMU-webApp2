@@ -2,20 +2,16 @@ import {FontScaleService} from '../../_services/font-scale.service';
 import {ILevel} from '../../_interfaces/annot-json.interface';
 import {drawEvent} from './draw-event.function';
 import {drawSegment} from './draw-segment.function';
+import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 
 export function drawLevelDetails(context: CanvasRenderingContext2D,
                                  level: ILevel,
                                  attribute: string,
                                  viewportStartSample: number,
                                  viewportEndSample: number,
-                                 drawSmallVersion: boolean) {
-    const primaryLineColor = 'white';
-    const secondaryLineColor = 'grey';
-
-    const fontFamily = 'HelveticaNeue';
-    const primaryFontColor = 'white';
-    const secondaryFontColor = 'grey';
-    let fontSize = 12;
+                                 drawSmallVersion: boolean,
+                                 emuWebappTheme: EmuWebappTheme) {
+    let fontSize = emuWebappTheme.primaryFontSize;
 
     if (drawSmallVersion) {
         fontSize -= 2;
@@ -29,7 +25,8 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
     const widthOfAnM = context.measureText('m').width * FontScaleService.getScaleX(context);
     const widthOfAZero = context.measureText('0').width * FontScaleService.getScaleX(context);
 
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    context.fillStyle = emuWebappTheme.canvasBackgroundColor;
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
     // draw name and type of level
     let levelLabel;
@@ -45,9 +42,30 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
     const y = context.canvas.height / 2;
 
     if (drawSmallVersion) {
-        FontScaleService.drawUndistortedText(context, levelLabel, fontSize, fontFamily, x, y, primaryFontColor, 'left', 'middle');
+        FontScaleService.drawUndistortedText(
+            context,
+            levelLabel,
+            fontSize,
+            emuWebappTheme.primaryFontFamily,
+            x,
+            y,
+            emuWebappTheme.primaryFontColor,
+            'left',
+            'middle'
+        );
     } else {
-        FontScaleService.drawUndistortedTextTwoLines(context, levelLabel, typeLabel, fontSize, fontFamily, x, y, primaryFontColor, 'left', 'middle');
+        FontScaleService.drawUndistortedTextTwoLines(
+            context,
+            levelLabel,
+            typeLabel,
+            fontSize,
+            emuWebappTheme.primaryFontFamily,
+            x,
+            y,
+            emuWebappTheme.primaryFontColor,
+            'left',
+            'middle'
+        );
     }
 
     if (level.type === 'SEGMENT') {
@@ -61,8 +79,7 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
             ) {
                 drawSegment(
                     context, item, attribute, viewportStartSample, viewportEndSample,
-                    primaryFontColor, secondaryFontColor, primaryLineColor, secondaryLineColor, fontSize, fontFamily, drawSmallVersion,
-                    widthOfAnM, widthOfAZero
+                    drawSmallVersion, widthOfAnM, widthOfAZero, emuWebappTheme
                 );
             }
         }
@@ -71,7 +88,7 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
             if (item.samplePoint > viewportStartSample && item.samplePoint < viewportEndSample) {
                 drawEvent(
                     context, item, attribute, viewportStartSample, viewportEndSample,
-                    primaryFontColor, secondaryFontColor, primaryLineColor, fontSize, fontFamily, drawSmallVersion
+                    drawSmallVersion, emuWebappTheme
                 );
             }
         }

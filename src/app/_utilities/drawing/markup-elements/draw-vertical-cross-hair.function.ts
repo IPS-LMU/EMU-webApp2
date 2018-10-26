@@ -1,11 +1,14 @@
-export function drawVerticalCrossHair(ctx, mouseX) {
+import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';
+
+export function drawVerticalCrossHair(context: CanvasRenderingContext2D,
+                                      mouseX: number,
+                                      emuWebappTheme: EmuWebappTheme) {
     if (mouseX === null) {
         return;
     }
-    ctx.strokeStyle = 'red';
-    ctx.fillStyle = 'red';
-    ctx.beginPath();
-    ctx.moveTo(mouseX, 0);
-    ctx.lineTo(mouseX, ctx.canvas.height);
-    ctx.stroke();
+    context.strokeStyle = emuWebappTheme.crossHairColor;
+    context.beginPath();
+    context.moveTo(mouseX, 0);
+    context.lineTo(mouseX, context.canvas.height);
+    context.stroke();
 }

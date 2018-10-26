@@ -1,18 +1,10 @@
 import {Component, Input, ViewChild, ElementRef, EventEmitter, Output, OnInit} from '@angular/core';
-import { LevelService } from '../_services/level.service';
 import { HistoryService } from '../_services/history.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
-import {
-  getMousePositionInCanvasX,
-  getSampleNumberAtCanvasMouseEvent,
-  getSamplesPerCanvasWidthUnit
-} from '../_utilities/view-state-helper-functions';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
-import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.function';
-import { DrawHelperService } from '../_services/draw-helper.service';
-import { FontScaleService } from '../_services/font-scale.service';
 import {Boundary} from '../_interfaces/boundary.interface';
+import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
 
 @Component({
   selector: 'app-ghost-level',
@@ -396,7 +388,8 @@ export class GhostLevelComponent implements OnInit {
       this._crosshair_position,
       this._moving_boundaries,
       this._audio_buffer,
-      this._mouseover_level
+      this._mouseover_level,
+      emuWebappTheme
     );
   }
 

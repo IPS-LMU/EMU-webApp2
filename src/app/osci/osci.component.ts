@@ -5,6 +5,7 @@ import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_
 import {drawOsciMarkup} from '../_utilities/drawing/draw-osci-markup.function';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
+import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
 
 @Component({
     selector: 'app-osci',
@@ -144,7 +145,8 @@ export class OsciComponent implements OnInit {
             this._viewport_sample_end,
             this.osciPeaks,
             this._audio_buffer,
-            this._channel
+            this._channel,
+            emuWebappTheme
         );
     }
 
@@ -163,7 +165,8 @@ export class OsciComponent implements OnInit {
             this._moving_boundaries,
             this._crosshair_position,
             this._play_head_info,
-            this._audio_buffer
+            this._audio_buffer,
+            emuWebappTheme
         );
     }
 }

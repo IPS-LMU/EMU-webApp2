@@ -15,6 +15,7 @@ import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/dra
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
 import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
 import {spectrogramWorker} from '../_workers/spectrogram-worker.function';
+import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
 
 @Component({
     selector: 'app-spectro',
@@ -178,7 +179,8 @@ export class SpectroComponent implements OnInit {
             this._markup_context,
             this._viewport_sample_start,
             this._viewport_sample_end,
-            this._moving_boundaries
+            this._moving_boundaries,
+            emuWebappTheme
         );
 
         drawSelection(
@@ -189,9 +191,7 @@ export class SpectroComponent implements OnInit {
             this._selection_sample_start,
             this._selection_sample_end,
             this._audio_buffer,
-            'black',
-            'black',
-            'rgba(0,0,0, 0.3)'
+            emuWebappTheme
         );
 
         // draw min max vals and name of track
@@ -203,7 +203,7 @@ export class SpectroComponent implements OnInit {
             2
         );
 
-        drawVerticalCrossHair(this._markup_context, this._crosshair_position);
+        drawVerticalCrossHair(this._markup_context, this._crosshair_position, emuWebappTheme);
     }
 
     killSpectroRenderingThread() {

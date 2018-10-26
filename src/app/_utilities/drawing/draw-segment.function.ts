@@ -2,21 +2,17 @@ import {LevelService} from '../../_services/level.service';
 import {IItem} from '../../_interfaces/annot-json.interface';
 import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
 import {FontScaleService} from '../../_services/font-scale.service';
+import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 
 export function drawSegment(ctx: CanvasRenderingContext2D,
                             item: IItem,
                             attribute: string,
                             viewportStartSample: number,
                             viewportEndSample: number,
-                            primaryFontColor: string,
-                            secondaryFontColor: string,
-                            primaryLineColor: string,
-                            secondaryLineColor: string,
-                            fontSize: number,
-                            fontFamily: string,
                             drawSmallVersion: boolean,
                             widthOfAnM: number,
-                            widthOfAZero: number) {
+                            widthOfAZero: number,
+                            emuWebappTheme: EmuWebappTheme) {
     const labelValue = LevelService.getLabelByAttribute(item, attribute);
 
     // draw segment start
@@ -28,19 +24,19 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
         ctx.canvas.width
     ).end;
 
-    ctx.fillStyle = primaryLineColor;
+    ctx.fillStyle = emuWebappTheme.primaryLineColor;
     ctx.fillRect(posS, 0, 2, ctx.canvas.height / 2);
 
     // draw segment end
-    ctx.fillStyle = secondaryLineColor;
+    ctx.fillStyle = emuWebappTheme.secondaryLineColor;
     ctx.fillRect(posE, ctx.canvas.height / 2, 2, ctx.canvas.height);
 
     // check for enough space to stroke text
     if ((labelValue !== undefined) && posE - posS > (widthOfAnM * labelValue.length)) {
         if (drawSmallVersion) {
-            FontScaleService.drawUndistortedText(ctx, labelValue, fontSize - 2, fontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), primaryFontColor, 'center', 'middle');
+            FontScaleService.drawUndistortedText(ctx, labelValue, emuWebappTheme.primaryFontSize - 2, emuWebappTheme.primaryFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), emuWebappTheme.primaryFontColor, 'center', 'middle');
         } else {
-            FontScaleService.drawUndistortedText(ctx, labelValue, fontSize - 2, fontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), primaryFontColor, 'center', 'middle');
+            FontScaleService.drawUndistortedText(ctx, labelValue, emuWebappTheme.primaryFontSize - 2, emuWebappTheme.primaryFontFamily, posS + (posE - posS) / 2, (ctx.canvas.height / 2), emuWebappTheme.primaryFontColor, 'center', 'middle');
         }
     }
 
@@ -50,7 +46,7 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
 
         let hlY = ctx.canvas.height / 4;
         // start helper line
-        ctx.strokeStyle = primaryLineColor;
+        ctx.strokeStyle = emuWebappTheme.primaryLineColor;
         ctx.beginPath();
         ctx.moveTo(posS, hlY);
         ctx.lineTo(labelCenter, hlY);
@@ -59,7 +55,7 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
 
         hlY = ctx.canvas.height / 4 * 3;
         // end helper line
-        ctx.strokeStyle = secondaryLineColor;
+        ctx.strokeStyle = emuWebappTheme.secondaryLineColor;
         ctx.beginPath();
         ctx.moveTo(posE, hlY);
         ctx.lineTo(labelCenter, hlY);
@@ -72,7 +68,8 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
         // check for enough space to stroke text
         if (posE - posS > widthOfAZero * item.sampleStart.toString().length) {
             FontScaleService.drawUndistortedText(
-                ctx, item.sampleStart.toString(), fontSize - 2, fontFamily, posS + 3, 0, secondaryFontColor, 'left', 'top'
+                ctx, item.sampleStart.toString(), emuWebappTheme.primaryFontSize - 2, emuWebappTheme.primaryFontFamily,
+                posS + 3, 0, emuWebappTheme.secondaryFontColor, 'left', 'top'
             );
         }
 
@@ -83,11 +80,11 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
             FontScaleService.drawUndistortedText(
                 ctx,
                 durtext,
-                fontSize - 2,
-                fontFamily,
+                emuWebappTheme.primaryFontSize - 2,
+                emuWebappTheme.primaryFontFamily,
                 posE,
                 ctx.canvas.height / 4 * 3,
-                secondaryFontColor,
+                emuWebappTheme.secondaryFontColor,
                 'right',
                 'top'
             );

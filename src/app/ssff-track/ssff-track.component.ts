@@ -10,6 +10,7 @@ import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
 import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
+import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
 
 @Component({
   selector: 'app-ssff-track',
@@ -159,7 +160,8 @@ export class SsffTrackComponent implements OnInit {
               this._markup_context,
               this._viewport_sample_start,
               this._viewport_sample_end,
-              this._moving_boundaries
+              this._moving_boundaries,
+              emuWebappTheme
           );
       }
 
@@ -172,12 +174,10 @@ export class SsffTrackComponent implements OnInit {
           this._selection_sample_start,
           this._selection_sample_end,
           this._audio_buffer,
-          'black',
-          'black',
-          'rgba(0,0,0, 0.3)'
+          emuWebappTheme
       );
 
-      drawVerticalCrossHair(this._markup_context, this._crosshair_position);
+      drawVerticalCrossHair(this._markup_context, this._crosshair_position, emuWebappTheme);
 
     /*
       // draw min max an name of trac
@@ -206,8 +206,8 @@ export class SsffTrackComponent implements OnInit {
       return;
     }
 
-    // let ctx = element[0].getContext('2d');
-    this._main_context.clearRect(0, 0, this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
+    this._main_context.fillStyle = emuWebappTheme.canvasBackgroundColor;
+    this._main_context.fillRect(0, 0, this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
 
     if (!(this.ssff_data_service.data && (Object.keys(this.ssff_data_service.data).length === 0))) {
       if (this.ssff_data_service.data.length !== 0) {

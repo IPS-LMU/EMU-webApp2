@@ -5,7 +5,6 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  background-color: white;
   //height: 100%;
   //min-height: 64px;
 }
@@ -13,10 +12,8 @@
 .emuwebapp-timelineCanvasMain {
   position: absolute;
   flex-grow: 1;
-  background: white;
   //top: 0px;
   //left: 0px;
-  //border: 1px solid $color-grey;
   width: 100%;
   height: 100%;
   //z-index: 1;
@@ -24,7 +21,6 @@
 .emuwebapp-timelineCanvasSSFF{
   position: absolute;
   flex-grow: 1;
-  //background: rgba(0, 255, 0, 0.1);
   width: 100%;
   height: 100%;
 }
@@ -32,7 +28,6 @@
 .emuwebapp-timelineCanvasMarkup{
   position: absolute;
   flex-grow: 1;
-  //background: rgba(0, 255, 0, 0.1);
   width: 100%;
   height: 100%;
 }
