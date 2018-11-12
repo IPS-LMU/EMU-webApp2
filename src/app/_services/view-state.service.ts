@@ -73,6 +73,11 @@ export class ViewStateService {
   submenuOpen;
   rightSubmenuOpen;
   selectedItems: IItem[];
+  labelEditorState: {
+      item: IItem;
+      originalValue: string;
+      currentValue: string;
+  };
   curMousePosSample;
   crosshairPosition: number;
   preselectedItemInfo: PreselectedItemInfo;
@@ -95,8 +100,6 @@ export class ViewStateService {
   pageSize;
   currentPage;
   curTimeAnchorIdx;
-  largeTextFieldInputFieldVisable;
-  largeTextFieldInputFieldCurLabel;
 
   // possible general states of state machine
   states;
@@ -333,6 +336,11 @@ export class ViewStateService {
     this.submenuOpen = false;
     this.rightSubmenuOpen = false;
     this.selectedItems = [];
+    this.labelEditorState = {
+        item: null,
+        originalValue: null,
+        currentValue: null
+    };
     this.curMousePosSample = 0;
     this.preselectedItemInfo = null;
     this.crosshairPosition = null;
@@ -355,8 +363,6 @@ export class ViewStateService {
     this.pageSize = 500;
     this.currentPage = undefined;
     this.curTimeAnchorIdx = -1;
-    this.largeTextFieldInputFieldVisable = false;
-    this.largeTextFieldInputFieldCurLabel = '';
 
     // possible general states of state machine
     this.states = [];
@@ -473,6 +479,23 @@ setState(nameOrObj) {
     window.requestAnimationFrame(this.updatePlayHead.bind(this));
   }
 
+  public startEditing(item: IItem) {
+    this.labelEditorState.item = item;
+    this.labelEditorState.originalValue = item.labels[0].value;
+    this.labelEditorState.currentValue = item.labels[0].value;
+  }
+
+  public updateItemInEditMode(newValue: string) {
+    this.labelEditorState.item.labels[0].value = newValue;
+    this.labelEditorState.currentValue = newValue;
+  }
+
+  public cancelEdit() {
+      this.labelEditorState.item.labels[0].value = this.labelEditorState.originalValue;
+      this.labelEditorState.item = null;
+      this.labelEditorState.originalValue = null;
+      this.labelEditorState.currentValue = null;
+  }
 
   // /**
   //  * set selected Area

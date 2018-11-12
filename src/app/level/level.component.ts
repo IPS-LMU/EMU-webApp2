@@ -90,6 +90,10 @@ export class LevelComponent implements OnInit {
   @Input() set mouseover_level(value: ILevel) {
     this._mouseover_level = value;
   }
+  @Input() set label_editor_current_value(value: string) {
+    this.drawLevelMarkup();
+    this.drawLevelDetails();
+  }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
   @Output() moving_boundary_move: EventEmitter<Boundary[]> = new EventEmitter<Boundary[]>();
@@ -99,6 +103,7 @@ export class LevelComponent implements OnInit {
   @Output() preselect_item: EventEmitter<PreselectedItemInfo> = new EventEmitter<PreselectedItemInfo>();
   @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
   @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
+  @Output() start_editing: EventEmitter<IItem> = new EventEmitter<IItem>();
 
 
   @ViewChild('levelCanvas') levelCanvas: ElementRef;
@@ -114,53 +119,47 @@ export class LevelComponent implements OnInit {
     }
 
 
-  public mouseclick(event: MouseEvent){
-    event.preventDefault();
-
-    this.select_level.emit(this._level_annotation);
-
-    const clickedSample = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-
-    const itemNearCursor = LevelService.getClosestItem(clickedSample, this._level_annotation, this._audio_buffer.length);
-    if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined) {
-        this.select_items.emit([itemNearCursor.current]);
-        this.adjustSelectionToItems([itemNearCursor.current]);
-    } else {
-      this.select_items.emit([]);
-      this.adjustSelectionToItems([]);
-    }
-  }
-
-  public mousedblclick(event: MouseEvent){
-    if (this._database_configuration.restrictions.editItemName) {
-      /*
+    public mouseclick(event: MouseEvent) {
+        event.preventDefault();
         const clickedSample = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-        const itemNearCursor = LevelService.getClosestItem(clickedSample, this._level_annotation, this._audio_buffer.length);
-        // let isOpen = this.element_ref.nativeElement.parentElement.css('height') === '25px' ? false : true;
-        // expand to full size on dbl click if level is in small size
-        // if (!isOpen) {
-        //   this.element_ref.nativeElement.parentElement.find('div')[3].click();
-        // }
-        if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined && this.view_state_service.getPermission('labelAction')) {
-            if (this._level_annotation.type === 'SEGMENT') {
-                if (itemNearCursor.current.sampleStart >= this._viewport_sample_start) {
-                    if ((itemNearCursor.current.sampleStart + itemNearCursor.current.sampleDur) <= this._viewport_sample_end) {
-                        this.select_level.emit();
-                        this.select_items.emit([itemNearCursor.current]);
-                    } else {
-                        //console.log('Editing out of right bound !');
+        this.handleClickAtSample(clickedSample, false);
+    }
+
+    public mousedblclick(event: MouseEvent) {
+        event.preventDefault();
+        const clickedSample = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
+        this.handleClickAtSample(clickedSample, true);
+    }
+
+    private handleClickAtSample(sample: number, startEditing: boolean) {
+        this.select_level.emit(this._level_annotation);
+
+        const itemNearCursor = LevelService.getClosestItem(sample, this._level_annotation, this._audio_buffer.length);
+
+        if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined) {
+            this.select_items.emit([itemNearCursor.current]);
+            this.adjustSelectionToItems([itemNearCursor.current]);
+
+            if (startEditing) {
+                if (this._level_annotation.type === 'EVENT') {
+                    if (itemNearCursor.current.samplePoint >= this._viewport_sample_start) {
+                        if (itemNearCursor.current.samplePoint <= this._viewport_sample_end) {
+                            this.start_editing.emit(itemNearCursor.current);
+                        }
                     }
                 } else {
-                    //console.log('Editing out of left bound !');
+                    if (itemNearCursor.current.sampleStart >= this._viewport_sample_start) {
+                        if ((itemNearCursor.current.sampleStart + itemNearCursor.current.sampleDur) <= this._viewport_sample_end) {
+                            this.start_editing.emit(itemNearCursor.current);
+                        }
+                    }
                 }
-            } else {
-                this.select_level.emit();
-                this.select_items.emit([itemNearCursor.current]);
             }
+        } else {
+            this.select_items.emit([]);
+            this.adjustSelectionToItems([]);
         }
-        */
     }
-  }
 
   public mouserightclick(event: MouseEvent){
       event.preventDefault();

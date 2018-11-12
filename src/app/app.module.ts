@@ -43,6 +43,7 @@ import { HandleGlobalKeyStrokesDirective } from './_directives/handle-global-key
 import { ConnectComponent } from './_dialogs/connect/connect.component';
 import { GhostLevelComponent } from './ghost-level/ghost-level.component';
 import { ViewportInfoComponent } from './viewport-info/viewport-info.component';
+import { LabelEditorComponent } from './label-editor/label-editor.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { ViewportInfoComponent } from './viewport-info/viewport-info.component';
     HandleGlobalKeyStrokesDirective,
     ConnectComponent,
     GhostLevelComponent,
-    ViewportInfoComponent
+    ViewportInfoComponent,
+    LabelEditorComponent
   ],
   imports: [
     BrowserModule,
