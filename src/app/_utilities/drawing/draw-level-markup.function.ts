@@ -1,5 +1,5 @@
 import {IItem, ILevel} from '../../_interfaces/annot-json.interface';
-import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../view-state-helper-functions';
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-lines.function';
@@ -57,20 +57,20 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
 
                     // check if segment or event level
                     if (item.sampleStart !== undefined) {
-                        itemStartPosition = getPixelPositionOfSampleInViewport(
+                        itemStartPosition = getCanvasCoordinateOfSample(
                             item.sampleStart,
                             viewportStartSample,
                             viewportEndSample,
                             ctx.canvas.width
                         ).start;
-                        itemEndPosition = getPixelPositionOfSampleInViewport(
+                        itemEndPosition = getCanvasCoordinateOfSample(
                             item.sampleStart + item.sampleDur,
                             viewportStartSample,
                             viewportEndSample,
                             ctx.canvas.width
                         ).end;
                     } else {
-                        itemStartPosition = getPixelPositionOfSampleInViewport(
+                        itemStartPosition = getCanvasCoordinateOfSample(
                             item.samplePoint,
                             viewportStartSample,
                             viewportEndSample,
@@ -92,7 +92,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
 
     if (preselectedItem && level.name === mouseoverLevel.name) {
         ctx.fillStyle = '#4fc3f7';
-        const boundaryPosition = getPixelPositionOfSampleInViewport(
+        const boundaryPosition = getCanvasCoordinateOfSample(
             preselectedItem.selectedBoundary.sample,
             viewportStartSample,
             viewportEndSample,

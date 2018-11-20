@@ -1,5 +1,5 @@
 import {LevelService} from '../../_services/level.service';
-import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../view-state-helper-functions';
 import {FontScaleService} from '../../_services/font-scale.service';
 import {IItem} from '../../_interfaces/annot-json.interface';
 import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
@@ -14,7 +14,7 @@ export function drawEvent(context: CanvasRenderingContext2D,
 
     const labelValue = LevelService.getLabelByAttribute(item, attribute);
 
-    const position = getPixelPositionOfSampleInViewport(
+    const position = getCanvasCoordinateOfSample(
         item.samplePoint,
         viewportStartSample,
         viewportEndSample,

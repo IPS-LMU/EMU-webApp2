@@ -1,7 +1,7 @@
-export function getPixelPositionOfSampleInViewport(targetSample: number,
-                                                   viewportStartSample: number,
-                                                   viewportEndSample: number,
-                                                   canvasWidth: number): { start: number, center: number, end: number } {
+export function getCanvasCoordinateOfSample(targetSample: number,
+                                            viewportStartSample: number,
+                                            viewportEndSample: number,
+                                            canvasWidth: number): { start: number, center: number, end: number } {
     const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
     const sampleWidth = canvasWidth / numberOfSamplesInViewport;
     const targetSampleRelativeToViewport = targetSample - viewportStartSample;

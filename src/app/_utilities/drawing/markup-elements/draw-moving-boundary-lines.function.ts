@@ -1,5 +1,5 @@
 import {Boundary} from '../../../_interfaces/boundary.interface';
-import {getPixelPositionOfSampleInViewport} from '../../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../../view-state-helper-functions';
 import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';
 
 export function drawMovingBoundaryLines(context: CanvasRenderingContext2D,
@@ -11,7 +11,7 @@ export function drawMovingBoundaryLines(context: CanvasRenderingContext2D,
 
     for (const movingBoundary of movingBoundaries) {
 
-        const x = getPixelPositionOfSampleInViewport(
+        const x = getCanvasCoordinateOfSample(
             movingBoundary.sample,
             viewportStartSample,
             viewportEndSample,

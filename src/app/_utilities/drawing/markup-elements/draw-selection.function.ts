@@ -1,4 +1,4 @@
-import {getPixelPositionOfSampleInViewport} from '../../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../../view-state-helper-functions';
 import {FontScaleService} from '../../../_services/font-scale.service';
 import {MathHelperService} from '../../../_services/math-helper.service';
 import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';
@@ -16,7 +16,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
     }
 
     if (selectionStartSample === selectionEndSample) {
-        const selectionPosition = getPixelPositionOfSampleInViewport(
+        const selectionPosition = getCanvasCoordinateOfSample(
             selectionStartSample,
             viewportStartSample,
             viewportEndSample,
@@ -43,13 +43,13 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             }
         }
     } else {
-        const startOfSelection = getPixelPositionOfSampleInViewport(
+        const startOfSelection = getCanvasCoordinateOfSample(
             selectionStartSample,
             viewportStartSample,
             viewportEndSample,
             ctx.canvas.width
         ).start;
-        const endOfSelection = getPixelPositionOfSampleInViewport(
+        const endOfSelection = getCanvasCoordinateOfSample(
             selectionEndSample - 1,
             viewportStartSample,
             viewportEndSample,

@@ -1,4 +1,4 @@
-import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../view-state-helper-functions';
 import {PlayHeadAnimationInfo} from '../../_interfaces/play-head-animation-info.interface';
 import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 
@@ -8,14 +8,14 @@ export function drawPlayHead(context: CanvasRenderingContext2D,
                              viewportEndSample: number,
                              emuWebappTheme: EmuWebappTheme): void {
 
-    const playheadStartSample = getPixelPositionOfSampleInViewport(
+    const playheadStartSample = getCanvasCoordinateOfSample(
         playHeadInfo.sS,
         viewportStartSample,
         viewportEndSample,
         context.canvas.width
     ).start;
 
-    const playheadCurrentSample = getPixelPositionOfSampleInViewport(
+    const playheadCurrentSample = getCanvasCoordinateOfSample(
         playHeadInfo.curS,
         viewportStartSample,
         viewportEndSample,
