@@ -3,11 +3,6 @@ import { Injectable } from '@angular/core';
 import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
-import {
-    getMousePositionInCanvasX, getMousePositionInCanvasY,
-    getPixelDistanceBetweenSamples,
-    getCanvasCoordinateOfSample, getSamplesPerCanvasWidthUnit
-} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../_interfaces/boundary.interface';
@@ -703,24 +698,6 @@ setState(nameOrObj) {
   // };
   //
 
-  /**
-   * get pixel position in current viewport given the canvas width
-   * @param w is width of canvas
-   * @param s is current sample to convert to pixel value
-   */
-  public getPos(w, s) {
-    return getCanvasCoordinateOfSample(s, this.curViewPort.sS, this.curViewPort.eS, w).start;
-  }
-
-  /**
-   * calculate the pixel distance between two samples
-   * @param w is width of canvas
-   */
-  public getSampleDist(w) {
-    return getPixelDistanceBetweenSamples(this.curViewPort.sS, this.curViewPort.eS, w);
-  }
-
-
   // /**
   //  * toggle boolean if left submenu is open
   //  */
@@ -958,15 +935,6 @@ setState(nameOrObj) {
   // };
 
   /**
-   *
-   */
-  public getSamplesPerPixelVal(event) {
-    let start = parseFloat(this.curViewPort.sS);
-    let end = parseFloat(this.curViewPort.eS);
-    return getSamplesPerCanvasWidthUnit(start, end, event.target);
-  }
-
-  /**
    * set view port to start and end sample
    * (with several out-of-bounds like checks)
    *
@@ -1151,20 +1119,6 @@ setState(nameOrObj) {
   //   this.lastKeyCode = e;
   // };
   //
-  /**
-   *
-   */
-  getX(e) {
-    return getMousePositionInCanvasX(e);
-  }
-
-  /**
-   *
-   */
-  getY = function (e) {
-    return getMousePositionInCanvasY(e);
-  };
-
   /**
    *
    */

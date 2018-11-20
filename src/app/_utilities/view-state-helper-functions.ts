@@ -43,16 +43,6 @@ export function getSampleAtCanvasCoordinate(canvasCoordinate: number,
     return viewportStartSample + Math.floor(numberOfSamplesInViewport * relativePosition);
 }
 
-
-/**
- * calculate the pixel distance between two samples
- */
-export function getPixelDistanceBetweenSamples(viewportStartSample: number,
-                                               viewportEndSample: number,
-                                               canvasWidth: number): number {
-    return (canvasWidth / (viewportEndSample - viewportStartSample + 1));
-}
-
 export function getMousePositionInCanvasX(event: MouseEvent) {
     const target: HTMLCanvasElement = event.target as HTMLCanvasElement;
     return (event.offsetX || event.layerX) * (target.width / target.clientWidth);
