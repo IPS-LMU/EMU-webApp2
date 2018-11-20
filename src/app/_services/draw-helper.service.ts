@@ -1,7 +1,7 @@
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
 import {
-    getSampleAtPixelPositionInViewport,
+    getSampleAtCanvasCoordinate,
     getTimeOfSample
 } from '../_utilities/view-state-helper-functions';
 import {EmuWebappTheme} from '../_interfaces/emu-webapp-theme.interface';
@@ -342,7 +342,7 @@ export class DrawHelperService {
 
       let sT, curSample;
       for (let curPxIdx = 1; curPxIdx < canvas.width; curPxIdx++) {
-        curSample = getSampleAtPixelPositionInViewport(curPxIdx, sS, eS, canvas.width);
+        curSample = getSampleAtCanvasCoordinate(curPxIdx, sS, eS, canvas.width);
         // calculate cur pixel sample time
         sT = getTimeOfSample(curSample, audioBuffer.sampleRate).end;
         peakIdx = Math.round(sT * pps);
