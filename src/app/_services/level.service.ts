@@ -3,7 +3,7 @@ import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interfac
 import {
     getSampleNumberAtCanvasMouseEvent, getSamplesPerCanvasWidthUnit,
     getSamplesPerPixel
-} from '../_utilities/view-state-helper-functions';
+} from '../_utilities/coordinate-system.functions';
 
 export class LevelService {
   /**

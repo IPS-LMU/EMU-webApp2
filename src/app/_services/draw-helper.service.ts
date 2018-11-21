@@ -3,7 +3,7 @@ import { FontScaleService } from './font-scale.service';
 import {
     getSampleAtCanvasCoordinate,
     getTimeOfSample
-} from '../_utilities/view-state-helper-functions';
+} from '../_utilities/coordinate-system.functions';
 import {EmuWebappTheme} from '../_interfaces/emu-webapp-theme.interface';
 
 export class DrawHelperService {

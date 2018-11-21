@@ -1,6 +1,6 @@
 import {LevelService} from '../../_services/level.service';
 import {IItem} from '../../_interfaces/annot-json.interface';
-import {getCanvasCoordinateOfSample} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../coordinate-system.functions';
 import {FontScaleService} from '../../_services/font-scale.service';
 import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 

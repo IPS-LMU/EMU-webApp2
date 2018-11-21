@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} f
 import {LevelService} from '../_services/level.service';
 import {HistoryService} from '../_services/history.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
-import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
+import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/coordinate-system.functions';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
 import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.function';

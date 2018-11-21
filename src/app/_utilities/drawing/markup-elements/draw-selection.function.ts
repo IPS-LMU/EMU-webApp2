@@ -1,4 +1,4 @@
-import {getCanvasCoordinateOfSample} from '../../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../../coordinate-system.functions';
 import {FontScaleService} from '../../../_services/font-scale.service';
 import {MathHelperService} from '../../../_services/math-helper.service';
 import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';

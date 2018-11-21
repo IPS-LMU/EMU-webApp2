@@ -6,7 +6,7 @@ import {
     getMousePositionInCanvasX, getMousePositionInCanvasY,
     getSampleNumberAtCanvasMouseEvent,
     getSamplesPerCanvasWidthUnit
-} from '../_utilities/view-state-helper-functions';
+} from '../_utilities/coordinate-system.functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';

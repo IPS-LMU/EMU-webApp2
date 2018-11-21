@@ -1,4 +1,4 @@
-import {getCanvasCoordinateOfSample} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../coordinate-system.functions';
 import {PlayHeadAnimationInfo} from '../../_interfaces/play-head-animation-info.interface';
 import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 

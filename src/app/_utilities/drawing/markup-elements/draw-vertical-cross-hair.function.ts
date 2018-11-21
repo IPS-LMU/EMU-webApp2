@@ -1,7 +1,7 @@
 import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';
 import {FontScaleService} from '../../../_services/font-scale.service';
 import {MathHelperService} from '../../../_services/math-helper.service';
-import {getSampleAtCanvasCoordinate} from '../../view-state-helper-functions';
+import {getSampleAtCanvasCoordinate} from '../../coordinate-system.functions';
 
 export function drawVerticalCrossHair(context: CanvasRenderingContext2D,
                                       mouseX: number,

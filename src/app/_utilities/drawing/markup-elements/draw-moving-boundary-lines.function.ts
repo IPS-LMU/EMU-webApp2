@@ -1,5 +1,5 @@
 import {Boundary} from '../../../_interfaces/boundary.interface';
-import {getCanvasCoordinateOfSample} from '../../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../../coordinate-system.functions';
 import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';
 
 export function drawMovingBoundaryLines(context: CanvasRenderingContext2D,

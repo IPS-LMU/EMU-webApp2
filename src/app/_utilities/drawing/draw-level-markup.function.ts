@@ -1,5 +1,5 @@
 import {IItem, ILevel} from '../../_interfaces/annot-json.interface';
-import {getCanvasCoordinateOfSample} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../coordinate-system.functions';
 import {PreselectedItemInfo} from '../../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-lines.function';

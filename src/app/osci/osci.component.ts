@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 import {DrawHelperService} from '../_services/draw-helper.service';
-import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/view-state-helper-functions';
+import {getMousePositionInCanvasX, getSampleNumberAtCanvasMouseEvent} from '../_utilities/coordinate-system.functions';
 import {drawOsciMarkup} from '../_utilities/drawing/draw-osci-markup.function';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';

@@ -9,7 +9,7 @@ import {
     getMousePositionInCanvasY,
     getSampleNumberAtCanvasMouseEvent,
     getTimeOfSample
-} from '../_utilities/view-state-helper-functions';
+} from '../_utilities/coordinate-system.functions';
 import {adjustSelection} from '../_utilities/adjust-selection.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
