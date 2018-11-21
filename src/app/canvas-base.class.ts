@@ -16,8 +16,10 @@ export abstract class CanvasBase implements OnInit {
     protected markupContext: CanvasRenderingContext2D;
 
     @Input() set audio_buffer(value: AudioBuffer) {
-        this._audio_buffer = value;
-        this.redraw();
+        if (value instanceof AudioBuffer) {
+            this._audio_buffer = value;
+            this.redraw();
+        }
     }
 
     @Input() set moving_boundaries(value: Boundary[]) {
