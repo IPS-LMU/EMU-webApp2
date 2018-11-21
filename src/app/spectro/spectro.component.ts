@@ -2,7 +2,7 @@ import {Component, Input} from '@angular/core';
 
 import {MathHelperService} from '../_services/math-helper.service';
 import {FontScaleService} from '../_services/font-scale.service';
-import {getSamplesPerCanvasWidthUnit} from '../_utilities/coordinate-system.functions';
+import {getSamplesPerCanvasPixel} from '../_utilities/coordinate-system.functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
@@ -143,7 +143,7 @@ export class SpectroComponent extends SignalCanvasBase {
 
         this.worker.onmessage = (event) => {
             if (event.data.status === undefined) {
-                const samplesPerPxl = getSamplesPerCanvasWidthUnit(
+                const samplesPerPxl = getSamplesPerCanvasPixel(
                     this._viewport_sample_start,
                     this._viewport_sample_end,
                     this.mainCanvas.nativeElement
@@ -211,7 +211,7 @@ export class SpectroComponent extends SignalCanvasBase {
                 'alpha': this.alpha,
                 'upperFreq': this._spectrogram_settings.rangeTo,
                 'lowerFreq': this._spectrogram_settings.rangeFrom,
-                'samplesPerPxl': getSamplesPerCanvasWidthUnit(
+                'samplesPerPxl': getSamplesPerCanvasPixel(
                     this._viewport_sample_start,
                     this._viewport_sample_end,
                     this.mainCanvas.nativeElement

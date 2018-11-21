@@ -53,16 +53,16 @@ export function getMousePositionInCanvasY(event: MouseEvent) {
     return (event.offsetY || event.layerY) * (target.height / target.clientHeight);
 }
 
-export function getSamplesPerCanvasWidthUnit(viewportStartSample: number,
-                                             viewportEndSample: number,
-                                             canvas: HTMLCanvasElement) {
+export function getSamplesPerCanvasPixel(viewportStartSample: number,
+                                         viewportEndSample: number,
+                                         canvas: HTMLCanvasElement) {
     const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
     return numberOfSamplesInViewport / canvas.width;
 }
 
-export function getSamplesPerPixel(viewportStartSample: number,
-                                   viewportEndSample: number,
-                                   canvas: HTMLCanvasElement) {
+export function getSamplesPerCssPixel(viewportStartSample: number,
+                                      viewportEndSample: number,
+                                      canvas: HTMLCanvasElement) {
     const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
     return numberOfSamplesInViewport / canvas.clientWidth;
 }
