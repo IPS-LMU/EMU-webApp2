@@ -42,11 +42,6 @@ export class SsffTrackComponent extends SignalCanvasBase {
   //   }
   // }, true);
 
-  redraw() {
-      this.drawMarkup();
-      this.drawData();
-  }
-
   protected drawMarkup () {
       if (!this.initialised || !this._audio_buffer) {
           return;

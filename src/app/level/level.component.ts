@@ -25,17 +25,18 @@ export class LevelComponent extends CanvasBase {
     private _mouseover_level: ILevel;
 
     @Input() set database_configuration(value: { restrictions: any, perspectives: any[] }) {
-        // @todo make sure, database_configuration is loaded before the other @Inputs
-        // apparently this can be controlled by the order of the @Input() setter methods - but I would not rely on this
         this._database_configuration = value;
+        this.redraw();
     }
 
     @Input() set level_annotation(value: ILevel) {
         this._level_annotation = value;
+        this.redraw();
     }
 
     @Input() set attributeDefinition(value: any) {
         this._attributeDefinition = value;
+        this.redraw();
     }
 
     @Input() set preselected_item(value: PreselectedItemInfo) {
@@ -55,11 +56,11 @@ export class LevelComponent extends CanvasBase {
 
     @Input() set mouseover_level(value: ILevel) {
         this._mouseover_level = value;
+        this.drawMarkup();
     }
 
     @Input() set label_editor_current_value(value: string) {
-        this.drawMarkup();
-        this.drawData();
+        this.redraw();
     }
 
     @Output() moving_boundary_move: EventEmitter<Boundary[]> = new EventEmitter<Boundary[]>();
