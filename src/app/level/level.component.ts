@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {LevelService} from '../_services/level.service';
 import {HistoryService} from '../_services/history.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
@@ -8,30 +8,21 @@ import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function'
 import {drawLevelDetails} from '../_utilities/drawing/draw-level-details.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
+import {CanvasBase} from '../canvas-base.class';
 
 @Component({
     selector: 'app-level',
     templateUrl: './level.component.html',
     styleUrls: ['./level.component.scss']
 })
-export class LevelComponent implements OnInit {
-
+export class LevelComponent extends CanvasBase {
     private _database_configuration: { restrictions: any, perspectives: any[] };
     private _preselected_item: PreselectedItemInfo;
     private _selected_items: IItem[];
     private _level_annotation: ILevel;
     private _attributeDefinition: string;
-    private _viewport_sample_start: number;
-    private _viewport_sample_end: number;
-    private _selection_sample_start: number;
-    private _selection_sample_end: number;
-    private _moving_boundaries: Boundary[];
-    private _crosshair_position: number;
-    private _audio_buffer: AudioBuffer;
     private _selected: boolean;
     private _mouseover_level: ILevel;
-
-    private initialised: boolean = false;
 
     @Input() set database_configuration(value: { restrictions: any, perspectives: any[] }) {
         // @todo make sure, database_configuration is loaded before the other @Inputs
@@ -47,57 +38,19 @@ export class LevelComponent implements OnInit {
         this._attributeDefinition = value;
     }
 
-    @Input() set viewport_sample_start(value: number) {
-        this._viewport_sample_start = value;
-
-        this.drawLevelMarkup();
-        this.drawLevelDetails();
-    }
-
-    @Input() set viewport_sample_end(value: number) {
-        this._viewport_sample_end = value;
-
-        this.drawLevelMarkup();
-        this.drawLevelDetails();
-    }
-
-    @Input() set selection_sample_start(value: number) {
-        this._selection_sample_start = value;
-        this.drawLevelMarkup();
-    }
-
-    @Input() set selection_sample_end(value: number) {
-        this._selection_sample_end = value;
-        this.drawLevelMarkup();
-    }
-
     @Input() set preselected_item(value: PreselectedItemInfo) {
         this._preselected_item = value;
-        this.drawLevelMarkup();
+        this.drawMarkup();
     }
 
     @Input() set selected_items(value: IItem[]) {
         this._selected_items = value;
-        this.drawLevelMarkup();
-    }
-
-    @Input() set moving_boundaries(value: Boundary[]) {
-        this._moving_boundaries = value;
-        this.drawLevelMarkup();
-    }
-
-    @Input() set crosshair_position(value: number) {
-        this._crosshair_position = value;
-        this.drawLevelMarkup();
-    }
-
-    @Input() set audio_buffer(value: AudioBuffer) {
-        this._audio_buffer = value;
+        this.drawMarkup();
     }
 
     @Input() set selected(value: boolean) {
         this._selected = value;
-        this.drawLevelMarkup();
+        this.drawMarkup();
     }
 
     @Input() set mouseover_level(value: ILevel) {
@@ -105,34 +58,20 @@ export class LevelComponent implements OnInit {
     }
 
     @Input() set label_editor_current_value(value: string) {
-        this.drawLevelMarkup();
-        this.drawLevelDetails();
+        this.drawMarkup();
+        this.drawData();
     }
 
-    @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
     @Output() moving_boundary_move: EventEmitter<Boundary[]> = new EventEmitter<Boundary[]>();
-
     @Output() preselect_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
     @Output() select_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
     @Output() preselect_item: EventEmitter<PreselectedItemInfo> = new EventEmitter<PreselectedItemInfo>();
     @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
-    @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
     @Output() start_editing: EventEmitter<IItem> = new EventEmitter<IItem>();
 
-
-    @ViewChild('levelCanvas') levelCanvas: ElementRef;
-    @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
-
-
     constructor(private history_service: HistoryService) {
+        super();
     }
-
-    ngOnInit() {
-        this.initialised = true;
-        this.drawLevelDetails();
-        this.drawLevelMarkup();
-    }
-
 
     public mouseclick(event: MouseEvent) {
         event.preventDefault();
@@ -237,7 +176,7 @@ export class LevelComponent implements OnInit {
             }
 
             this.refreshPreselectedItem();
-            this.drawLevelDetails();
+            this.drawData();
         } else if (this._database_configuration.restrictions.editItemSize && event.altKey && this._selected_items.length > 0) {
             if (this._level_annotation.type === 'SEGMENT') {
                 this.moveSegments(this._selected_items, moveBy);
@@ -246,7 +185,7 @@ export class LevelComponent implements OnInit {
             }
 
             this.refreshPreselectedItem();
-            this.drawLevelDetails();
+            this.drawData();
         } else {
             this.moving_boundary_move.emit([]);
             this.crosshair_move.emit(getMousePositionInCanvasX(event));
@@ -453,13 +392,13 @@ export class LevelComponent implements OnInit {
         }
     }
 
-    private drawLevelDetails() {
+    protected drawData() {
         if (!this.initialised || !this._audio_buffer) {
             return;
         }
-        const context = this.levelCanvas.nativeElement.getContext('2d');
+
         drawLevelDetails(
-            context,
+            this.mainContext,
             this._level_annotation,
             this._attributeDefinition,
             this._viewport_sample_start,
@@ -469,14 +408,13 @@ export class LevelComponent implements OnInit {
         );
     }
 
-    private drawLevelMarkup() {
+    protected drawMarkup() {
         if (!this.initialised || !this._audio_buffer) {
             return;
         }
 
-        const context = this.levelMarkupCanvas.nativeElement.getContext('2d');
         drawLevelMarkup(
-            context,
+            this.markupContext,
             this._level_annotation,
             this._viewport_sample_start,
             this._viewport_sample_end,

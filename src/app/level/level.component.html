@@ -7,9 +7,9 @@
        (mouseenter)="mouseenter($event)"
        (mouseleave)="mouseleave($event)"
   >
-    <canvas #levelCanvas class="emuwebapp-level-canvas" id="levelCanvas" width="2048" height="128"></canvas>
-    <!--<canvas class="emuwebapp-level-markup" id="levelMarkupCanvas" width="2048" height="64" track-mouse-in-level="{{idx}}" level-name="level.name" level-type="level.type"></canvas>-->
-    <canvas #levelMarkupCanvas class="emuwebapp-level-markup" id="levelMarkupCanvas" width="2048" height="128"></canvas>
+    <canvas #mainCanvas class="emuwebapp-level-canvas" width="2048" height="128"></canvas>
+    <!--<canvas #markupCanvas class="emuwebapp-level-markup" width="2048" height="64" track-mouse-in-level="{{idx}}" level-name="level.name" level-type="level.type"></canvas>-->
+    <canvas #markupCanvas class="emuwebapp-level-markup"width="2048" height="128"></canvas>
   </div>
   <!--<div class="close-button-wrapper">-->
 <!--<mat-icon>close</mat-icon>-->
