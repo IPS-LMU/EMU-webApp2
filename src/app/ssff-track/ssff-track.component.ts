@@ -124,11 +124,11 @@ export class SsffTrackComponent extends SignalCanvasBase {
         this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].signalCanvases.assign.forEach((ass) => {
           if (ass.signalCanvasName === this._name) {
             this.assTrackName = ass.ssffTrackName;
-            let tr = this.config_provider_service.getSsffTrackConfig(ass.ssffTrackName);
-            let col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
-            let sRaSt = this.ssff_data_service.getSampleRateAndStartTimeOfTrack(tr.name);
-            let minMaxCountourLims = this.config_provider_service.getContourLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
-            let minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
+            const tr = this.config_provider_service.getSsffTrackConfig(ass.ssffTrackName);
+            const col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
+            const sRaSt = this.ssff_data_service.getSampleRateAndStartTimeOfTrack(tr.name);
+            const minMaxCountourLims = this.config_provider_service.getContourLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
+            const minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
             // draw values
             this.drawValues(this.view_state_service, this.mainCanvas.nativeElement, ConfigProviderService, col, sRaSt.sampleRate, sRaSt.startTime, minMaxCountourLims, minMaxValLims);
           }
@@ -137,13 +137,13 @@ export class SsffTrackComponent extends SignalCanvasBase {
         // draw ssffTrack onto own canvas
         if (this._name !== 'OSCI' && this._name !== 'SPEC') {
 
-          let tr = this.config_provider_service.getSsffTrackConfig(this._name);
-          let col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
-          let sRaSt = this.ssff_data_service.getSampleRateAndStartTimeOfTrack(tr.name);
+          const tr = this.config_provider_service.getSsffTrackConfig(this._name);
+          const col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
+          const sRaSt = this.ssff_data_service.getSampleRateAndStartTimeOfTrack(tr.name);
 
-          let minMaxContourLims = this.config_provider_service.getContourLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
-          let minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
-          //console.log(minMaxValLims);
+          const minMaxContourLims = this.config_provider_service.getContourLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
+          const minMaxValLims = this.config_provider_service.getValueLimsOfTrack(tr.name, this.view_state_service.curPerspectiveIdx);
+          // console.log(minMaxValLims);
           // draw values
           this.drawValues(this.view_state_service, this.mainCanvas.nativeElement, ConfigProviderService, col, sRaSt.sampleRate, sRaSt.startTime, minMaxContourLims, minMaxValLims);
         }
@@ -169,7 +169,7 @@ export class SsffTrackComponent extends SignalCanvasBase {
     }
     // if minMaxValLims are set use those instead
 
-    if(!minMaxValLims && (Object.keys(minMaxValLims).length === 0)){
+    if (!minMaxValLims && (Object.keys(minMaxValLims).length === 0)) {
       minVal = minMaxValLims.minVal;
       maxVal = minMaxValLims.maxVal;
     }
@@ -177,10 +177,10 @@ export class SsffTrackComponent extends SignalCanvasBase {
     // @todo in the old system, startTimeVP allowed a negative value for sample 0. Now, sample 0 starts at time 0. According to spec.
     const startTimeVP = getTimeOfSample(this._viewport_sample_start, this._audio_buffer.sampleRate).start;
     const endTimeVP = getTimeOfSample(this._viewport_sample_end, this._audio_buffer.sampleRate).end;
-    let colStartSampleNr = Math.round(startTimeVP * sR + sT);
-    let colEndSampleNr = Math.round(endTimeVP * sR + sT);
-    let nrOfSamples = colEndSampleNr - colStartSampleNr;
-    let curSampleArrs = col.values.slice(colStartSampleNr, colStartSampleNr + nrOfSamples);
+    const colStartSampleNr = Math.round(startTimeVP * sR + sT);
+    const colEndSampleNr = Math.round(endTimeVP * sR + sT);
+    const nrOfSamples = colEndSampleNr - colStartSampleNr;
+    const curSampleArrs = col.values.slice(colStartSampleNr, colStartSampleNr + nrOfSamples);
 
     if (nrOfSamples < canvas.width && nrOfSamples >= 2) {
 
@@ -201,13 +201,13 @@ export class SsffTrackComponent extends SignalCanvasBase {
             this.mainContext.strokeStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
             this.mainContext.fillStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
           } else {
-            let l = (minMaxContourLims.maxContourIdx - minMaxContourLims.minContourIdx) + 1;
+            const l = (minMaxContourLims.maxContourIdx - minMaxContourLims.minContourIdx) + 1;
             this.mainContext.strokeStyle = 'hsl(' + contourNr * (360 / l) + ',80%, 50%)';
             this.mainContext.fillStyle = 'hsl(' + contourNr * (360 / l) + ',80%, 50%)';
           }
 
           // overwrite color settings if they are preconfigured
-          let contColors = this.config_provider_service.getContourColorsOfTrack(this.assTrackName, this.view_state_service.curPerspectiveIdx);
+          const contColors = this.config_provider_service.getContourColorsOfTrack(this.assTrackName, this.view_state_service.curPerspectiveIdx);
           if (contColors !== undefined) {
             if (contColors.colors[contourNr] !== undefined) {
               this.mainContext.strokeStyle = this.config_provider_service.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourColors[0].colors[contourNr];
@@ -218,15 +218,15 @@ export class SsffTrackComponent extends SignalCanvasBase {
           // mark selected
           // console.log(viewState.curCorrectionToolNr);
           if (viewState.curCorrectionToolNr - 1 === contourNr && this._name === 'SPEC' && this.assTrackName === 'FORMANTS') {
-            this.mainContext.strokeStyle = 'green';//ConfigProviderService.design.color.green;
-            this.mainContext.fillStyle = 'green';//ConfigProviderService.design.color.green;
+            this.mainContext.strokeStyle = 'green';
+            this.mainContext.fillStyle = 'green';
           }
 
           this.mainContext.beginPath();
           // first line from sample not in view (left)
           if (colStartSampleNr >= 1) {
-            let leftBorder = col.values[colStartSampleNr - 1];
-            let leftVal = leftBorder[contourNr];
+            const leftBorder = col.values[colStartSampleNr - 1];
+            const leftVal = leftBorder[contourNr];
 
             curSampleInCol = colStartSampleNr - 1;
             curSampleInColTime = (1 / sR * curSampleInCol) + sT;
@@ -252,8 +252,8 @@ export class SsffTrackComponent extends SignalCanvasBase {
           });
           // last line from sample not in view (right)
           if (colEndSampleNr < col.values.length - 1) {
-            let rightBorder = col.values[colEndSampleNr + 1];
-            let rightVal = rightBorder[contourNr];
+            const rightBorder = col.values[colEndSampleNr + 1];
+            const rightVal = rightBorder[contourNr];
 
             curSampleInCol = colEndSampleNr + 1;
             curSampleInColTime = (1 / sR * curSampleInCol) + sT;
