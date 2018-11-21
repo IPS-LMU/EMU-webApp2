@@ -1,17 +1,10 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 import { FontScaleService } from '../_services/font-scale.service';
 import { SsffDataService } from '../_services/ssff-data.service';
 import { ConfigProviderService } from '../_services/config-provider.service';
 import { ViewStateService } from '../_services/view-state.service';
-import {
-    getMousePositionInCanvasX,
-    getMousePositionInCanvasY,
-    getSampleNumberAtCanvasMouseEvent,
-    getTimeOfSample
-} from '../_utilities/coordinate-system.functions';
-import {adjustSelection} from '../_utilities/adjust-selection.function';
-import {Boundary} from '../_interfaces/boundary.interface';
+import {getTimeOfSample} from '../_utilities/coordinate-system.functions';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
 import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
@@ -19,135 +12,27 @@ import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
 import {drawMinMaxAndName} from '../_utilities/drawing/markup-elements/draw-min-max-and-name.function';
 import {drawHorizontalCrossHair} from '../_utilities/drawing/markup-elements/draw-horizontal-cross-hair.function';
 import {MathHelperService} from '../_services/math-helper.service';
+import {SignalCanvasBase} from '../signal-canvas-base.class';
 
 @Component({
   selector: 'app-ssff-track',
   templateUrl: './ssff-track.component.html',
   styleUrls: ['./ssff-track.component.scss']
 })
-export class SsffTrackComponent implements OnInit {
-
-    private _audio_buffer: AudioBuffer;
-    private _crosshair_position: number;
-    private _moving_boundaries: Boundary[];
+export class SsffTrackComponent extends SignalCanvasBase {
     private _name: string;
-    private _selection_sample_start: number;
-    private _selection_sample_end: number;
-    private _viewport_sample_start: number;
-    private _viewport_sample_end: number;
 
-    private _main_context;
-    private _markup_context: CanvasRenderingContext2D;
     private assTrackName: string;
-    private initialised: boolean = false;
-    private mouseY: number = null;
 
     @Input() set name(value: any) {
         this._name = value;
     }
 
-    @Input() set audio_buffer(value: AudioBuffer) {
-        this._audio_buffer = value;
-    }
-
-    @Input() set crosshair_position(value: number) {
-        this._crosshair_position = value;
-        this.drawSsffTrackMarkup();
-    }
-
-    @Input() set moving_boundaries(value: Boundary[]) {
-        this._moving_boundaries = value;
-        this.drawSsffTrackMarkup();
-    }
-
-    @Input() set selection_sample_start(value: number) {
-        this._selection_sample_start = value;
-        this.drawSsffTrackMarkup();
-    }
-
-    @Input() set selection_sample_end(value: number) {
-        this._selection_sample_end = value;
-        this.drawSsffTrackMarkup();
-    }
-
-    @Input() set viewport_sample_start(value: number) {
-        this._viewport_sample_start = value;
-        this.redraw();
-    }
-
-    @Input() set viewport_sample_end(value: number) {
-        this._viewport_sample_end = value;
-        this.redraw();
-    }
-
-    @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
-    @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
-
-
-    @ViewChild('mainCanvas') mainCanvas: ElementRef;
-    @ViewChild('markupCanvas') markupCanvas: ElementRef;
-
     constructor(private ssff_data_service: SsffDataService,
                 private config_provider_service: ConfigProviderService,
                 private view_state_service: ViewStateService) {
+        super();
     }
-
-    ngOnInit() {
-        this._main_context = this.mainCanvas.nativeElement.getContext('2d');
-        this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
-
-        this.initialised = true;
-        this.redraw();
-    }
-
-  public mousedown(event: MouseEvent) {
-      const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
-          event,
-          this._viewport_sample_start,
-          this._viewport_sample_end
-      );
-
-      if (event.shiftKey && this._selection_sample_start !== null) {
-          this.selection_change.emit(adjustSelection(
-              sampleAtMousePosition,
-              this._selection_sample_start,
-              this._selection_sample_end
-          ));
-      } else {
-          this.selection_change.emit({start: sampleAtMousePosition, end: sampleAtMousePosition});
-      }
-  }
-
-  public mouseleave(event: MouseEvent) {
-      this.mouseY = null;
-  }
-
-  public mousemove(event: MouseEvent){
-    this.crosshair_move.emit(getMousePositionInCanvasX(event));
-    this.mouseY = getMousePositionInCanvasY(event);
-    this.drawSsffTrackMarkup();
-
-    let mouseButton: number;
-    if (event.buttons === undefined) {
-        mouseButton = event.which;
-    } else {
-        mouseButton = event.buttons;
-    }
-
-    if (mouseButton === 1) {
-        const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
-            event,
-            this._viewport_sample_start,
-            this._viewport_sample_end
-        );
-
-        this.selection_change.emit(adjustSelection(
-            sampleAtMousePosition,
-            this._selection_sample_start,
-            this._selection_sample_end
-        ));
-    }
-  }
 
   // scope.$watch('ssffds.data.length', function () {
   //   if (!$.isEmptyObject(scope.shs)) {
@@ -158,19 +43,19 @@ export class SsffTrackComponent implements OnInit {
   // }, true);
 
   redraw() {
-      this.drawSsffTrackMarkup();
-      this.handleUpdate();
+      this.drawMarkup();
+      this.drawData();
   }
 
-  drawSsffTrackMarkup () {
+  protected drawMarkup () {
       if (!this.initialised || !this._audio_buffer) {
           return;
       }
 
-      this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
+      this.markupContext.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
       drawMovingBoundaryLines(
-          this._markup_context,
+          this.markupContext,
           this._viewport_sample_start,
           this._viewport_sample_end,
           this._moving_boundaries,
@@ -178,7 +63,7 @@ export class SsffTrackComponent implements OnInit {
       );
 
       drawSelection(
-          this._markup_context,
+          this.markupContext,
           false,
           this._viewport_sample_start,
           this._viewport_sample_end,
@@ -191,7 +76,7 @@ export class SsffTrackComponent implements OnInit {
       const tr = this.config_provider_service.getSsffTrackConfig(this._name);
       const col = this.ssff_data_service.getColumnOfTrack(tr.name, tr.columnName);
       if (col) {
-          drawMinMaxAndName(this._markup_context, this._name, col._minVal, col._maxVal, 2, emuWebappTheme);
+          drawMinMaxAndName(this.markupContext, this._name, col._minVal, col._maxVal, 2, emuWebappTheme);
             /*
             var minMaxValLims = scope.cps.getValueLimsOfTrack(tr.name);
             var minVal, maxVal;
@@ -206,7 +91,7 @@ export class SsffTrackComponent implements OnInit {
       }
 
       drawVerticalCrossHair(
-          this._markup_context,
+          this.markupContext,
           this._crosshair_position,
           this._audio_buffer.sampleRate,
           false,
@@ -216,11 +101,11 @@ export class SsffTrackComponent implements OnInit {
       );
 
       if (this.mouseY !== null) {
-          let valueAtMousePosition = col._maxVal - (this.mouseY / this._markup_context.canvas.height * (col._maxVal - col._minVal));
+          let valueAtMousePosition = col._maxVal - (this.mouseY / this.markupContext.canvas.height * (col._maxVal - col._minVal));
           valueAtMousePosition = MathHelperService.roundToNdigitsAfterDecPoint(valueAtMousePosition, 2);
 
           drawHorizontalCrossHair(
-              this._markup_context,
+              this.markupContext,
               this.mouseY,
               valueAtMousePosition,
               'Hz',
@@ -229,16 +114,13 @@ export class SsffTrackComponent implements OnInit {
       }
   }
 
-  /**
-   *
-   */
-  handleUpdate() {
+  protected drawData() {
     if (!this.initialised || !this._audio_buffer) {
       return;
     }
 
-    this._main_context.fillStyle = emuWebappTheme.canvasBackgroundColor;
-    this._main_context.fillRect(0, 0, this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
+    this.mainContext.fillStyle = emuWebappTheme.canvasBackgroundColor;
+    this.mainContext.fillRect(0, 0, this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
 
     if (!(this.ssff_data_service.data && (Object.keys(this.ssff_data_service.data).length === 0))) {
       if (this.ssff_data_service.data.length !== 0) {
@@ -272,7 +154,7 @@ export class SsffTrackComponent implements OnInit {
         }
       }
     } else {
-      this._main_context.clearRect(0, 0, this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
+      this.mainContext.clearRect(0, 0, this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
     }
   }
 
@@ -321,31 +203,31 @@ export class SsffTrackComponent implements OnInit {
 
           // set color
           if (minMaxContourLims && (Object.keys(minMaxContourLims).length === 0)) {
-            this._main_context.strokeStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
-            this._main_context.fillStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
+            this.mainContext.strokeStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
+            this.mainContext.fillStyle = 'hsl(' + contourNr * (360 / curSampleArrs[0].length) + ',80%, 50%)';
           } else {
             let l = (minMaxContourLims.maxContourIdx - minMaxContourLims.minContourIdx) + 1;
-            this._main_context.strokeStyle = 'hsl(' + contourNr * (360 / l) + ',80%, 50%)';
-            this._main_context.fillStyle = 'hsl(' + contourNr * (360 / l) + ',80%, 50%)';
+            this.mainContext.strokeStyle = 'hsl(' + contourNr * (360 / l) + ',80%, 50%)';
+            this.mainContext.fillStyle = 'hsl(' + contourNr * (360 / l) + ',80%, 50%)';
           }
 
           // overwrite color settings if they are preconfigured
           let contColors = this.config_provider_service.getContourColorsOfTrack(this.assTrackName, this.view_state_service.curPerspectiveIdx);
           if (contColors !== undefined) {
             if (contColors.colors[contourNr] !== undefined) {
-              this._main_context.strokeStyle = this.config_provider_service.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourColors[0].colors[contourNr];
-              this._main_context.fillStyle = this.config_provider_service.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourColors[0].colors[contourNr];
+              this.mainContext.strokeStyle = this.config_provider_service.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourColors[0].colors[contourNr];
+              this.mainContext.fillStyle = this.config_provider_service.vals.perspectives[viewState.curPerspectiveIdx].signalCanvases.contourColors[0].colors[contourNr];
             }
           }
 
           // mark selected
           // console.log(viewState.curCorrectionToolNr);
           if (viewState.curCorrectionToolNr - 1 === contourNr && this._name === 'SPEC' && this.assTrackName === 'FORMANTS') {
-            this._main_context.strokeStyle = 'green';//ConfigProviderService.design.color.green;
-            this._main_context.fillStyle = 'green';//ConfigProviderService.design.color.green;
+            this.mainContext.strokeStyle = 'green';//ConfigProviderService.design.color.green;
+            this.mainContext.fillStyle = 'green';//ConfigProviderService.design.color.green;
           }
 
-          this._main_context.beginPath();
+          this.mainContext.beginPath();
           // first line from sample not in view (left)
           if (colStartSampleNr >= 1) {
             let leftBorder = col.values[colStartSampleNr - 1];
@@ -357,7 +239,7 @@ export class SsffTrackComponent implements OnInit {
             x = (curSampleInColTime - startTimeVP) / (endTimeVP - startTimeVP) * canvas.width;
             y = canvas.height - ((leftVal - minVal) / (maxVal - minVal) * canvas.height);
 
-            this._main_context.moveTo(x, y);
+            this.mainContext.moveTo(x, y);
           }
 
           curSampleArrs.forEach((curArr, curArrIdx) => {
@@ -369,8 +251,8 @@ export class SsffTrackComponent implements OnInit {
             x = (curSampleInColTime - startTimeVP) / (endTimeVP - startTimeVP) * canvas.width;
             y = canvas.height - ((curArr[contourNr] - minVal) / (maxVal - minVal) * canvas.height);
 
-            this._main_context.arc(x, y - 1, 2, 0, 2 * Math.PI, false);
-            this._main_context.lineTo(x, y);
+            this.mainContext.arc(x, y - 1, 2, 0, 2 * Math.PI, false);
+            this.mainContext.lineTo(x, y);
 
           });
           // last line from sample not in view (right)
@@ -384,22 +266,22 @@ export class SsffTrackComponent implements OnInit {
             x = (curSampleInColTime - startTimeVP) / (endTimeVP - startTimeVP) * canvas.width;
             y = canvas.height - ((rightVal - minVal) / (maxVal - minVal) * canvas.height);
 
-            this._main_context.lineTo(x, y);
+            this.mainContext.lineTo(x, y);
           }
 
-          this._main_context.stroke();
+          this.mainContext.stroke();
           // ctx.fill();
         }
       });
     } else {
-      this._main_context.strokeStyle = 'red';
+      this.mainContext.strokeStyle = 'red';
       let firstLine;
       if (nrOfSamples <= 2) {
         firstLine = 'Zoom out to';
       } else {
         firstLine = 'Zoom in to';
       }
-      FontScaleService.drawUndistortedTextTwoLines(this._main_context, firstLine, 'see contour(s)', 12, 'HelveticaNeue', canvas.width / 2, canvas.height / 2, 'red', 'center', 'middle');
+      FontScaleService.drawUndistortedTextTwoLines(this.mainContext, firstLine, 'see contour(s)', 12, 'HelveticaNeue', canvas.width / 2, canvas.height / 2, 'red', 'center', 'middle');
     }
   }
 
