@@ -40,7 +40,7 @@ export class FontScaleService {
         }
 
         if (verticalAnchor === 'bottom') {
-            finalY = y;
+            finalY = y / FontScaleService.getScaleY(context);
         } else if (verticalAnchor === 'top') {
             finalY = y / FontScaleService.getScaleY(context) + fontPxSize;
         } else if (verticalAnchor === 'middle') {

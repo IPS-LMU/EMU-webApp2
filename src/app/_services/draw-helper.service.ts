@@ -1,9 +1,9 @@
 import { MathHelperService } from './math-helper.service';
 import { FontScaleService } from './font-scale.service';
 import {
-    getSampleAtPixelPositionInViewport,
+    getSampleAtCanvasCoordinate,
     getTimeOfSample
-} from '../_utilities/view-state-helper-functions';
+} from '../_utilities/coordinate-system.functions';
 import {EmuWebappTheme} from '../_interfaces/emu-webapp-theme.interface';
 
 export class DrawHelperService {
@@ -287,9 +287,6 @@ export class DrawHelperService {
 
   }
 
-  /**
-   *
-   */
   public static freshRedrawDrawOsciOnCanvas(ctx: CanvasRenderingContext2D,
                                             sS: number,
                                             eS: number,
@@ -345,7 +342,7 @@ export class DrawHelperService {
 
       let sT, curSample;
       for (let curPxIdx = 1; curPxIdx < canvas.width; curPxIdx++) {
-        curSample = getSampleAtPixelPositionInViewport(curPxIdx, sS, eS, canvas.width);
+        curSample = getSampleAtCanvasCoordinate(curPxIdx, sS, eS, canvas.width);
         // calculate cur pixel sample time
         sT = getTimeOfSample(curSample, audioBuffer.sampleRate).end;
         peakIdx = Math.round(sT * pps);
@@ -458,198 +455,32 @@ export class DrawHelperService {
       }
     }
 
-    // if (ConfigProviderService.vals.restrictions.drawZeroLine) {
-    if (true) {
       // draw zero line
       ctx.strokeStyle = emuWebappTheme.osciZeroLineColor;
-      ctx.fillStyle = emuWebappTheme.osciZeroLineColor;
 
       let zeroLineY;
 
       if (samplesPerPx >= 1) {
         zeroLineY = canvas.height - ((0 - allPeakVals.minMinPeak) / (allPeakVals.maxMaxPeak - allPeakVals.minMinPeak) * canvas.height);
-        ctx.beginPath();
-        ctx.moveTo(0, zeroLineY);
-        ctx.lineTo(canvas.width, zeroLineY);
-        ctx.stroke();
-        ctx.fillText('0', 5, zeroLineY - 5, canvas.width);
       } else {
         zeroLineY = canvas.height - ((0 - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height);
-        ctx.beginPath();
-        ctx.moveTo(0, zeroLineY);
-        ctx.lineTo(canvas.width, zeroLineY);
-        ctx.stroke();
-        ctx.fill();
-        ctx.fillText('0', 5, canvas.height - ((0 - allPeakVals.minSample) / (allPeakVals.maxSample - allPeakVals.minSample) * canvas.height) - 5, canvas.width);
       }
-    }
+
+      ctx.beginPath();
+      ctx.moveTo(0, zeroLineY);
+      ctx.lineTo(canvas.width, zeroLineY);
+      ctx.stroke();
+      FontScaleService.drawUndistortedText(
+          ctx,
+          '0',
+          emuWebappTheme.primaryFontSize - 2,
+          emuWebappTheme.primaryFontFamily,
+          5,
+          zeroLineY,
+          emuWebappTheme.osciZeroLineColor,
+          'left',
+          'bottom'
+      );
   }
-
-  // /**
-  //  * drawing method to drawCrossHairs
-  //  */
-  //
-  // sServObj.drawCrossHairs = function (ctx, mouseEvt, min, max, unit, trackname) {
-  //   // console.log(MathHelperService.roundToNdigitsAfterDecPoint(min, round))
-  //   if (ConfigProviderService.vals.restrictions.drawCrossHairs) {
-  //
-  //     var fontSize = ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-  //     // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  //     ctx.strokeStyle = ConfigProviderService.design.color.transparent.red;
-  //     ctx.fillStyle = ConfigProviderService.design.color.transparent.red;
-  //
-  //     // see if Chrome -> dashed line
-  //     //if (navigator.vendor === 'Google Inc.') {
-  //     //	ctx.setLineDash([2]);
-  //     //}
-  //
-  //     // draw lines
-  //     var mouseX = viewState.getX(mouseEvt);
-  //     var mouseY = viewState.getY(mouseEvt);
-  //
-  //     //if (navigator.vendor === 'Google Inc.') {
-  //     //	ctx.setLineDash([0]);
-  //     //}
-  //
-  //     // draw frequency / sample / time
-  //     ctx.font = (ConfigProviderService.design.font.small.size + 'px ' + ConfigProviderService.design.font.small.family);
-  //     var mouseFreq = MathHelperService.roundToNdigitsAfterDecPoint(max - mouseY / ctx.canvas.height * max, 2); // SIC only uses max
-  //     @todo if this block is uncommented, FontScaleService.scaleX and .scaleY must be replaced with .getScaleX(ctx) and .getScaleY(ctx).
-  //     var tW = ctx.measureText(mouseFreq + unit).width * fontScaleService.scaleX;
-  //     var tH = fontSize * fontScaleService.scaleY;
-  //     var s1 = Math.round(viewState.curViewPort.sS + mouseX / ctx.canvas.width * (viewState.curViewPort.eS - viewState.curViewPort.sS));
-  //     NOTE viewState.getViewPortStartTime() is now getTimeOfSample(this._viewport_sample_start, this._audio_buffer.sampleRate).start;
-  //     var s2 = MathHelperService.roundToNdigitsAfterDecPoint(viewState.getViewPortStartTime() + mouseX / ctx.canvas.width * (viewState.getViewPortEndTime() - viewState.getViewPortStartTime()), 6);
-  //
-  //     var y;
-  //     if(mouseY + tH < ctx.canvas.height){
-  //       y = mouseY + 5;
-  //     }else{
-  //       y = mouseY - tH - 5;
-  //     }
-  //
-  //     if (max !== undefined || min !== undefined) {
-  //       if (trackname === 'OSCI') {
-  //         // no horizontal values
-  //         ctx.beginPath();
-  //         //ctx.moveTo(0, mouseY);
-  //         //ctx.lineTo(5, mouseY + 5);
-  //         //ctx.moveTo(0, mouseY);
-  //         //ctx.lineTo(ctx.canvas.width, mouseY);
-  //         //ctx.lineTo(ctx.canvas.width - 5, mouseY + 5);
-  //         ctx.moveTo(mouseX, 0);
-  //         ctx.lineTo(mouseX, ctx.canvas.height);
-  //         ctx.stroke();
-  //       } else if (trackname === 'SPEC') {
-  //         FontScaleService.drawUndistortedText(ctx, mouseFreq + unit, fontSize, ConfigProviderService.design.font.small.family, 5, y, ConfigProviderService.design.color.transparent.red, true);
-  //         FontScaleService.drawUndistortedText(ctx, mouseFreq + unit, fontSize, ConfigProviderService.design.font.small.family, ctx.canvas.width - tW, y, ConfigProviderService.design.color.transparent.red, true);
-  //
-  //         ctx.beginPath();
-  //         ctx.moveTo(0, mouseY);
-  //         ctx.lineTo(5, mouseY + 5);
-  //         ctx.moveTo(0, mouseY);
-  //         ctx.lineTo(ctx.canvas.width, mouseY);
-  //         ctx.lineTo(ctx.canvas.width - 5, mouseY + 5);
-  //         ctx.moveTo(mouseX, 0);
-  //         ctx.lineTo(mouseX, ctx.canvas.height);
-  //         ctx.stroke();
-  //       } else {
-  //         // draw min max an name of track
-  //         var tr = ConfigProviderService.getSsffTrackConfig(trackname);
-  //         var col = Ssffdataservice.getColumnOfTrack(tr.name, tr.columnName);
-  //         mouseFreq = col._maxVal - (mouseY / ctx.canvas.height * (col._maxVal - col._minVal));
-  //         mouseFreq = MathHelperService.roundToNdigitsAfterDecPoint(mouseFreq, 2); // crop
-  //         FontScaleService.drawUndistortedText(ctx, mouseFreq, fontSize, ConfigProviderService.design.font.small.family, 5, y, ConfigProviderService.design.color.transparent.red, true);
-  //         FontScaleService.drawUndistortedText(ctx, mouseFreq, fontSize, ConfigProviderService.design.font.small.family, ctx.canvas.width - 5 - tW, y, ConfigProviderService.design.color.transparent.red, true);
-  //         ctx.beginPath();
-  //         ctx.moveTo(0, mouseY);
-  //         ctx.lineTo(5, mouseY + 5);
-  //         ctx.moveTo(0, mouseY);
-  //         ctx.lineTo(ctx.canvas.width, mouseY);
-  //         ctx.lineTo(ctx.canvas.width - 5, mouseY + 5);
-  //         ctx.moveTo(mouseX, 0);
-  //         ctx.lineTo(mouseX, ctx.canvas.height);
-  //         ctx.stroke();
-  //       }
-  //     }
-  //     FontScaleService.drawUndistortedTextTwoLines(ctx, s1, s2, fontSize, ConfigProviderService.design.font.small.family, mouseX + 5, 0, ConfigProviderService.design.color.transparent.red, true);
-  //   }
-  // };
-
-  /**
-   * drawing method to drawMinMaxAndName
-   * @param ctx is context to be drawn on
-   * @param trackName name of track to be drawn in the center of the canvas (left aligned)
-   * @param min value to be drawn at the bottom of the canvas (left aligned)
-   * @param max value to be drawn at the top of the canvas (left aligned)
-   * @param round value to round to for min/max values (== digits after comma)
-   */
-
-  public static drawMinMaxAndName(ctx, trackName, min, max, round) {
-    // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
-    ctx.fillStyle = 'black';// ConfigProviderService.design.color.black;
-
-    let fontSize = 12;//ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-
-    // // var scaleX = ctx.canvas.width / ctx.canvas.offsetWidth;
-    let scaleY = ctx.canvas.height / ctx.canvas.offsetHeight;
-
-    let smallFontSize = 12 * 3 / 4; //ConfigProviderService.design.font.small.size.slice(0, -2) * 3 / 4;
-    var th = smallFontSize * scaleY;
-
-    // draw corner pointers
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(5, 5);
-    ctx.moveTo(0, ctx.canvas.height);
-    ctx.lineTo(5, ctx.canvas.height - 5);
-    ctx.stroke();
-    ctx.closePath();
-
-    // draw trackName
-    if (trackName !== '') {
-      FontScaleService.drawUndistortedText(ctx, trackName, fontSize, '', 0, ctx.canvas.height / 2, 'HelveticaNeue', 'left', 'middle');
-    }
-
-    // draw min/max vals
-    if (max !== undefined) {
-      FontScaleService.drawUndistortedText(ctx, 'max: ' + MathHelperService.roundToNdigitsAfterDecPoint(max, round), smallFontSize, 'HelveticaNeue', 5, 0, 'grey', 'left', 'top');
-    }
-    // draw min/max vals
-    if (min !== undefined) {
-      FontScaleService.drawUndistortedText(ctx, 'min: ' + MathHelperService.roundToNdigitsAfterDecPoint(min, round), smallFontSize, 'HelveticaNeue', 5, ctx.canvas.height, 'grey', 'left', 'bottom');
-    }
-  }
-
-  /**
-   *
-   */
-  public static drawViewPortTimes(ctx: CanvasRenderingContext2D,
-                    viewportStartSample: number,
-                    viewportEndSample: number,
-                    sampleRate: number) {
-    ctx.strokeStyle = 'black';//ConfigProviderService.design.color.black;
-    ctx.fillStyle = 'black';//ConfigProviderService.design.color.black;
-    ctx.font = 'HelveticaNeue';//(ConfigProviderService.design.font.small.size + ' ' + ConfigProviderService.design.font.small.family);
-
-    let fontSize = 12;//ConfigProviderService.design.font.small.size.slice(0, -2) * 1;
-
-    // lines to corners
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(5, 5);
-    ctx.moveTo(ctx.canvas.width, 0);
-    ctx.lineTo(ctx.canvas.width - 5, 5);
-    ctx.closePath();
-    ctx.stroke();
-    let sTime;
-    let eTime;
-    //draw time and sample nr
-    sTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportStartSample / sampleRate, 6);
-    eTime = MathHelperService.roundToNdigitsAfterDecPoint(viewportEndSample / sampleRate, 6);
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportStartSample.toString(), sTime, fontSize, 'HelveticaNeue', 5, 0, 'black', 'left', 'top');
-    FontScaleService.drawUndistortedTextTwoLines(ctx, viewportEndSample.toString(), eTime, fontSize, 'HelveticaNeue', ctx.canvas.width - 5, 0, 'black', 'right', 'top');
-  };
 
 }

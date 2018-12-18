@@ -1,6 +1,6 @@
 import {LevelService} from '../../_services/level.service';
 import {IItem} from '../../_interfaces/annot-json.interface';
-import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../coordinate-system.functions';
 import {FontScaleService} from '../../_services/font-scale.service';
 import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 
@@ -16,8 +16,8 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
     const labelValue = LevelService.getLabelByAttribute(item, attribute);
 
     // draw segment start
-    const posS = getPixelPositionOfSampleInViewport(item.sampleStart, viewportStartSample, viewportEndSample, ctx.canvas.width).start;
-    const posE = getPixelPositionOfSampleInViewport(
+    const posS = getCanvasCoordinateOfSample(item.sampleStart, viewportStartSample, viewportEndSample, ctx.canvas.width).start;
+    const posE = getCanvasCoordinateOfSample(
         item.sampleStart + item.sampleDur,
         viewportStartSample,
         viewportEndSample,

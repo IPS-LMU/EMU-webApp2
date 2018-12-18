@@ -5,6 +5,7 @@ import {drawMovingBoundaryLines} from './markup-elements/draw-moving-boundary-li
 import {drawSelection} from './markup-elements/draw-selection.function';
 import {drawVerticalCrossHair} from './markup-elements/draw-vertical-cross-hair.function';
 import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
+import {drawViewportTimes} from './markup-elements/draw-viewport-times.function';
 
 export function drawOsciMarkup(context: CanvasRenderingContext2D,
                                viewportStartSample: number,
@@ -29,7 +30,7 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
     // draw current viewport selected
     drawSelection(
         context,
-        true,
+        false,
         viewportStartSample,
         viewportEndSample,
         selectionStartSample,
@@ -38,9 +39,7 @@ export function drawOsciMarkup(context: CanvasRenderingContext2D,
         emuWebappTheme
     );
 
-    drawVerticalCrossHair(context, crosshairPosition, emuWebappTheme);
+    drawVerticalCrossHair(context, crosshairPosition, audioBuffer.sampleRate, false, viewportStartSample, viewportEndSample, emuWebappTheme);
 
-    // DrawHelperService.drawViewPortTimes(context, viewportStartSample, viewportEndSample, audioBuffer.sampleRate);
-
-    drawPlayHead(context, playHeadInfo, viewportStartSample, viewportEndSample);
+    drawPlayHead(context, playHeadInfo, viewportStartSample, viewportEndSample, emuWebappTheme);
 }

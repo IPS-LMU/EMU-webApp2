@@ -101,6 +101,15 @@
 
     <main class="content">
       <div class="all-canvas-container">
+      <app-viewport-info
+                         [audio_buffer] = "sound_handler_service.audioBuffer"
+                         [viewport_sample_start] = "view_state_service.curViewPort.sS"
+                         [viewport_sample_end] = "view_state_service.curViewPort.eS"
+                         [selection_sample_start]="view_state_service.curViewPort.selectS"
+                         [selection_sample_end]="view_state_service.curViewPort.selectE"
+                         [crosshair_position]="view_state_service.crosshairPosition"
+      ></app-viewport-info>
+
       <!--start: signals-->
       <div class="signals-resize-container">
 
@@ -187,16 +196,29 @@
                 [database_configuration]="config_provider_service.vals"
                 [selected]="level_name === view_state_service.getCurrentClickLevel()?.name"
                 [mouseover_level]="view_state_service.getCurrentMouseOverLevel()"
+                [label_editor_current_value]="view_state_service.labelEditorState.currentValue"
                 (moving_boundary_move)="view_state_service.movingBoundaries = $event"
                 (crosshair_move)="view_state_service.crosshairPosition = $event"
                 (preselect_level)="view_state_service.setCurrentMouseOverLevel($event)"
                 (select_level)="view_state_service.setCurrentClickLevel($event)"
                 (preselect_item)="view_state_service.preselectItem($event)"
                 (select_items)="view_state_service.selectItems($event)"
-        ></app-level>
+                (selection_change)="view_state_service.select($event)"
+                (start_editing)="view_state_service.startEditing($event)"
+          ></app-level>
 
       </div>
         <!--end: levels with time-->
+      </div>
+
+      <div>
+        <app-label-editor
+                *ngIf="view_state_service.labelEditorState.item"
+                [item]="view_state_service.labelEditorState.item"
+                (edit)="view_state_service.updateItemInEditMode($event)"
+                (cancel)="view_state_service.cancelEdit()"
+        >
+        </app-label-editor>
       </div>
       <!--start: 2D canvas-->
       <!--<div class="2d-canvas">-->

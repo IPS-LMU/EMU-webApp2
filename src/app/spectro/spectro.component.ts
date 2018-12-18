@@ -1,43 +1,28 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, Input} from '@angular/core';
 
-import {DrawHelperService} from '../_services/draw-helper.service';
 import {MathHelperService} from '../_services/math-helper.service';
 import {FontScaleService} from '../_services/font-scale.service';
-import {
-    getMousePositionInCanvasX,
-    getSampleNumberAtCanvasMouseEvent,
-    getSamplesPerCanvasWidthUnit
-} from '../_utilities/view-state-helper-functions';
+import {getSamplesPerCanvasPixel} from '../_utilities/coordinate-system.functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
-import {adjustSelection} from '../_utilities/adjust-selection.function';
-import {Boundary} from '../_interfaces/boundary.interface';
 import {drawMovingBoundaryLines} from '../_utilities/drawing/markup-elements/draw-moving-boundary-lines.function';
 import {drawSelection} from '../_utilities/drawing/markup-elements/draw-selection.function';
 import {drawVerticalCrossHair} from '../_utilities/drawing/markup-elements/draw-vertical-cross-hair.function';
 import {spectrogramWorker} from '../_workers/spectrogram-worker.function';
 import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
+import {drawMinMaxAndName} from '../_utilities/drawing/markup-elements/draw-min-max-and-name.function';
+import {drawHorizontalCrossHair} from '../_utilities/drawing/markup-elements/draw-horizontal-cross-hair.function';
+import {SignalCanvasBase} from '../signal-canvas-base.class';
 
 @Component({
     selector: 'app-spectro',
     templateUrl: './spectro.component.html',
     styleUrls: ['./spectro.component.scss']
 })
-export class SpectroComponent implements OnInit {
-
-    private _audio_buffer: AudioBuffer;
-    private _channel: number;
-    private _viewport_sample_start: number;
-    private _viewport_sample_end: number;
-    private _selection_sample_start: number;
-    private _selection_sample_end: number;
-    private _crosshair_position: number;
-    private _moving_boundaries: Boundary[];
+export class SpectroComponent extends SignalCanvasBase {
     private _spectrogram_settings: SpectrogramSettings;
-    private _main_context;
-    private _markup_context: CanvasRenderingContext2D;
+
     private worker;
     private workerFunctionURL;
-    private initialised: boolean = false;
 
     // FFT default vars
     // default alpha for Window Function
@@ -49,114 +34,14 @@ export class SpectroComponent implements OnInit {
         this.redraw();
     }
 
-    @Input() set audio_buffer(value: AudioBuffer) {
-        this._audio_buffer = value;
-        this.redraw();
-    }
-
-    @Input() set channel(value: number) {
-        this._channel = value;
-        this.redraw();
-    }
-
-    @Input() set viewport_sample_start(value: number) {
-        this._viewport_sample_start = value;
-        this.redraw();
-    }
-
-    @Input() set viewport_sample_end(value: number) {
-        this._viewport_sample_end = value;
-        this.redraw();
-    }
-
-    @Input() set selection_sample_start(value: number) {
-        this._selection_sample_start = value;
-        this.drawSpectMarkup();
-    }
-
-    @Input() set selection_sample_end(value: number) {
-        this._selection_sample_end = value;
-        this.drawSpectMarkup();
-    }
-
-    @Input() set crosshair_position(value: number) {
-        this._crosshair_position = value;
-        this.drawSpectMarkup();
-    }
-
-    @Input() set moving_boundaries(value: Boundary[]) {
-        this._moving_boundaries = value;
-        this.drawSpectMarkup();
-    }
-
-    @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
-    @Output() selection_change: EventEmitter<{ start: number, end: number }> = new EventEmitter<{ start: number, end: number }>();
-
-    @ViewChild('mainCanvas') mainCanvas: ElementRef;
-    @ViewChild('markupCanvas') markupCanvas: ElementRef;
-
     constructor() {
+        super();
         const workerFunctionBlob = new Blob(['(' + spectrogramWorker.toString() + ')();'], {type: 'text/javascript'});
         this.workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
         this.worker = new Worker(this.workerFunctionURL);
     }
 
-    ngOnInit() {
-        this.initialised = true;
-
-        this._main_context = this.mainCanvas.nativeElement.getContext('2d');
-        this._markup_context = this.markupCanvas.nativeElement.getContext('2d');
-    }
-
-    public mousedown(event: MouseEvent) {
-        const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
-            event,
-            this._viewport_sample_start,
-            this._viewport_sample_end
-        );
-
-        if (event.shiftKey && this._selection_sample_start !== null) {
-            this.selection_change.emit(adjustSelection(
-                sampleAtMousePosition,
-                this._selection_sample_start,
-                this._selection_sample_end
-            ));
-        } else {
-            this.selection_change.emit({start: sampleAtMousePosition, end: sampleAtMousePosition});
-        }
-    }
-
-    public mousemove(event: MouseEvent) {
-        this.crosshair_move.emit(getMousePositionInCanvasX(event));
-
-        let mouseButton: number;
-        if (event.buttons === undefined) {
-            mouseButton = event.which;
-        } else {
-            mouseButton = event.buttons;
-        }
-
-        if (mouseButton === 1) {
-            const sampleAtMousePosition = getSampleNumberAtCanvasMouseEvent(
-                event,
-                this._viewport_sample_start,
-                this._viewport_sample_end
-            );
-
-            this.selection_change.emit(adjustSelection(
-                sampleAtMousePosition,
-                this._selection_sample_start,
-                this._selection_sample_end
-            ));
-        }
-    }
-
-    redraw() {
-        this.drawSpectMarkup();
-        this.drawSpectro();
-    }
-
-    drawSpectro() {
+    protected drawData() {
         if (!this.initialised || !this._audio_buffer) {
             return;
         }
@@ -168,15 +53,15 @@ export class SpectroComponent implements OnInit {
     }
 
 
-    drawSpectMarkup() {
+    protected drawMarkup() {
         if (!this.initialised || !this._audio_buffer) {
             return;
         }
 
-        this._markup_context.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
+        this.markupContext.clearRect(0, 0, this.markupCanvas.nativeElement.width, this.markupCanvas.nativeElement.height);
 
         drawMovingBoundaryLines(
-            this._markup_context,
+            this.markupContext,
             this._viewport_sample_start,
             this._viewport_sample_end,
             this._moving_boundaries,
@@ -184,7 +69,7 @@ export class SpectroComponent implements OnInit {
         );
 
         drawSelection(
-            this._markup_context,
+            this.markupContext,
             false,
             this._viewport_sample_start,
             this._viewport_sample_end,
@@ -195,28 +80,51 @@ export class SpectroComponent implements OnInit {
         );
 
         // draw min max vals and name of track
-        DrawHelperService.drawMinMaxAndName(
-            this._markup_context,
+        drawMinMaxAndName(
+            this.markupContext,
             '',
             this._spectrogram_settings.rangeFrom,
             this._spectrogram_settings.rangeTo,
-            2
+            2,
+            emuWebappTheme
         );
 
-        drawVerticalCrossHair(this._markup_context, this._crosshair_position, emuWebappTheme);
+        drawVerticalCrossHair(
+            this.markupContext,
+            this._crosshair_position,
+            this._audio_buffer.sampleRate,
+            false,
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            emuWebappTheme
+        );
+
+        if (this.mouseY !== null) {
+            const max = this._spectrogram_settings.rangeTo;
+            let valueAtMousePosition = max - this.mouseY / this.markupContext.canvas.height * max; // SIC only uses max
+            valueAtMousePosition = MathHelperService.roundToNdigitsAfterDecPoint(valueAtMousePosition, 2);
+
+            drawHorizontalCrossHair(
+                this.markupContext,
+                this.mouseY,
+                valueAtMousePosition,
+                'Hz',
+                emuWebappTheme
+            );
+        }
     }
 
     killSpectroRenderingThread() {
-        this._main_context.fillStyle = 'lightgrey';
-        this._main_context.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
+        this.mainContext.fillStyle = 'lightgrey';
+        this.mainContext.fillRect(0, 0, this.markupCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
 
         FontScaleService.drawUndistortedText(
-            this._main_context,
+            this.mainContext,
             'rendering...',
             12 * 0.75,
             'HelveticaNeue',
             10,
-            this._main_context.canvas.height / 2,
+            this.mainContext.canvas.height / 2,
             'black',
             'left',
             'middle'
@@ -227,15 +135,15 @@ export class SpectroComponent implements OnInit {
             this.worker = null;
         }
 
-        this.drawSpectMarkup();
+        this.drawMarkup();
     }
 
     setupEvent() {
-        const imageData = this._main_context.createImageData(this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
+        const imageData = this.mainContext.createImageData(this.mainCanvas.nativeElement.width, this.mainCanvas.nativeElement.height);
 
         this.worker.onmessage = (event) => {
             if (event.data.status === undefined) {
-                const samplesPerPxl = getSamplesPerCanvasWidthUnit(
+                const samplesPerPxl = getSamplesPerCanvasPixel(
                     this._viewport_sample_start,
                     this._viewport_sample_end,
                     this.mainCanvas.nativeElement
@@ -243,8 +151,8 @@ export class SpectroComponent implements OnInit {
                 if (samplesPerPxl === event.data.samplesPerPxl) {
                     const tmp = new Uint8ClampedArray(event.data.img);
                     imageData.data.set(tmp);
-                    this._main_context.putImageData(imageData, 0, 0);
-                    this.drawSpectMarkup();
+                    this.mainContext.putImageData(imageData, 0, 0);
+                    this.drawMarkup();
                 }
             } else {
                 // console.error('Error rendering spectrogram:', event.data.status.message);
@@ -303,7 +211,7 @@ export class SpectroComponent implements OnInit {
                 'alpha': this.alpha,
                 'upperFreq': this._spectrogram_settings.rangeTo,
                 'lowerFreq': this._spectrogram_settings.rangeFrom,
-                'samplesPerPxl': getSamplesPerCanvasWidthUnit(
+                'samplesPerPxl': getSamplesPerCanvasPixel(
                     this._viewport_sample_start,
                     this._viewport_sample_end,
                     this.mainCanvas.nativeElement

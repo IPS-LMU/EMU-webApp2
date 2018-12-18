@@ -1,7 +1,7 @@
-export function getPixelPositionOfSampleInViewport(targetSample: number,
-                                                   viewportStartSample: number,
-                                                   viewportEndSample: number,
-                                                   canvasWidth: number): { start: number, center: number, end: number } {
+export function getCanvasCoordinateOfSample(targetSample: number,
+                                            viewportStartSample: number,
+                                            viewportEndSample: number,
+                                            canvasWidth: number): { start: number, center: number, end: number } {
     const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
     const sampleWidth = canvasWidth / numberOfSamplesInViewport;
     const targetSampleRelativeToViewport = targetSample - viewportStartSample;
@@ -34,21 +34,27 @@ export function getTimeOfSample(targetSample: number,
     };
 }
 
-export function getSampleAtPixelPositionInViewport(pixel: number,
-                                                   viewportStartSample: number,
-                                                   viewportEndSample: number,
-                                                   canvasWidth: number): number {
-    return viewportStartSample + (viewportEndSample - viewportStartSample) * (pixel / canvasWidth);
+export function getSampleAtCanvasCoordinate(canvasCoordinate: number,
+                                            viewportStartSample: number,
+                                            viewportEndSample: number,
+                                            canvasWidth: number): number {
+    const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
+    const relativePosition = canvasCoordinate / canvasWidth;
+    return viewportStartSample + Math.floor(numberOfSamplesInViewport * relativePosition);
 }
 
+export function getSamplesPerCanvasPixel(viewportStartSample: number,
+                                         viewportEndSample: number,
+                                         canvas: HTMLCanvasElement) {
+    const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
+    return numberOfSamplesInViewport / canvas.width;
+}
 
-/**
- * calculate the pixel distance between two samples
- */
-export function getPixelDistanceBetweenSamples(viewportStartSample: number,
-                                               viewportEndSample: number,
-                                               canvasWidth: number): number {
-    return (canvasWidth / (viewportEndSample - viewportStartSample + 1));
+export function getSamplesPerCssPixel(viewportStartSample: number,
+                                      viewportEndSample: number,
+                                      canvas: HTMLCanvasElement) {
+    const numberOfSamplesInViewport = viewportEndSample - viewportStartSample + 1;
+    return numberOfSamplesInViewport / canvas.clientWidth;
 }
 
 export function getMousePositionInCanvasX(event: MouseEvent) {
@@ -61,26 +67,16 @@ export function getMousePositionInCanvasY(event: MouseEvent) {
     return (event.offsetY || event.layerY) * (target.height / target.clientHeight);
 }
 
-export function getSamplesPerCanvasWidthUnit(viewportStartSample: number,
-                                             viewportEndSample: number,
-                                             canvas: HTMLCanvasElement) {
-    return (viewportEndSample - viewportStartSample) / canvas.width;
-}
-
-export function getSamplesPerPixel(viewportStartSample: number,
-                                   viewportEndSample: number,
-                                   canvas: HTMLCanvasElement) {
-    return (viewportEndSample - viewportStartSample) / canvas.clientWidth;
-}
 
 export function getSampleNumberAtCanvasMouseEvent(event: MouseEvent,
                                                   viewportStartSample: number,
                                                   viewportEndSample: number) {
-    const position = getMousePositionInCanvasX(event);
-    const samplesPerUnit = getSamplesPerCanvasWidthUnit(
+    const positionInCanvasCoordinates = getMousePositionInCanvasX(event);
+
+    return getSampleAtCanvasCoordinate(
+        positionInCanvasCoordinates,
         viewportStartSample,
         viewportEndSample,
-        event.target as HTMLCanvasElement
+        (event.target as HTMLCanvasElement).width
     );
-    return Math.round(viewportStartSample + position * samplesPerUnit);
 }

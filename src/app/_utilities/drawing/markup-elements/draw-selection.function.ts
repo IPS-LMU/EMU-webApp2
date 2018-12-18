@@ -1,4 +1,4 @@
-import {getPixelPositionOfSampleInViewport} from '../../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../../coordinate-system.functions';
 import {FontScaleService} from '../../../_services/font-scale.service';
 import {MathHelperService} from '../../../_services/math-helper.service';
 import {EmuWebappTheme} from '../../../_interfaces/emu-webapp-theme.interface';
@@ -16,7 +16,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
     }
 
     if (selectionStartSample === selectionEndSample) {
-        const selectionPosition = getPixelPositionOfSampleInViewport(
+        const selectionPosition = getCanvasCoordinateOfSample(
             selectionStartSample,
             viewportStartSample,
             viewportEndSample,
@@ -31,7 +31,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
                 FontScaleService.drawUndistortedTextTwoLines(
                     ctx,
                     selectionStartSample.toString(),
-                    MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
+                    MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate * 1000, 1).toString() + ' ms',
                     emuWebappTheme.primaryFontSize,
                     emuWebappTheme.primaryFontFamily,
                     selectionPosition + 4,
@@ -43,13 +43,13 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             }
         }
     } else {
-        const startOfSelection = getPixelPositionOfSampleInViewport(
+        const startOfSelection = getCanvasCoordinateOfSample(
             selectionStartSample,
             viewportStartSample,
             viewportEndSample,
             ctx.canvas.width
         ).start;
-        const endOfSelection = getPixelPositionOfSampleInViewport(
+        const endOfSelection = getCanvasCoordinateOfSample(
             selectionEndSample - 1,
             viewportStartSample,
             viewportEndSample,
@@ -71,7 +71,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             FontScaleService.drawUndistortedTextTwoLines(
                 ctx,
                 selectionStartSample.toString(),
-                MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate, 6).toString(),
+                MathHelperService.roundToNdigitsAfterDecPoint(selectionStartSample / audioBuffer.sampleRate * 1000, 1).toString() + ' ms',
                 emuWebappTheme.primaryFontSize,
                 emuWebappTheme.primaryFontFamily,
                 startOfSelection - 5,
@@ -85,7 +85,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             FontScaleService.drawUndistortedTextTwoLines(
                 ctx,
                 selectionEndSample.toString(),
-                MathHelperService.roundToNdigitsAfterDecPoint(selectionEndSample / audioBuffer.sampleRate, 6).toString(),
+                MathHelperService.roundToNdigitsAfterDecPoint(selectionEndSample / audioBuffer.sampleRate * 1000, 1).toString() + ' ms',
                 emuWebappTheme.primaryFontSize,
                 emuWebappTheme.primaryFontFamily,
                 endOfSelection + 5,
@@ -96,7 +96,7 @@ export function drawSelection(ctx: CanvasRenderingContext2D,
             );
             // dur values
             const str1 = (selectionEndSample - selectionStartSample - 1).toString();
-            const str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate), 6).toString();
+            const str2 = MathHelperService.roundToNdigitsAfterDecPoint(((selectionEndSample - selectionStartSample) / audioBuffer.sampleRate * 1000), 1).toString() + ' ms';
 
             // check if space
             const space = ctx.measureText(str2).width * FontScaleService.getScaleX(ctx);

@@ -1,25 +1,27 @@
-import {getPixelPositionOfSampleInViewport} from '../view-state-helper-functions';
+import {getCanvasCoordinateOfSample} from '../coordinate-system.functions';
 import {PlayHeadAnimationInfo} from '../../_interfaces/play-head-animation-info.interface';
+import {EmuWebappTheme} from '../../_interfaces/emu-webapp-theme.interface';
 
 export function drawPlayHead(context: CanvasRenderingContext2D,
                              playHeadInfo: PlayHeadAnimationInfo,
                              viewportStartSample: number,
-                             viewportEndSample: number): void {
+                             viewportEndSample: number,
+                             emuWebappTheme: EmuWebappTheme): void {
 
-    const playheadStartSample = getPixelPositionOfSampleInViewport(
+    const playheadStartSample = getCanvasCoordinateOfSample(
         playHeadInfo.sS,
         viewportStartSample,
         viewportEndSample,
         context.canvas.width
     ).start;
 
-    const playheadCurrentSample = getPixelPositionOfSampleInViewport(
+    const playheadCurrentSample = getCanvasCoordinateOfSample(
         playHeadInfo.curS,
         viewportStartSample,
         viewportEndSample,
         context.canvas.width
     ).start;
 
-    context.fillStyle = 'rgba(0,0,0,0.3)';
+    context.fillStyle = emuWebappTheme.selectionOverlayColor;
     context.fillRect(playheadStartSample, 0, playheadCurrentSample - playheadStartSample, context.canvas.height);
 }

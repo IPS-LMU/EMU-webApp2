@@ -1,9 +1,10 @@
 import {IItem, ILabel, ILevel} from '../_interfaces/annot-json.interface';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {
-    getSampleNumberAtCanvasMouseEvent, getSamplesPerCanvasWidthUnit,
-    getSamplesPerPixel
-} from '../_utilities/view-state-helper-functions';
+    getSampleNumberAtCanvasMouseEvent,
+    getSamplesPerCanvasPixel,
+    getSamplesPerCssPixel
+} from '../_utilities/coordinate-system.functions';
 
 export class LevelService {
   /**
@@ -1192,18 +1193,18 @@ export class LevelService {
       }
 
       const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, viewportStartSample, viewportEndSample);
-      const samplesPerCanvasWidthUnit = getSamplesPerCanvasWidthUnit(
+      const samplesPerCanvasPixel = getSamplesPerCanvasPixel(
           viewportStartSample,
           viewportEndSample,
           event.target as HTMLCanvasElement
       );
-      const samplesPerPixel = getSamplesPerPixel(
+      const samplesPerCssPixel = getSamplesPerCssPixel(
           viewportStartSample,
           viewportEndSample,
           event.target as HTMLCanvasElement
       );
 
-      if (samplesPerCanvasWidthUnit <= 1) {
+      if (samplesPerCanvasPixel <= 1) {
           // absolute movement in samples below 1 sample per pixel
           if (Object.keys(preselectedItem.item).includes('sampleStart')) {
               if (preselectedItem.isFirst === true && preselectedItem.isLast === false) { // before first elem
@@ -1218,7 +1219,7 @@ export class LevelService {
           }
       } else {
           // relative movement in samples above 1 sample per pixel
-          return Math.round(samplesPerPixel * event.movementX);
+          return Math.round(samplesPerCssPixel * event.movementX);
       }
   }
 

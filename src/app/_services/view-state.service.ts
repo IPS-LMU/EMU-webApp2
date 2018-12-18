@@ -3,11 +3,6 @@ import { Injectable } from '@angular/core';
 import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
 import {IItem, ILevel} from '../_interfaces/annot-json.interface';
-import {
-    getMousePositionInCanvasX, getMousePositionInCanvasY,
-    getPixelDistanceBetweenSamples,
-    getPixelPositionOfSampleInViewport, getSamplesPerCanvasWidthUnit
-} from '../_utilities/view-state-helper-functions';
 import {SpectrogramSettings} from '../_interfaces/spectrogram-settings.interface';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
 import {Boundary} from '../_interfaces/boundary.interface';
@@ -73,6 +68,11 @@ export class ViewStateService {
   submenuOpen;
   rightSubmenuOpen;
   selectedItems: IItem[];
+  labelEditorState: {
+      item: IItem;
+      originalValue: string;
+      currentValue: string;
+  };
   curMousePosSample;
   crosshairPosition: number;
   preselectedItemInfo: PreselectedItemInfo;
@@ -95,8 +95,6 @@ export class ViewStateService {
   pageSize;
   currentPage;
   curTimeAnchorIdx;
-  largeTextFieldInputFieldVisable;
-  largeTextFieldInputFieldCurLabel;
 
   // possible general states of state machine
   states;
@@ -333,6 +331,11 @@ export class ViewStateService {
     this.submenuOpen = false;
     this.rightSubmenuOpen = false;
     this.selectedItems = [];
+    this.labelEditorState = {
+        item: null,
+        originalValue: null,
+        currentValue: null
+    };
     this.curMousePosSample = 0;
     this.preselectedItemInfo = null;
     this.crosshairPosition = null;
@@ -355,8 +358,6 @@ export class ViewStateService {
     this.pageSize = 500;
     this.currentPage = undefined;
     this.curTimeAnchorIdx = -1;
-    this.largeTextFieldInputFieldVisable = false;
-    this.largeTextFieldInputFieldCurLabel = '';
 
     // possible general states of state machine
     this.states = [];
@@ -473,6 +474,23 @@ setState(nameOrObj) {
     window.requestAnimationFrame(this.updatePlayHead.bind(this));
   }
 
+  public startEditing(item: IItem) {
+    this.labelEditorState.item = item;
+    this.labelEditorState.originalValue = item.labels[0].value;
+    this.labelEditorState.currentValue = item.labels[0].value;
+  }
+
+  public updateItemInEditMode(newValue: string) {
+    this.labelEditorState.item.labels[0].value = newValue;
+    this.labelEditorState.currentValue = newValue;
+  }
+
+  public cancelEdit() {
+      this.labelEditorState.item.labels[0].value = this.labelEditorState.originalValue;
+      this.labelEditorState.item = null;
+      this.labelEditorState.originalValue = null;
+      this.labelEditorState.currentValue = null;
+  }
 
   // /**
   //  * set selected Area
@@ -679,24 +697,6 @@ setState(nameOrObj) {
   //   this.curViewPort.dragBarHeight = b;
   // };
   //
-
-  /**
-   * get pixel position in current viewport given the canvas width
-   * @param w is width of canvas
-   * @param s is current sample to convert to pixel value
-   */
-  public getPos(w, s) {
-    return getPixelPositionOfSampleInViewport(s, this.curViewPort.sS, this.curViewPort.eS, w).start;
-  }
-
-  /**
-   * calculate the pixel distance between two samples
-   * @param w is width of canvas
-   */
-  public getSampleDist(w) {
-    return getPixelDistanceBetweenSamples(this.curViewPort.sS, this.curViewPort.eS, w);
-  }
-
 
   // /**
   //  * toggle boolean if left submenu is open
@@ -935,15 +935,6 @@ setState(nameOrObj) {
   // };
 
   /**
-   *
-   */
-  public getSamplesPerPixelVal(event) {
-    let start = parseFloat(this.curViewPort.sS);
-    let end = parseFloat(this.curViewPort.eS);
-    return getSamplesPerCanvasWidthUnit(start, end, event.target);
-  }
-
-  /**
    * set view port to start and end sample
    * (with several out-of-bounds like checks)
    *
@@ -1128,20 +1119,6 @@ setState(nameOrObj) {
   //   this.lastKeyCode = e;
   // };
   //
-  /**
-   *
-   */
-  getX(e) {
-    return getMousePositionInCanvasX(e);
-  }
-
-  /**
-   *
-   */
-  getY = function (e) {
-    return getMousePositionInCanvasY(e);
-  };
-
   /**
    *
    */
