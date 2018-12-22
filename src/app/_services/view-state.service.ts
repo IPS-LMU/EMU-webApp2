@@ -77,7 +77,6 @@ export class ViewStateService {
   crosshairPosition: number;
   preselectedItemInfo: PreselectedItemInfo;
   curMouseTrackName;
-  currentMouseOverLevel: ILevel;
   currentClickLevel: ILevel;
   curPreselColumnSample;
   curCorrectionToolNr;
@@ -340,7 +339,6 @@ export class ViewStateService {
     this.preselectedItemInfo = null;
     this.crosshairPosition = null;
     this.curMouseTrackName = undefined;
-    this.currentMouseOverLevel = null;
     this.currentClickLevel = undefined;
     this.curPreselColumnSample = 2;
     this.curCorrectionToolNr = undefined;
@@ -760,15 +758,6 @@ setState(nameOrObj) {
   public getCurrentClickLevel(): ILevel {
       return this.currentClickLevel;
   }
-
-  public setCurrentMouseOverLevel(level: ILevel) {
-    this.currentMouseOverLevel = level;
-  }
-
-  public getCurrentMouseOverLevel(): ILevel {
-    return this.currentMouseOverLevel;
-  }
-
 
     /**
    * gets the current (clicked) Level Name

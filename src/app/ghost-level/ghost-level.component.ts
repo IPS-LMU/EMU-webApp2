@@ -388,7 +388,6 @@ export class GhostLevelComponent implements OnInit {
       this._crosshair_position,
       this._moving_boundaries,
       this._audio_buffer,
-      this._mouseover_level,
       emuWebappTheme
     );
   }
