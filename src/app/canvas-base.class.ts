@@ -66,12 +66,12 @@ export abstract class CanvasBase implements OnInit {
         this.redraw();
     }
 
-    protected redraw() {
+    public redraw() {
         this.drawData();
         this.drawMarkup();
     }
 
-    protected abstract drawData(): void;
+    public abstract drawData(): void;
 
-    protected abstract drawMarkup(): void;
+    public abstract drawMarkup(): void;
 }
