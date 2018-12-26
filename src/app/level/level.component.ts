@@ -22,6 +22,7 @@ export class LevelComponent extends CanvasBase {
     private _level_annotation: ILevel;
     private _attribute_name: string;
     private _selected: boolean;
+    private _move_with_mouse: boolean;
 
 
     /**
@@ -123,6 +124,10 @@ export class LevelComponent extends CanvasBase {
      */
     @Input() set label_editor_current_value(value: string) {
         this.redraw();
+    }
+
+    @Input() set move_with_mouse(value: boolean) {
+        this._move_with_mouse = value;
     }
 
     /**
@@ -239,10 +244,23 @@ export class LevelComponent extends CanvasBase {
         } else {
             mouseButton = event.buttons;
         }
-        if (mouseButton === 1 || mouseButton === 2 || mouseButton === 3) {
-            // 1: left button pressed; 2: middle button pressed; 3: right button pressed
-            return;
-        }
+
+	const doNormalMove = false;
+
+	if (this._move_with_mouse) {
+		if (mouseButton === 1 && this._move_with_mouse) {
+			doNormalMove = true;
+		}
+	} else {
+	        if (mouseButton === 1 || mouseButton === 2 || mouseButton === 3) {
+        	    // 1: left button pressed; 2: middle button pressed; 3: right button pressed
+	            return;
+        	}
+
+		if (event.shiftKey) {
+			doNormalMove = true;
+		}
+	}
 
         const moveBy = LevelService.calculateMoveDistance(
             event,
@@ -256,7 +274,7 @@ export class LevelComponent extends CanvasBase {
             this._viewport_sample_end
         );
 
-        if (this._database_configuration.restrictions.editItemSize && event.shiftKey && this._preselected_item) {
+        if (this._database_configuration.restrictions.editItemSize && doNormalMove && this._preselected_item) {
             if (this._level_annotation.type === 'SEGMENT') {
                 this.moveSegmentBoundary(this._preselected_item.item, moveBy);
             } else {
