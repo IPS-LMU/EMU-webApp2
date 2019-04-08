@@ -31,6 +31,9 @@ import {
 
 import { HotkeyModule } from 'angular2-hotkeys';
 
+// Import KonvaModule
+import {  } from 'konva/lib';
+
 import { BundleListSideBarComponent } from './bundle-list-side-bar/bundle-list-side-bar.component';
 import { LevelComponent } from './level/level.component';
 import { OsciComponent } from './osci/osci.component';

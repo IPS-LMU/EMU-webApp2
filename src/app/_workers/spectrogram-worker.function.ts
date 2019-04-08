@@ -4,11 +4,7 @@ export function spectrogramWorker () {
     let selfAny = <any>self;
 
     /**
-     * A handy web worker to draw a spectrom (and calculate a fft)
-     *
-     * @version 1.2
-     * @author Georg Raess <georg.raess@campus.lmu.de>
-     * @link http://www.phonetik.uni-muenchen.de/
+     * A handy web worker to draw a spectrogram (and calculate a fft)
      *
      */
 

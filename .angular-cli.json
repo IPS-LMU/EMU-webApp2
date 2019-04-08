@@ -22,7 +22,8 @@
         "emuwebapp2-app-theme.scss"
       ],
       "scripts": [
-        "../node_modules/keycloak-js/dist/keycloak.js"
+        "../node_modules/keycloak-js/dist/keycloak.js",
+        "../node_modules/konva/konva.min.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {

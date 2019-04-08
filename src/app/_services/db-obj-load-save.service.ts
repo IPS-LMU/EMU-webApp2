@@ -130,6 +130,7 @@ export class DbObjLoadSaveService {
       // console.log(audioBuffer);
       this.view_state_service.curViewPort.sS = 0;
       this.view_state_service.curViewPort.eS = audioBuffer.length;
+      this.view_state_service.curViewPort.maxS = audioBuffer.length;
       if(bndl.timeAnchors !== undefined && bndl.timeAnchors.length > 0){
         this.view_state_service.curViewPort.selectS = bndl.timeAnchors[0].sample_start;
         this.view_state_service.curViewPort.selectE = bndl.timeAnchors[0].sample_end;

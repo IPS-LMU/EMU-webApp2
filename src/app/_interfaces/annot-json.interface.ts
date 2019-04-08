@@ -18,6 +18,7 @@ export interface IItem {
     sampleDur?: number;
     samplePoint?: number;
     labels: ILabel[];
+    renderHierVals?: any;
 }
 
 export interface ISegment extends IItem {

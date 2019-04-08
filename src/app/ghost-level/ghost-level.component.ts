@@ -1,22 +1,40 @@
-import {Component, Input, ViewChild, ElementRef, EventEmitter, Output, OnInit} from '@angular/core';
+import {
+  Component,
+  Input,
+  ViewChild,
+  ElementRef,
+  EventEmitter,
+  Output,
+  OnInit,
+  AfterViewInit} from '@angular/core';
+import { Observable, of } from 'rxjs';
+
+declare const Konva: any;
+
+// import Konva from 'Konva';
+
 import { HistoryService } from '../_services/history.service';
-import {IItem, ILevel} from '../_interfaces/annot-json.interface';
+import { IItem, IAnnotJSON, ILevel } from '../_interfaces/annot-json.interface';
 import {PreselectedItemInfo} from '../_interfaces/preselected-item-info.interface';
-import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
+// import {drawLevelMarkup} from '../_utilities/drawing/draw-level-markup.function';
 import {Boundary} from '../_interfaces/boundary.interface';
 import {emuWebappTheme} from '../_utilities/emu-webapp-theme.object';
+import {ghostLevelWorker} from '../_workers/ghostlevel-worker.function';
+import {getCanvasCoordinateOfSample} from '../_utilities/coordinate-system.functions';
+import {LevelService} from '../_services/level.service';
 
 @Component({
   selector: 'app-ghost-level',
   templateUrl: './ghost-level.component.html',
   styleUrls: ['./ghost-level.component.scss']
 })
-export class GhostLevelComponent implements OnInit {
+export class GhostLevelComponent implements OnInit, AfterViewInit {
 
+  // private vars
   private _database_configuration: {restrictions: any, perspectives: any[]};
   private _preselected_item: PreselectedItemInfo;
   private _selected_items: IItem[];
-  private _annotation: ILevel;
+  private _annotation: IAnnotJSON;
   private _attributeDefinition: string;
   private _viewport_sample_start: number;
   private _viewport_sample_end: number;
@@ -24,14 +42,22 @@ export class GhostLevelComponent implements OnInit {
   private _selection_sample_end: number;
   private _moving_boundaries: Boundary[];
   private _crosshair_position: number;
-  private _audio_buffer: AudioBuffer;
+  // private _audio_buffer: AudioBuffer;
   private _selected: boolean;
-  private _mouseover_level: ILevel;
+  // private _mouseover_level: ILevel;
 
   private initialised: boolean = false;
 
   private _worker;
   private _workerFunctionURL;
+
+  private _linkMap: Map<number, Array<number>>;
+  private _idItemMap: Map<number, IItem>;
+
+  // public vars
+  public stage: any;
+  public hierarchy_layer: any;
+  public timelines_layer: any;
 
 
   @Input() set database_configuration(value: {restrictions: any, perspectives: any[]}) {
@@ -39,7 +65,7 @@ export class GhostLevelComponent implements OnInit {
     // apparently this can be controlled by the order of the @Input() setter methods - but I would not rely on this
     this._database_configuration = value;
   }
-  @Input() set annotation(value: ILevel){
+  @Input() set annotation(value: IAnnotJSON){
     this._annotation = value;
   }
   @Input() set attributeDefinition(value: any){
@@ -48,48 +74,48 @@ export class GhostLevelComponent implements OnInit {
   @Input() set viewport_sample_start(value: number){
     this._viewport_sample_start = value;
 
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
     this.drawHierarchyDetails();
   }
   @Input() set viewport_sample_end(value: number){
     this._viewport_sample_end = value;
 
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
     this.drawHierarchyDetails();
   }
   @Input() set selection_sample_start(value: number){
     this._selection_sample_start = value;
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
   }
   @Input() set selection_sample_end(value: number){
     this._selection_sample_end = value;
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
   }
   @Input() set preselected_item(value: PreselectedItemInfo) {
     this._preselected_item = value;
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
   }
   @Input() set selected_items(value: IItem[]) {
     this._selected_items = value;
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
   }
   @Input() set moving_boundaries(value: Boundary[]) {
     this._moving_boundaries = value;
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
   }
   @Input() set crosshair_position(value: number) {
     this._crosshair_position = value;
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
   }
-  @Input() set audio_buffer(value: AudioBuffer){
-    this._audio_buffer = value;
-  }
+  // @Input() set audio_buffer(value: AudioBuffer){
+  //   this._audio_buffer = value;
+  // }
   @Input() set selected(value: boolean) {
     this._selected = value;
-    this.drawLevelMarkup();
+    // this.drawLevelMarkup();
   }
   @Input() set mouseover_level(value: ILevel) {
-    this._mouseover_level = value;
+    // this._mouseover_level = value;
   }
 
   @Output() crosshair_move: EventEmitter<number> = new EventEmitter<number>();
@@ -101,496 +127,321 @@ export class GhostLevelComponent implements OnInit {
   @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
 
 
-  @ViewChild('levelCanvas') levelCanvas: ElementRef;
-  @ViewChild('levelMarkupCanvas') levelMarkupCanvas: ElementRef;
-
+  @ViewChild('levelcontainer') levelcontainer: ElementRef;
 
   constructor(private history_service: HistoryService) {
 
-    const workerFunctionBlob = new Blob(['(' + this.workerFunction.toString() + ')();'], {type: 'text/javascript'});
+    const workerFunctionBlob = new Blob(['(' + ghostLevelWorker.toString() + ')();'], {type: 'text/javascript'});
     this._workerFunctionURL = window.URL.createObjectURL(workerFunctionBlob);
     this._worker = new Worker(this._workerFunctionURL);
 
   }
 
   ngOnInit() {
-      this.initialised = true;
-      this.drawHierarchyDetails();
-      this.drawLevelMarkup();
   }
 
-  workerFunction() {
-    let selfAny = <any>self;
-    ///////////////////////////////////
-    // start: global vars
-    selfAny.executed = false;
-
-    // end: global vars
-    //////////////////////////////////
-
-    selfAny.renderHierarchy = function(){
-
-      // create new picture
-      selfAny.resultImgArr = new Uint8ClampedArray(Math.ceil(selfAny.imgWidth * selfAny.imgHeight * 4));
-
-    }
-
-    //////////////////////////
-    // communication functions
-
-    /**
-     * function to handle messages events
-     * @param e message event
-     */
-
-    selfAny.onmessage = function (e) {
-      console.log("------------------");
-      console.log(e);
-    }
-  };
 
 
-  // public mouseclick(event: MouseEvent){
-  //   event.preventDefault();
-  //
-  //   this.select_level.emit(this._level_annotation);
-  //
-  //   const clickedSample = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-  //
-  //   const itemNearCursor = LevelService.getClosestItem(clickedSample, this._level_annotation, this._audio_buffer.length);
-  //   if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined) {
-  //     this.select_items.emit([itemNearCursor.current]);
-  //   } else {
-  //     this.select_items.emit([]);
-  //   }
-  // }
-  //
-  // public mousedblclick(event: MouseEvent){
-  //   if (this._database_configuration.restrictions.editItemName) {
-  //     /*
-  //       const clickedSample = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-  //       const itemNearCursor = LevelService.getClosestItem(clickedSample, this._level_annotation, this._audio_buffer.length);
-  //       // let isOpen = this.element_ref.nativeElement.parentElement.css('height') === '25px' ? false : true;
-  //       // expand to full size on dbl click if level is in small size
-  //       // if (!isOpen) {
-  //       //   this.element_ref.nativeElement.parentElement.find('div')[3].click();
-  //       // }
-  //       if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined && this.view_state_service.getPermission('labelAction')) {
-  //           if (this._level_annotation.type === 'SEGMENT') {
-  //               if (itemNearCursor.current.sampleStart >= this._viewport_sample_start) {
-  //                   if ((itemNearCursor.current.sampleStart + itemNearCursor.current.sampleDur) <= this._viewport_sample_end) {
-  //                       this.select_level.emit();
-  //                       this.select_items.emit([itemNearCursor.current]);
-  //                   } else {
-  //                       //console.log('Editing out of right bound !');
-  //                   }
-  //               } else {
-  //                   //console.log('Editing out of left bound !');
-  //               }
-  //           } else {
-  //               this.select_level.emit();
-  //               this.select_items.emit([itemNearCursor.current]);
-  //           }
-  //       }
-  //       */
-  //   }
-  // }
-  //
-  // public mouserightclick(event: MouseEvent){
-  //   event.preventDefault();
-  //
-  //   if (!this._selected) {
-  //     this.select_level.emit(this._level_annotation);
-  //     this.select_items.emit([]);
-  //   }
-  //
-  //   const clickedSample = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-  //
-  //   const itemNearCursor = LevelService.getClosestItem(clickedSample, this._level_annotation, this._audio_buffer.length);
-  //   if (itemNearCursor.current !== undefined && itemNearCursor.nearest !== undefined) {
-  //     this.addToSelection(itemNearCursor.current);
-  //   }
-  // }
-  //
-  // public mouseenter(event: MouseEvent) {
-  //   this.preselect_level.emit(this._level_annotation);
-  // }
-  //
-  // public mouseleave(event: MouseEvent) {
-  //   this.preselect_item.emit(null);
-  //   this.preselect_level.emit(null);
-  // }
-  //
-  // public mousemove(event: MouseEvent){
-  //   // if (!this.view_state_service.focusOnEmuWebApp) {
-  //   //  return;
-  //   // }
-  //
-  //   let mouseButton = 0;
-  //   if (event.buttons === undefined) {
-  //     mouseButton = event.which;
-  //   } else {
-  //     mouseButton = event.buttons;
-  //   }
-  //   if (mouseButton === 1 || mouseButton === 2 || mouseButton === 3) {
-  //     // 1: left button pressed; 2: middle button pressed; 3: right button pressed
-  //     return;
-  //   }
-  //
-  //   const moveBy = LevelService.calculateMoveDistance(event, this._preselected_item, this._viewport_sample_start, this._viewport_sample_end);
-  //   const sampleNumberAtMousePosition = getSampleNumberAtCanvasMouseEvent(event, this._viewport_sample_start, this._viewport_sample_end);
-  //
-  //   if (this._database_configuration.restrictions.editItemSize && event.shiftKey && this._preselected_item) {
-  //     if (this._level_annotation.type === 'SEGMENT') {
-  //       this.moveSegmentBoundary(this._preselected_item.item, moveBy);
-  //     } else {
-  //       this.moveEvent(this._preselected_item.item, moveBy);
-  //     }
-  //   } else if (this._database_configuration.restrictions.editItemSize && event.altKey && this._selected_items.length > 0) {
-  //     if (this._level_annotation.type === 'SEGMENT') {
-  //       this.moveSegments(this._selected_items, moveBy);
-  //     }
-  //     else if (this._level_annotation.type === 'EVENT') {
-  //       this.moveEvents(this._selected_items, moveBy);
-  //     }
-  //   } else {
-  //     this.moving_boundary_move.emit(null);
-  //     this.crosshair_move.emit(getMousePositionInCanvasX(event));
-  //
-  //     const itemNearCursor = LevelService.getClosestItem(sampleNumberAtMousePosition, this._level_annotation, this._audio_buffer.length);
-  //     if (itemNearCursor.current && itemNearCursor.nearest) {
-  //       this.preselect_item.emit({
-  //         item: itemNearCursor.nearest,
-  //         neighbours: LevelService.getItemNeighboursFromLevel(this._level_annotation, itemNearCursor.nearest.id, itemNearCursor.nearest.id),
-  //         isFirst: itemNearCursor.isFirst,
-  //         isLast: itemNearCursor.isLast
-  //       });
-  //     }
-  //   }
-  //
-  //   // this.drawLevelDetails();
-  // }
-  //
-  // private moveSegments(segments: IItem[], moveBy: number) {
-  //   LevelService.moveSegment(this._level_annotation, segments[0].id, segments.length, moveBy, this._audio_buffer.length);
-  //
-  //   this.history_service.updateCurChangeObj({
-  //     'type': 'ANNOT',
-  //     'action': 'MOVESEGMENT',
-  //     'name': this._level_annotation.name,
-  //     'id': segments[0].id,
-  //     'length': segments.length,
-  //     'movedBy': moveBy
-  //   });
-  // }
-  //
-  // private moveEvents(events: IItem[], moveBy: number) {
-  //   for (let event of events) {
-  //     LevelService.moveEvent(this._level_annotation, event.id, moveBy, this._audio_buffer.length);
-  //
-  //     this.history_service.updateCurChangeObj({
-  //       'type': 'ANNOT',
-  //       'action': 'MOVEEVENT',
-  //       'name': this._level_annotation.name,
-  //       'id': event.id,
-  //       'movedBy': moveBy
-  //     });
-  //   }
-  // }
-  //
-  // private moveSegmentBoundary (segment: IItem, moveBy: number) {
-  //   if (this._preselected_item.isFirst || this._preselected_item.isLast) {
-  //     // before first segment
-  //     if (this._preselected_item.isFirst) {
-  //       this.moving_boundary_move.emit(segment.sampleStart + moveBy);
-  //     } else if (this._preselected_item.isLast) {
-  //       this.moving_boundary_move.emit(segment.sampleStart + segment.sampleDur + moveBy);
-  //     }
-  //   } else {
-  //     this.moving_boundary_move.emit(segment.sampleStart + moveBy);
-  //   }
-  //
-  //   LevelService.moveBoundary(
-  //     this._level_annotation,
-  //     segment.id,
-  //     moveBy,
-  //     this._preselected_item.isFirst,
-  //     this._preselected_item.isLast,
-  //     this._audio_buffer.length
-  //   );
-  //
-  //   this.history_service.updateCurChangeObj({
-  //     'type': 'ANNOT',
-  //     'action': 'MOVEBOUNDARY',
-  //     'name': this._level_annotation.name,
-  //     'id': segment.id,
-  //     'movedBy': moveBy,
-  //     'isFirst': this._preselected_item.isFirst,
-  //     'isLast': this._preselected_item.isLast
-  //   });
-  // }
-  //
-  // private moveEvent (event: IItem, moveBy: number) {
-  //   this.moving_boundary_move.emit(event.samplePoint + moveBy);
-  //
-  //   LevelService.moveEvent(this._level_annotation, event.id, moveBy, this._audio_buffer.length);
-  //
-  //   this.history_service.updateCurChangeObj({
-  //     'type': 'ANNOT',
-  //     'action': 'MOVEEVENT',
-  //     'name': this._level_annotation.name,
-  //     'id': event.id,
-  //     'movedBy': moveBy
-  //   });
-  // }
-  //
-  // private addToSelection (item: IItem) {
-  //   if (this._selected_items.includes(item)) {
-  //     return;
-  //   }
-  //
-  //   const leftNeighbour = LevelService.getItemInTime(this._level_annotation, item.id, false);
-  //   const rightNeighbour = LevelService.getItemInTime(this._level_annotation, item.id, true);
-  //
-  //   if (this._selected_items.includes(leftNeighbour) || this._selected_items.includes(rightNeighbour)) {
-  //     const items = [...this._selected_items, item];
-  //     items.sort(LevelService.sortItemsByStart);
-  //     this.select_items.emit(items);
-  //   }
-  // }
-  //
-  // private drawLevelDetails() {
-  //   const context = this.levelCanvas.nativeElement.getContext('2d');
-  //   drawLevelDetails(
-  //     context,
-  //     this._level_annotation,
-  //     this._attributeDefinition,
-  //     this._viewport_sample_start,
-  //     this._viewport_sample_end
-  //   );
-  // }
+  ngAfterViewInit() {
 
-  private drawLevelMarkup() {
-    if (!this.initialised || !this._audio_buffer) {
-      return;
-    }
-    const context = this.levelMarkupCanvas.nativeElement.getContext('2d');
-    drawLevelMarkup(
-      context,
-      this._annotation,
-      this._viewport_sample_start,
-      this._viewport_sample_end,
-      this._selection_sample_start,
-      this._selection_sample_end,
-      this._selected,
-      this._selected_items,
-      this._preselected_item,
-      this._crosshair_position,
-      this._moving_boundaries,
-      this._audio_buffer,
-      this._mouseover_level,
-      emuWebappTheme
-    );
+    this.initialised = true;
+
+    this.drawHierarchyDetails();
+
   }
-
-  private killHierarchyRenderingThread() {
-    const context = this.levelCanvas.nativeElement.getContext('2d');
-    context.fillStyle = 'lightgrey'; //ConfigProviderService.design.color.lightGrey;
-    context.fillRect(0, 0, this.levelMarkupCanvas.nativeElement.width, this.levelMarkupCanvas.nativeElement.height);
-    // draw current viewport selected
-    // this.draw_helper_service.drawCurViewPortSelected(
-    //   context,
-    //   false,
-    //   this._viewport_sample_start,
-    //   this._viewport_sample_end,
-    //   this._selection_sample_start,
-    //   this._selection_sample_end,
-    //   this._audio_buffer,
-    //   this._mouseover_level
-    // );
-    // FontScaleService.drawUndistortedText(this._main_context, 'rendering...', 12 * 0.75, 'HelveticaNeue', 10, 50, 'black', true);
-
-    // kill worker
-    if (this._worker !== null) {
-      this._worker.terminate();
-      this._worker = null;
-    }
-  }
-
-  private setupEvent() {
-    const context = this.levelCanvas.nativeElement.getContext('2d');
-    let imageData = context.createImageData(
-      this.levelCanvas.nativeElement.width,
-      this.levelCanvas.nativeElement.height
-    );
-    this._worker.onmessage = (event) => {
-    //   if (event.data.status === undefined) {
-    //     const samplesPerPxl = getSamplesPerCanvasWidthUnit(
-    //       this._viewport_sample_start,
-    //       this._viewport_sample_end,
-    //       this.mainCanvas.nativeElement
-    //     );
-    //     if (samplesPerPxl === event.data.samplesPerPxl) {
-          let tmp = new Uint8ClampedArray(event.data.img);
-          imageData.data.set(tmp);
-          context.putImageData(imageData, 0, 0);
-    //       this.drawSpectMarkup();
-    //     }
-    //   } else {
-    //     console.error('Error rendering spectrogram:', event.data.status.message);
-    //   }
-    };
-  };
 
   /**
    * draw level hierarchy
    */
   private drawHierarchyDetails() {
-    if (!this.initialised || !this._audio_buffer) {
+    // don't do anything if not inited
+    if (!this.initialised) {
       return;
     }
 
-    this.killHierarchyRenderingThread();
-    this._worker = new Worker(this._workerFunctionURL);
-    this.setupEvent();
+    if (!this.stage) {
+      this.stage = new Konva.Stage({
+        container: 'container',
+        width: this.levelcontainer.nativeElement.clientWidth,
+        height: this.levelcontainer.nativeElement.clientHeight
+      });
 
-    const context = this.levelCanvas.nativeElement.getContext('2d');
-    this._worker.postMessage({
-      imgWidth: context.nativeElement.width,
-      imgHeight: context.nativeElement.height
+      this.hierarchy_layer = new Konva.Layer();
+      this.timelines_layer = new Konva.Layer();
+
+      this.timelines_layer.alpha(0.1); // SIC not working
+      // this.timelines_layer.disableHitGraph();
+
+      this.stage.add(this.hierarchy_layer);
+      this.stage.add(this.timelines_layer);
+
+    }
+
+    // use hard coded path for now
+    const path = [
+      'Utterance',
+      'Intonational',
+      'Intermediate',
+      'Word',
+      'Syllable',
+      'Phoneme',
+      'Phonetic'
+    ].reverse();
+
+    this.hierarchy_layer.destroyChildren();
+    this.timelines_layer.destroyChildren();
+
+    /////////////////////////////////
+    // build hashmaps for faster access
+    // (should probably do this in worker and when needed)
+    // make level hashmap
+    const levelNameLevelMap = new Map();
+    this._annotation.levels.forEach((level) => {
+      levelNameLevelMap.set(level.name, level);
     });
 
-  //   this.worker.postMessage({
-  //     'windowSizeInSecs': this._spectrogram_settings.windowSizeInSecs,
-  //     'fftN': fftN,
-  //     'alpha': this.alpha,
-  //     'upperFreq': this._spectrogram_settings.rangeTo,
-  //     'lowerFreq': this._spectrogram_settings.rangeFrom,
-  //     'samplesPerPxl': getSamplesPerCanvasWidthUnit(
-  //       this._viewport_sample_start,
-  //       this._viewport_sample_end,
-  //       this.mainCanvas.nativeElement
-  //     ),
-  //     'window': this._spectrogram_settings.window,
-  //     'imgWidth': this.mainCanvas.nativeElement.width,
-  //     'imgHeight': this.mainCanvas.nativeElement.height,
-  //     'dynRangeInDB': this._spectrogram_settings.dynamicRange,
-  //     'pixelRatio': this.devicePixelRatio,
-  //     'sampleRate': this._audio_buffer.sampleRate,
-  //     'transparency': this._spectrogram_settings.transparency,
-  //     'audioBuffer': paddedSamples.buffer,
-  //     'audioBufferChannels': this._audio_buffer.numberOfChannels,
-  //     'drawHeatMapColors': this._spectrogram_settings.drawHeatMapColors,
-  //     'preEmphasisFilterFactor': this._spectrogram_settings.preEmphasisFilterFactor,
-  //     'heatMapColorAnchors': this._spectrogram_settings.heatMapColorAnchors
-  //   }, [paddedSamples.buffer]);
-  // }
+    // build id -> item hashmap
+    this._idItemMap = new Map();
+    path.forEach((levelName) => {
+      const level = levelNameLevelMap.get(levelName);
+      level.items.forEach((item) => {
+        this._idItemMap.set(item.id, item);
+      });
+    });
 
-    // let fontSize = this.config_provider_service.design.font.small.size.slice(0, -2) * 1;
-    // let paths = this.hls.findPaths(this.level.name);
-    // let curPath = paths[1];
-    //
-    // let ctx = canvas[0].getContext('2d');
-    // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    //
-    // //let mTxtImgWidth = ctx.measureText('m').width * FontScaleService.scaleX;
-    //
-    // ctx.strokeStyle = this.config_provider_service.design.color.black;
-    //
-    // // find parents for every parent for every items hence building the annotation graph
-    // this.hls.findParents(curPath);
-    //
-    // // draw ghost level
-    // for(let i = 0; i < curPath.length; i++){
-    //   let curLevel = this.ls.getLevelDetails(curPath[i]);
-    //   let levelHeight = ctx.canvas.height / curPath.length;
-    //   let curStartY = ctx.canvas.height - (i + 1) * levelHeight;
-    //   for(let itemIdx = 0; itemIdx < curLevel.items.length; itemIdx++){
-    //     let posS = Math.round(getPixelPositionOfSampleInViewport(
-    //        curLevel.items[itemIdx]._derivedSampleStart,
-    //        this._viewport_sample_start,
-    //        this._viewport_sample_end,
-    //        ctx.canvas.width
-    //     ));
-    //     let posE = Math.round(getPixelPositionOfSampleInViewport(
-    //        curLevel.items[itemIdx]._derivedSampleEnd,
-    //        this._viewport_sample_start,
-    //        this._viewport_sample_end,
-    //        ctx.canvas.width
-    //     ))
-    //     ctx.strokeRect(posS, curStartY , posE - posS, curStartY + levelHeight);
-    //
-    //     // draw label
-    //     FontScaleService.drawUndistortedText(ctx, curLevel.items[itemIdx].labels[0].value, fontSize - 2, this.config_provider_service.design.font.small.family, posS + (posE - posS) / 2 - ctx.measureText(curLevel.items[itemIdx].labels[0].value).width / 2 - 2, curStartY + levelHeight / 2, this.config_provider_service.design.color.black, true);
-    //   }
-    // }
+    // build link hashmap (bottom -> up; toID -> fromID)
+    this._linkMap = new Map();
+    this._annotation.links.forEach((link) => {
+      if (this._linkMap.get(link.toID)){
+        this._linkMap.set(link.toID, this._linkMap.get(link.toID).concat(link.fromID));
+      } else {
+        this._linkMap.set(link.toID, [link.fromID]);
+      }
+    });
 
-  };
+    // calc times for non-time levels
+    path.forEach((levelName, levelNameIdx) => {
+      // don't look for parent when reached top of path
+      if (levelNameIdx === path.length - 1) {return;}
+      const level = levelNameLevelMap.get(levelName);
+      const parentLevelName = path[levelNameIdx + 1];
 
+      level.items.forEach((item) => {
+        // add render values to bottom level item (what about timeless paths?)
+        if (levelNameIdx === 0) {
+          item.renderHierVals = {
+            sampleStart: item.sampleStart,
+            sampleEnd: item.sampleStart + item.sampleDur
+          };
+        }
+        const parentIds = this._linkMap.get(item.id);
+        if (parentIds) {
+          parentIds.forEach((parentId) => {
+            const parent = this._idItemMap.get(parentId);
+            if (parent) {
+              // check if parent in correct level
+              if (parent.labels[0].name === parentLevelName) {
+                // add new renderHierVals attributes if they don't exist
+                if (!parent.renderHierVals) {
+                  parent.renderHierVals = {
+                    sampleStart: item.renderHierVals.sampleStart,
+                    sampleEnd: item.renderHierVals.sampleEnd
+                  };
+                } else {
+                  // update if they do
+                  if (item.renderHierVals.sampleStart <= parent.renderHierVals.sampleStart) {
+                    parent.renderHierVals.sampleStart = item.renderHierVals.sampleStart;
+                  }
+                  if (item.renderHierVals.sampleEnd >= parent.renderHierVals.sampleEnd) {
+                    parent.renderHierVals.sampleEnd = item.renderHierVals.sampleEnd;
+                  }
+                }
+                // TODO: timeless items?
+              }
+            } else {
+              console.log("no parent found?");
+            }
+          });
+        }
+      });
+    });
 
-//   /**
-//    *
-//    */
-//   this.changeCurAttrDef = function (attrDefName, index) {
-//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
-//     if (curAttrDef !== attrDefName) {
-//       // curAttrDef = attrDefName;
-//       this.vs.setCurAttrDef(this.level.name, attrDefName, index);
-//
-//       if (!element.hasClass('emuwebapp-level-animation')) {
-//         this.vs.setEditing(false);
-//         this.deleteEditArea();
-//         $animate.addClass(levelCanvasContainer, 'emuwebapp-level-animation').then(function () {
-//           $animate.removeClass(levelCanvasContainer, 'emuwebapp-level-animation');
-//           // redraw
-//           this.drawLevelDetails();
-//           this.drawLevelMarkup();
-//         });
-//       }
-//     }
-//   };
-//
-//   /**
-//    *
-//    */
-//   this.getAttrDefBtnColor = function (attrDefName) {
-//     let curColor;
-//     let curAttrDef = this.vs.getCurAttrDef(this.level.name);
-//     if (attrDefName === curAttrDef) {
-//       curColor = {
-//         'background': '-webkit-radial-gradient(50% 50%, closest-corner, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 60%)'
-//       };
-//     } else {
-//       curColor = {
-//         'background-color': 'white'
-//       };
-//     }
-//     return curColor;
-//   };
-//
+    let levelHeight = this.stage.getStage().getHeight() / path.length;
+    let levelYmin = 0;
+    let levelYmax = levelHeight;
+
+    path.forEach((levelName, levelNameIdx) => {
+      const level = levelNameLevelMap.get(levelName);
+      const attribute = level.name; // SIC hardcoded!
+      // draw level name
+      const stageHeight = this.stage.getStage().getHeight();
+      const levelLabel = new Konva.Text({
+        x: 0,
+        y: (stageHeight - levelYmin) - (levelYmax - levelYmin) / 2,
+        text: levelName + ':' + attribute,
+        fontSize: emuWebappTheme.primaryFontSize - 4,
+        fontFamily: emuWebappTheme.primaryFontFamily,
+        fill: emuWebappTheme.primaryLineColor
+        // align: 'right'
+        // verticalAlign: 'right'
+      });
+      this.hierarchy_layer.add(levelLabel);
+
+      for (const item of level.items) {
+        if (item.renderHierVals.sampleStart >= this._viewport_sample_start &&
+          item.renderHierVals.sampleStart <= this._viewport_sample_end || // within segment
+          item.renderHierVals.sampleEnd > this._viewport_sample_start &&
+          item.renderHierVals.sampleEnd < this._viewport_sample_end || // end in segment
+          item.renderHierVals.sampleStart < this._viewport_sample_start &&
+          item.renderHierVals.sampleEnd > this._viewport_sample_end // within sample
+        ) {
+          this.drawSegment(
+            item,
+            attribute,
+            levelYmin,
+            levelYmax
+          );
+
+        }
+      }
+
+      levelYmin += levelHeight;
+      levelYmax += levelHeight;
+
+    });
+
+    // draw layers
+    this.hierarchy_layer.draw();
+
+    this.timelines_layer.cache();
+    this.timelines_layer.filters([Konva.Filters.Blur]);
+    this.timelines_layer.blurRadius(5);
+
+    this.timelines_layer.draw();
+
+  }
 
   /**
-   * Create a Text Selection in a html Textarea
-   *   @param field the textarea element
-   *   @param start the starting character position as int
-   *   @param end the ending character position as int
-   */
-  /*
-  private createSelection (field, start, end) {
-    if (field.createTextRange) {
-        let selRange: {collapse, moveStart, moveEnd, select} = field.createTextRange();
-        selRange.collapse(true);
-        selRange.moveStart('character', start);
-        selRange.moveEnd('character', end);
-        selRange.select();
-    } else if (field.setSelectionRange) {
-        field.setSelectionRange(start, end);
-    } else if (field.selectionStart) {
-        field.selectionStart = start;
-        field.selectionEnd = end;
+   *
+   *
+   * */
+  private drawSegment(item: IItem,
+                      attribute: string,
+                      levelYmin: number,
+                      levelYmax: number) {
+
+    const labelValue = LevelService.getLabelByAttribute(item, attribute);
+
+    let stageWidth = this.stage.getStage().getWidth();
+    let stageHeight = this.stage.getStage().getHeight();
+    // draw segment start
+    const posS = getCanvasCoordinateOfSample(
+      item.renderHierVals.sampleStart,
+      this._viewport_sample_start,
+      this._viewport_sample_end,
+      stageWidth
+    ).start;
+    const posE = getCanvasCoordinateOfSample(
+      item.renderHierVals.sampleEnd,
+      this._viewport_sample_start,
+      this._viewport_sample_end,
+      stageWidth
+    ).end;
+
+    const startLine = new Konva.Line({
+      points: [
+        posS,
+        stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
+        posS,
+        stageHeight - levelYmax,
+        posS,
+        stageHeight - levelYmax + (levelYmax - levelYmin) / 4,
+        posS + (posE - posS) / 2,
+        stageHeight - levelYmax + (levelYmax - levelYmin) / 4,
+        posS + (posE - posS) / 2,
+        stageHeight - levelYmax + (levelYmax - levelYmin) / 4 + 1,
+      ],
+      stroke: emuWebappTheme.primaryLineColor,
+      strokeWidth: 1,
+      lineCap: 'round',
+      lineJoin: 'round'
+    });
+
+    const label = new Konva.Text({
+      text: item.labels[0].value, // SIC hard coded
+      x: posS, //+ ((posE - posS) / 2),
+      y: (stageHeight - levelYmin) - (levelYmax - levelYmin),// / 2,
+      width: (posE - posS), // as wide as segment
+      height: (levelYmax - levelYmin), // as high as level
+      fontSize: emuWebappTheme.primaryFontSize - 2,
+      fontFamily: emuWebappTheme.primaryFontFamily,
+      fill: emuWebappTheme.primaryLineColor,
+      align: 'center',
+      verticalAlign: 'middle'
+    });
+
+    const endLine = new Konva.Line({
+      points: [
+        posE,
+        stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
+        posE,
+        stageHeight - levelYmin,
+        posE,
+        stageHeight - levelYmin - (levelYmax - levelYmin) / 4,
+        posE - (posE - posS) / 2,
+        stageHeight - levelYmin - (levelYmax - levelYmin) / 4,
+        posE - (posE - posS) / 2,
+        stageHeight - levelYmin - (levelYmax - levelYmin) / 4 - 1
+      ],
+      stroke: emuWebappTheme.secondaryFontColor,
+      strokeWidth: 1,
+      lineCap: 'round',
+      lineJoin: 'round'
+    });
+
+
+    this.timelines_layer.add(startLine);
+    this.hierarchy_layer.add(label);
+    this.timelines_layer.add(endLine);
+
+    this.timelines_layer.alpha(0.1);
+
+    // draw child -> parent lines
+    const parentIds = this._linkMap.get(item.id);
+    if (parentIds) {
+      parentIds.forEach((parentId) => {
+        const parent = this._idItemMap.get(parentId);
+        if (parent) {
+          const pos_parent = getCanvasCoordinateOfSample(
+            parent.renderHierVals.sampleStart + (parent.renderHierVals.sampleEnd - parent.renderHierVals.sampleStart) / 2,
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            stageWidth
+          ).start;
+
+          const childParentLine = new Konva.Line({
+            points: [
+              posS + ((posE - posS) / 2),
+              stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
+              pos_parent,
+              stageHeight - levelYmax - (levelYmax - levelYmin) / 2
+            ],
+            stroke: emuWebappTheme.primaryFontColor,
+            strokeWidth: 1,
+            lineCap: 'round',
+            lineJoin: 'round'
+          });
+
+          childParentLine.on('mouseover', function() {
+            console.log("sdjkfladsjfklajsdfkl");
+          });
+
+          this.hierarchy_layer.add(childParentLine);
+
+        }
+      });
     }
-    field.focus();
+
   }
-  */
 
 }

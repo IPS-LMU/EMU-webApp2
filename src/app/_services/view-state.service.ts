@@ -115,6 +115,7 @@ export class ViewStateService {
     this.curViewPort = {
       sS: 0,
       eS: 0,
+      maxS: 0,
       selectS: null,
       selectE: null,
       movingS: -1,
