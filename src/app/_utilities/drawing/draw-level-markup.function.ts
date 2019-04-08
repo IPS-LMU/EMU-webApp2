@@ -19,7 +19,6 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 crosshairPosition: number,
                                 movingBoundaries: Boundary[],
                                 audioBuffer: AudioBuffer,
-                                mouseoverLevel: ILevel,
                                 emuWebappTheme: EmuWebappTheme) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     if (selected) {
@@ -90,7 +89,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
 
     // draw preselected boundary
 
-    if (preselectedItem && level.name === mouseoverLevel.name) {
+    if (preselectedItem && level.name === preselectedItem.item.labels[0].name) {
         ctx.fillStyle = '#4fc3f7';
         const boundaryPosition = getCanvasCoordinateOfSample(
             preselectedItem.selectedBoundary.sample,

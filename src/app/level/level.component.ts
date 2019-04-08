@@ -16,58 +16,150 @@ import {CanvasBase} from '../canvas-base.class';
     styleUrls: ['./level.component.scss']
 })
 export class LevelComponent extends CanvasBase {
-    private _database_configuration: { restrictions: any, perspectives: any[] };
+    private _database_configuration: { restrictions: {editItemSize: boolean} };
     private _preselected_item: PreselectedItemInfo;
     private _selected_items: IItem[];
     private _level_annotation: ILevel;
-    private _attributeDefinition: string;
+    private _attribute_name: string;
     private _selected: boolean;
-    private _mouseover_level: ILevel;
 
-    @Input() set database_configuration(value: { restrictions: any, perspectives: any[] }) {
+
+    /**
+     * In emuDB format, media files are part of a database and that database has
+     * a configuration object.
+     *
+     * This component currently requires only one property of that configuration object.
+     */
+    @Input() set database_configuration(value: { restrictions: {editItemSize: boolean} }) {
         this._database_configuration = value;
         this.redraw();
     }
 
+    /**
+     * This is the data structure displayed in the component, in emuDB format.
+     *
+     * Since this is the LevelComponent, we expect exactly one level, which is a
+     * part of the annotation data structure that describes one media file.
+     */
     @Input() set level_annotation(value: ILevel) {
         this._level_annotation = value;
         this.redraw();
     }
 
-    @Input() set attributeDefinition(value: any) {
-        this._attributeDefinition = value;
+    /**
+     * In the emuDB format, each level has a number (>= 1) of attributes. Each
+     * item on a level must have exactly one label for every attribute the level
+     * has.
+     *
+     * The LevelComponent will only render the labels of the one attribute
+     * specified here.
+     */
+    @Input() set attribute_name(value: string) {
+        this._attribute_name = value;
         this.redraw();
     }
 
+    /**
+     * Preselection happens as the user hovers over the component.
+     *
+     * Note that this component also has the @Output preselect_item, where it
+     * emits a new item whenever the user moves the mouse cursor. It is usually
+     * best to initialize this @Input to null and then update it according to
+     * what preselect_item emits.
+     *
+     * The terminology here is somewhat inconsistent. We talk about "preselected
+     * items", but this is really true only when hovering over an event-typed
+     * level. In that case, the event closest to the mouse cursor is preselected.
+     * In the case of hovering over a segment-typed level, the segment boundary
+     * closest to the cursor is preselected.
+     *
+     * Many user actions, such as "delete item" or "move boundary", are carried
+     * out on the preselected thing.
+     *
+     * The data structure used here (PreselectedItemInfo) is a mixture of things
+     * that have already been refactored and things that have not.
+     */
     @Input() set preselected_item(value: PreselectedItemInfo) {
         this._preselected_item = value;
         this.drawMarkup();
     }
 
+    /**
+     * Selection happens as the user clicks on a segment or event.
+     *
+     * Note that this component also has the @Output select_items, where it
+     * emits a new IItem array whenever the user clicks on the level. It is
+     * usually best to initialize this @Input to an empty array and then update
+     * it according to what select_items emits.
+     *
+     * Some user actions, such as "move item", can be carried out on all
+     * selected items at the same time.
+     */
     @Input() set selected_items(value: IItem[]) {
         this._selected_items = value;
         this.drawMarkup();
     }
 
+    /**
+     * Marks whether the level itself is selected (among multiple levels
+     * displayed at the same time).
+     *
+     * Note that this component also has the @Output select_level, which can be
+     * indirectly linked to this @Input. The @Output emits the data structure
+     * representing the level in this component whenever the user clicks inside
+     * the level. This @Input, however, needs a boolean value.
+     */
     @Input() set selected(value: boolean) {
         this._selected = value;
         this.drawMarkup();
     }
 
-    @Input() set mouseover_level(value: ILevel) {
-        this._mouseover_level = value;
-        this.drawMarkup();
-    }
-
+    /**
+     * Unfinished feature. We are going to have the user edit labels somewhere
+     * outside of this component, but we want to display what they are typing
+     * in this component as well. The external editor should provide the current
+     * value here while the user is typing.
+     * @param value
+     */
     @Input() set label_editor_current_value(value: string) {
         this.redraw();
     }
 
+    /**
+     * The "moving boundary" is a segment boundary or event that the user is
+     * currently moving.
+     *
+     * This @Output exists to notify other components (such as the OsciComponent)
+     * so that they can visualize ongoing changes.
+     */
     @Output() moving_boundary_move: EventEmitter<Boundary[]> = new EventEmitter<Boundary[]>();
-    @Output() preselect_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
+
+    /**
+     * Emits the data structure representing the current level whenever the user
+     * clicks inside this level.
+     *
+     * See also @Input select_level.
+     */
     @Output() select_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
+
+    /**
+     * Emits a data structure describing the preselection while the user is
+     * hovering over this level.
+     *
+     * See also @Input preselected_item.
+     */
     @Output() preselect_item: EventEmitter<PreselectedItemInfo> = new EventEmitter<PreselectedItemInfo>();
+
+    /**
+     * Emits an array of items whenever the user clicks on an item in this level.
+     *
+     * See also @Input selected_items.
+     */
     @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
+
+    /**
+     * Unfinished feature. See also @Input label_editor_current_value.
+     */
     @Output() start_editing: EventEmitter<IItem> = new EventEmitter<IItem>();
 
     constructor(private history_service: HistoryService) {
@@ -132,13 +224,8 @@ export class LevelComponent extends CanvasBase {
         }
     }
 
-    public mouseenter(event: MouseEvent) {
-        this.preselect_level.emit(this._level_annotation);
-    }
-
     public mouseleave(event: MouseEvent) {
         this.preselect_item.emit(null);
-        this.preselect_level.emit(null);
     }
 
     public mousemove(event: MouseEvent) {
@@ -401,7 +488,7 @@ export class LevelComponent extends CanvasBase {
         drawLevelDetails(
             this.mainContext,
             this._level_annotation,
-            this._attributeDefinition,
+            this._attribute_name,
             this._viewport_sample_start,
             this._viewport_sample_end,
             false,
@@ -427,7 +514,6 @@ export class LevelComponent extends CanvasBase {
             this._crosshair_position,
             this._moving_boundaries,
             this._audio_buffer,
-            this._mouseover_level,
             emuWebappTheme
         );
     }

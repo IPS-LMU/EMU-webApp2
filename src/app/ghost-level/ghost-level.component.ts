@@ -147,7 +147,7 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
     this.initialised = true;
 
     this.drawHierarchyDetails();
-
+    
   }
 
   /**
