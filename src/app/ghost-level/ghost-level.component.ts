@@ -172,8 +172,9 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       this.timelines_layer.alpha(0.1); // SIC not working
       // this.timelines_layer.disableHitGraph();
 
-      this.stage.add(this.hierarchy_layer);
       this.stage.add(this.timelines_layer);
+      this.stage.add(this.hierarchy_layer);
+
 
     }
 
@@ -313,9 +314,9 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
     // draw layers
     this.hierarchy_layer.draw();
 
-    this.timelines_layer.cache();
-    this.timelines_layer.filters([Konva.Filters.Blur]);
-    this.timelines_layer.blurRadius(5);
+    // this.timelines_layer.cache();
+    // this.timelines_layer.filters([Konva.Filters.Blur]);
+    // this.timelines_layer.blurRadius(5);
 
     this.timelines_layer.draw();
 
@@ -364,7 +365,8 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       stroke: emuWebappTheme.primaryLineColor,
       strokeWidth: 1,
       lineCap: 'round',
-      lineJoin: 'round'
+      lineJoin: 'round',
+      opacity : 0.2
     });
 
     const label = new Konva.Text({
@@ -377,7 +379,8 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       fontFamily: emuWebappTheme.primaryFontFamily,
       fill: emuWebappTheme.primaryLineColor,
       align: 'center',
-      verticalAlign: 'middle'
+      verticalAlign: 'middle',
+      draggable: true
     });
 
     const endLine = new Konva.Line({
@@ -396,7 +399,8 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       stroke: emuWebappTheme.secondaryFontColor,
       strokeWidth: 1,
       lineCap: 'round',
-      lineJoin: 'round'
+      lineJoin: 'round',
+      opacity : 0.2
     });
 
 
@@ -427,13 +431,24 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
               stageHeight - levelYmax - (levelYmax - levelYmin) / 2
             ],
             stroke: emuWebappTheme.primaryFontColor,
-            strokeWidth: 1,
+            strokeWidth: 10,
+            // dash: [10, 10],
+            // strokeWidth: 2,
             lineCap: 'round',
-            lineJoin: 'round'
+            lineJoin: 'round',
+            opacity : 0.7
           });
 
-          childParentLine.on('mouseover', function() {
-            console.log("sdjkfladsjfklajsdfkl");
+          childParentLine.on('mouseover', function(event) {
+            event.target.setStroke("blue");
+            event.target.parent.draw();
+          });
+
+
+          childParentLine.on('mouseout', function(event) {
+            console.log(event);
+            event.target.setStroke(emuWebappTheme.primaryFontColor);
+            event.target.parent.draw();
           });
 
           this.hierarchy_layer.add(childParentLine);

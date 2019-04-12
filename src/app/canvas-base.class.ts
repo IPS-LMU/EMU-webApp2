@@ -71,7 +71,7 @@ export abstract class CanvasBase implements OnInit {
         this.drawMarkup();
     }
 
-    public abstract drawData(): void;
+    protected abstract drawData(): void;
 
-    public abstract drawMarkup(): void;
+    protected abstract drawMarkup(): void;
 }
