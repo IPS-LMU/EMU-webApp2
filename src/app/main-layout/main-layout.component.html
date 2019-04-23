@@ -241,7 +241,10 @@
                                   [crosshair_position]="0"
                                   [viewport_sample_start] = "0"
                                   [viewport_sample_end] = "view_state_service.curViewPort.maxS"
-                                  [play_head_info]="view_state_service.playHeadAnimationInfos"
+                           [play_head_info]="view_state_service.playHeadAnimationInfos"
+                           [overlay_sample_start]="view_state_service.curViewPort.sS"
+                           [overlay_sample_end]="view_state_service.curViewPort.eS"
+
         ></app-osci-overview>
         </div>
 
