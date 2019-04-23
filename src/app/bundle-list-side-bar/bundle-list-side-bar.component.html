@@ -9,16 +9,29 @@
 <mat-accordion>
 
   <mat-expansion-panel *ngFor="let session of objectValues(loaded_meta_data_service.getRendOptBndlList())"
-                       (opened)="panelOpenState = true"
-                       (closed)="panelOpenState = false">
+                       [expanded]="session[0].session === loaded_meta_data_service.getCurBndl().session"
+                       [style.background] = "session[0].session === loaded_meta_data_service.getCurBndl().session ? 'rgba(200,200,200,0.3)' : ''"
+  >
     <mat-expansion-panel-header>
       <mat-panel-title>
         {{session[0].session}}
       </mat-panel-title>
     </mat-expansion-panel-header>
     <mat-list>
-      <mat-list-item class="bundle" *ngFor="let bundle of session" (click)="db_obj_load_save_service.loadBundle(bundle)">
+      <mat-list-item class="bundle" *ngFor="let bundle of session" (click)="db_obj_load_save_service.loadBundle(bundle)"
+                     [style.background] = "bundle.name === loaded_meta_data_service.getCurBndl().name ? 'rgba(255,255,255,0.5)' : ''"
+      >
         {{bundle.name}}
+
+        <span class="fill-remaining-space"></span>
+
+        <button
+          mat-icon-button
+          title="save bundle">
+          <mat-icon *ngIf="bundle.name === loaded_meta_data_service.getCurBndl().name"
+                  (click)="db_obj_load_save_service.loadBundle(bundle)"
+          >save</mat-icon>
+        </button>
         <!--<form class="example-form">-->
           <!--<mat-form-field class="example-full-width">-->
             <!--<input matInput placeholder="Comment" value="{{bundle.comment}}">-->

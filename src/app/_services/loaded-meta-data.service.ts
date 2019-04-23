@@ -196,15 +196,15 @@ export class LoadedMetaDataService {
   /**
    *
    */
-updateCollapseSessionState(text) {
-    this.getBundleList().forEach((bundle) => {
-  		if (bundle.name.indexOf(text)) {
-  			this.uniqSessionList[bundle.session].collapsed = false;
-  		} else {
-  			this.uniqSessionList[bundle.session].collapsed = true;
-  		}
-  	});
-  }
+  updateCollapseSessionState(text) {
+      this.getBundleList().forEach((bundle) => {
+        if (bundle.name.indexOf(text)) {
+          this.uniqSessionList[bundle.session].collapsed = false;
+        } else {
+          this.uniqSessionList[bundle.session].collapsed = true;
+        }
+      });
+    }
 
   /**
    *
@@ -230,6 +230,6 @@ updateCollapseSessionState(text) {
     this.bundleList = [];
     this.curBndl = {};
     this.rendOptBndlList = {};
-  };
+  }
 
 }

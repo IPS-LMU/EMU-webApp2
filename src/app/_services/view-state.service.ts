@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 import { SoundHandlerService } from './sound-handler.service';
 import {DataService} from './data.service';
@@ -60,8 +61,8 @@ export class ViewStateService {
   hierarchyState;
 
 
-  somethingInProgress;
-  somethingInProgressTxt;
+  somethingInProgress: Subject<any>;
+  // somethingInProgressTxt;
   historyActionTxt;
   cursorInTextField;
   saving;
@@ -323,8 +324,8 @@ export class ViewStateService {
   //     }
     };
 
-    this.somethingInProgress = false;
-    this.somethingInProgressTxt = '';
+    this.somethingInProgress = new Subject();
+    // this.somethingInProgressTxt = '';
     this.historyActionTxt = '';
     this.cursorInTextField = false;
     this.saving = true;

@@ -47,6 +47,8 @@ import { ConnectComponent } from './_dialogs/connect/connect.component';
 import { GhostLevelComponent } from './ghost-level/ghost-level.component';
 import { ViewportInfoComponent } from './viewport-info/viewport-info.component';
 import { LabelEditorComponent } from './label-editor/label-editor.component';
+import { OsciOverviewComponent } from './osci-overview/osci-overview.component';
+import { MessagesSnackbarComponent } from './_dialogs/messages-snackbar/messages-snackbar.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +64,9 @@ import { LabelEditorComponent } from './label-editor/label-editor.component';
     ConnectComponent,
     GhostLevelComponent,
     ViewportInfoComponent,
-    LabelEditorComponent
+    LabelEditorComponent,
+    OsciOverviewComponent,
+    MessagesSnackbarComponent
   ],
   imports: [
     BrowserModule,

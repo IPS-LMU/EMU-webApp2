@@ -77,8 +77,8 @@ export class DbObjLoadSaveService {
         // this.view_state_service.setEditing(false);
         this.view_state_service.setState('loadingSaving');
 
-        this.view_state_service.somethingInProgress = true;
-        this.view_state_service.somethingInProgressTxt = 'Loading bundle: ' + bndl.name;
+        this.view_state_service.somethingInProgress.next('Loading bundle: ' + bndl.name);
+        // this.view_state_service.somethingInProgressTxt = 'Loading bundle: ' + bndl.name;
         // empty ssff files
         this.ssff_data_service.data = [];
         this.io_handler_service.getBundle(bndl.name, bndl.session, this.loaded_meta_data_service.getDemoDbName()).subscribe((bundleData) => {
@@ -124,7 +124,7 @@ export class DbObjLoadSaveService {
 
   innerLoadBundle(bndl, bundleData, arrBuff, subj) {
 
-    this.view_state_service.somethingInProgressTxt = 'Parsing WAV file...';
+    this.view_state_service.somethingInProgress.next('Parsing WAV file...');
 
     this.wav_parser_service.parseWavAudioBuf(arrBuff).subscribe((audioBuffer: any) => {
       // console.log(audioBuffer);
@@ -144,7 +144,7 @@ export class DbObjLoadSaveService {
       this.sound_handler_service.audioBuffer = audioBuffer;
 
       // set all ssff files
-      this.view_state_service.somethingInProgressTxt = 'Parsing SSFF files...';
+      this.view_state_service.somethingInProgress.next('Parsing SSFF files...');
       this.ssff_parser_service.asyncParseSsffArr(bundleData.ssffFiles).subscribe((ssffJso) => {
 
         this.ssff_data_service.data = ssffJso.data;
@@ -155,8 +155,8 @@ export class DbObjLoadSaveService {
         this.view_state_service.selectLevel(false, this.config_provider_service.vals.perspectives[this.view_state_service.curPerspectiveIdx].levelCanvases.order, this.data_service);
         this.view_state_service.setState('labeling');
 
-        this.view_state_service.somethingInProgress = false;
-        this.view_state_service.somethingInProgressTxt = 'Done!';
+        this.view_state_service.somethingInProgress.next('Done!')
+        // this.view_state_service.somethingInProgress = false;
 
         subj.next();
 
@@ -172,11 +172,11 @@ export class DbObjLoadSaveService {
     });
   }
 
-  // /**
-  //  * general purpose save bundle function.
-  //  * @return promise that is resolved after completion (rejected on error)
-  //  */
-  // sServObj.saveBundle = function () {
+  /**
+   * general purpose save bundle function.
+   * @return promise that is resolved after completion (rejected on error)
+   */
+  public saveBundle() {
   //   // check if something has changed
   //   // if (HistoryService.movesAwayFromLastSave !== 0) {
   //   if (viewState.getPermission('saveBndlBtnClick')) {
@@ -213,7 +213,7 @@ export class DbObjLoadSaveService {
   //     $log.info('Action: menuBundleSaveBtnClick not allowed!');
   //   }
   //
-  // };
+  }
   //
   //
   // /**

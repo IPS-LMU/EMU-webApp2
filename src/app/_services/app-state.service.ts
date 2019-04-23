@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 import { IohandlerService } from './iohandler.service';
 import { LoadedMetaDataService } from './loaded-meta-data.service';
@@ -46,7 +47,7 @@ export class AppStateService {
     this.ssff_data_service.data = [];
     this.history_service.resetToInitState();
     this.view_state_service.setState('noDBorFilesloaded');
-    this.view_state_service.somethingInProgress = false;
+    this.view_state_service.somethingInProgress = new Subject();
     this.view_state_service.resetToInitState();
     this.history_service.resetToInitState();
     this.view_state_service.showDropZone = true;

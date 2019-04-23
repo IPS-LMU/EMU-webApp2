@@ -146,8 +146,26 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
 
     this.initialised = true;
 
+    this.levelcontainer.nativeElement.addEventListener('resize', this.fitStageIntoParentContainer);
+
     this.drawHierarchyDetails();
-    
+
+
+  }
+
+
+  private fitStageIntoParentContainer(){
+
+    // now we need to fit stage into parent
+    let containerWidth = this.levelcontainer.nativeElement.offsetWidth;
+    console.log(containerWidth);
+    // to do this we need to scale the stage
+    let scale = containerWidth / this.stage.width();
+
+    this.stage.width(this.levelcontainer.nativeElement.clientWidth);
+    this.stage.height(this.levelcontainer.nativeElement.clientHeight);
+    this.stage.scale({ x: scale, y: scale });
+    this.stage.draw();
   }
 
   /**
@@ -193,7 +211,7 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
     this.timelines_layer.destroyChildren();
 
     /////////////////////////////////
-    // build hashmaps for faster access
+    // build hash maps for faster access
     // (should probably do this in worker and when needed)
     // make level hashmap
     const levelNameLevelMap = new Map();
@@ -267,7 +285,7 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       });
     });
 
-    let levelHeight = this.stage.getStage().getHeight() / path.length;
+    const levelHeight = this.stage.getStage().getHeight() / path.length;
     let levelYmin = 0;
     let levelYmax = levelHeight;
 
@@ -431,12 +449,12 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
               stageHeight - levelYmax - (levelYmax - levelYmin) / 2
             ],
             stroke: emuWebappTheme.primaryFontColor,
-            strokeWidth: 10,
-            // dash: [10, 10],
-            // strokeWidth: 2,
+            // strokeWidth: 10,
+            dash: [5, 5],
+            strokeWidth: 2,
             lineCap: 'round',
             lineJoin: 'round',
-            opacity : 0.7
+            opacity : 0.2
           });
 
           childParentLine.on('mouseover', function(event) {

@@ -41,7 +41,6 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
   hotkey_down: Hotkey | Hotkey[];
 
 
-
   constructor(private mat_icon_registry: MatIconRegistry,
               private dom_sanitizer: DomSanitizer,
               public data_service: DataService,
@@ -1240,8 +1239,8 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
         if(result !== "cancel"){
           // modalService.open('views/connectModal.html').then(function (url) {
           //   if (url) {
-              this.view_state_service.somethingInProgressTxt = 'Connecting to server...';
-              this.view_state_service.somethingInProgress = true;
+              this.view_state_service.somethingInProgress.next('Connecting to server...');
+              // this.view_state_service.somethingInProgress = true;
               this.view_state_service.url = result;
               this.io_handler_service.wsh.initConnect(result).subscribe((message) => {
                 if (message.type === 'error') {

@@ -1,0 +1,93 @@
+{
+  "name": "please_call_stella",
+  "UUID": "f151a48a-65b0-11e9-b470-6725c3640200",
+  "mediafileExtension": "wav",
+  "ssffTrackDefinitions": [],
+  "levelDefinitions": [
+    {
+      "name": "bundle",
+      "type": "ITEM",
+      "attributeDefinitions": [
+        {
+          "name": "bundle",
+          "type": "STRING"
+        },
+        {
+          "name": "source",
+          "type": "STRING"
+        },
+        {
+          "name": "SAM",
+          "type": "STRING"
+        },
+        {
+          "name": "MAO",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "ORT",
+      "type": "ITEM",
+      "attributeDefinitions": [
+        {
+          "name": "ORT",
+          "type": "STRING"
+        },
+        {
+          "name": "KAN",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "MAU",
+      "type": "SEGMENT",
+      "attributeDefinitions": [
+        {
+          "name": "MAU",
+          "type": "STRING"
+        }
+      ]
+    }
+  ],
+  "linkDefinitions": [
+    {
+      "type": "ONE_TO_MANY",
+      "superlevelName": "bundle",
+      "sublevelName": "ORT"
+    },
+    {
+      "type": "ONE_TO_MANY",
+      "superlevelName": "ORT",
+      "sublevelName": "MAU"
+    }
+  ],
+  "EMUwebAppConfig": {
+    "perspectives": [
+      {
+        "name": "default",
+        "signalCanvases": {
+          "order": [
+            "OSCI",
+            "SPEC"
+          ],
+          "assign": [],
+          "contourLims": []
+        },
+        "levelCanvases": {
+          "order": [
+            "MAU"
+          ]
+        },
+        "twoDimCanvases": {
+          "order": []
+        }
+      }
+    ],
+    "activeButtons": {
+      "saveBundle": true,
+      "showHierarchy": true
+    }
+  }
+}

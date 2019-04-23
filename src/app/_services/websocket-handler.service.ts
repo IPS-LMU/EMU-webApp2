@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Observer, Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { UuidService } from './uuid.service';
 import { ConfigProviderService } from './config-provider.service';

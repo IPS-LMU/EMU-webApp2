@@ -40,8 +40,8 @@ export class AppComponent implements OnInit {
 
 
   public loadDefaultConfig() {
-    this.view_state_service.somethingInProgress = true;
-    this.view_state_service.somethingInProgressTxt = 'Loading schema files';
+    // this.view_state_service.somethingInProgress = true;
+    this.view_state_service.somethingInProgress.next('Loading schema files');
     // load schemas first
     this.validationservice.loadSchemas().subscribe(schemas => {
       // console.log(schemas);
@@ -189,7 +189,7 @@ export class AppComponent implements OnInit {
 innerHandleConnectedToWSserver(data) {
   let session = data.session;
   let reload = data.reload;
-  this.view_state_service.somethingInProgressTxt = 'Loading DB config...';
+  this.view_state_service.somethingInProgress.next('Loading DB config...');
   // then get the DBconfigFile
   // this.iohs.httpGetDefaultDesign().then(function onSuccess(response) {
   //   ConfigProviderService.setDesign(response.data);
