@@ -26,7 +26,6 @@ export class MessagesSnackbarComponent implements OnInit, AfterViewInit {
           {duration: 500}
         );
       }
-      console.log(message);
     });
   }
   ngAfterViewInit() {
