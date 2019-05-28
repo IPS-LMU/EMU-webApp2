@@ -291,6 +291,7 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
 
     path.forEach((levelName, levelNameIdx) => {
       const level = levelNameLevelMap.get(levelName);
+      const parentLevelName = path[levelNameIdx + 1];
       const attribute = level.name; // SIC hardcoded!
       // draw level name
       const stageHeight = this.stage.getStage().getHeight();
@@ -318,7 +319,8 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
             item,
             attribute,
             levelYmin,
-            levelYmax
+            levelYmax,
+            parentLevelName
           );
 
         }
@@ -347,7 +349,8 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
   private drawSegment(item: IItem,
                       attribute: string,
                       levelYmin: number,
-                      levelYmax: number) {
+                      levelYmax: number,
+                      parentLevelName: string) {
 
     const labelValue = LevelService.getLabelByAttribute(item, attribute);
 
@@ -401,6 +404,20 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       draggable: true
     });
 
+    const id = new Konva.Text({
+      text: item.id, // SIC hard coded
+      x: posS + 10, //+ ((posE - posS) / 2),
+      y: (stageHeight - levelYmin) - (levelYmax - levelYmin) - 10,// / 2,
+      width: (posE - posS), // as wide as segment
+      height: (levelYmax - levelYmin), // as high as level
+      fontSize: emuWebappTheme.primaryFontSize - 6,
+      fontFamily: emuWebappTheme.primaryFontFamily,
+      fill: emuWebappTheme.primaryLineColor,
+      align: 'center',
+      verticalAlign: 'middle',
+      draggable: true
+    });
+
     const endLine = new Konva.Line({
       points: [
         posE,
@@ -424,6 +441,7 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
 
     this.timelines_layer.add(startLine);
     this.hierarchy_layer.add(label);
+    this.hierarchy_layer.add(id);
     this.timelines_layer.add(endLine);
 
     this.timelines_layer.alpha(0.1);
@@ -433,7 +451,7 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
     if (parentIds) {
       parentIds.forEach((parentId) => {
         const parent = this._idItemMap.get(parentId);
-        if (parent) {
+        if (parent && parent.labels[0].name === parentLevelName) {
           const pos_parent = getCanvasCoordinateOfSample(
             parent.renderHierVals.sampleStart + (parent.renderHierVals.sampleEnd - parent.renderHierVals.sampleStart) / 2,
             this._viewport_sample_start,
