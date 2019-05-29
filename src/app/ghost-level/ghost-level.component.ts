@@ -123,9 +123,17 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
 
   @Output() preselect_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
   @Output() select_level: EventEmitter<ILevel> = new EventEmitter<ILevel>();
+
   @Output() preselect_item: EventEmitter<PreselectedItemInfo> = new EventEmitter<PreselectedItemInfo>();
+
+  /**
+   * Emits an array of items whenever the user clicks on an item in this level.
+   *
+   * See also @Input selected_items.
+  */
   @Output() select_items: EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
 
+  @Output() item_to_maus:  EventEmitter<IItem[]> = new EventEmitter<IItem[]>();
 
   @ViewChild('levelcontainer') levelcontainer: ElementRef;
 
@@ -354,8 +362,8 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
 
     const labelValue = LevelService.getLabelByAttribute(item, attribute);
 
-    let stageWidth = this.stage.getStage().getWidth();
-    let stageHeight = this.stage.getStage().getHeight();
+    const stageWidth = this.stage.getStage().getWidth();
+    const stageHeight = this.stage.getStage().getHeight();
     // draw segment start
     const posS = getCanvasCoordinateOfSample(
       item.renderHierVals.sampleStart,
@@ -370,25 +378,25 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       stageWidth
     ).end;
 
-    const startLine = new Konva.Line({
-      points: [
-        posS,
-        stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
-        posS,
-        stageHeight - levelYmax,
-        posS,
-        stageHeight - levelYmax + (levelYmax - levelYmin) / 4,
-        posS + (posE - posS) / 2,
-        stageHeight - levelYmax + (levelYmax - levelYmin) / 4,
-        posS + (posE - posS) / 2,
-        stageHeight - levelYmax + (levelYmax - levelYmin) / 4 + 1,
-      ],
-      stroke: emuWebappTheme.primaryLineColor,
-      strokeWidth: 1,
-      lineCap: 'round',
-      lineJoin: 'round',
-      opacity : 0.2
-    });
+    // const startLine = new Konva.Line({
+    //   points: [
+    //     posS,
+    //     stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
+    //     posS,
+    //     stageHeight - levelYmax,
+    //     posS,
+    //     stageHeight - levelYmax + (levelYmax - levelYmin) / 4,
+    //     posS + (posE - posS) / 2,
+    //     stageHeight - levelYmax + (levelYmax - levelYmin) / 4,
+    //     posS + (posE - posS) / 2,
+    //     stageHeight - levelYmax + (levelYmax - levelYmin) / 4 + 1,
+    //   ],
+    //   stroke: emuWebappTheme.primaryLineColor,
+    //   strokeWidth: 1,
+    //   lineCap: 'round',
+    //   lineJoin: 'round',
+    //   opacity : 0.2
+    // });
 
     const label = new Konva.Text({
       text: item.labels[0].value, // SIC hard coded
@@ -400,103 +408,126 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       fontFamily: emuWebappTheme.primaryFontFamily,
       fill: emuWebappTheme.primaryLineColor,
       align: 'center',
-      verticalAlign: 'middle',
-      draggable: true
-    });
-
-    label.on('mouseover', function(event) {
-      event.target.setStroke("blue");
-      event.target.parent.draw();
+      verticalAlign: 'middle'
+      //draggable: true
     });
 
 
     const id = new Konva.Text({
-      text: item.id, // SIC hard coded
+      text: item.id,
       x: posS + 10, //+ ((posE - posS) / 2),
-      y: (stageHeight - levelYmin) - (levelYmax - levelYmin) - 10,// / 2,
+      y: (stageHeight - levelYmin) - (levelYmax - levelYmin) + 10,// / 2,
       width: (posE - posS), // as wide as segment
       height: (levelYmax - levelYmin), // as high as level
       fontSize: emuWebappTheme.primaryFontSize - 6,
       fontFamily: emuWebappTheme.primaryFontFamily,
       fill: emuWebappTheme.primaryLineColor,
       align: 'center',
-      verticalAlign: 'middle',
-      draggable: true
+      verticalAlign: 'middle'
+      //draggable: true
     });
 
-    const endLine = new Konva.Line({
-      points: [
-        posE,
-        stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
-        posE,
-        stageHeight - levelYmin,
-        posE,
-        stageHeight - levelYmin - (levelYmax - levelYmin) / 4,
-        posE - (posE - posS) / 2,
-        stageHeight - levelYmin - (levelYmax - levelYmin) / 4,
-        posE - (posE - posS) / 2,
-        stageHeight - levelYmin - (levelYmax - levelYmin) / 4 - 1
-      ],
-      stroke: emuWebappTheme.secondaryFontColor,
+    // const endLine = new Konva.Line({
+    //   points: [
+    //     posE,
+    //     stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
+    //     posE,
+    //     stageHeight - levelYmin,
+    //     posE,
+    //     stageHeight - levelYmin - (levelYmax - levelYmin) / 4,
+    //     posE - (posE - posS) / 2,
+    //     stageHeight - levelYmin - (levelYmax - levelYmin) / 4,
+    //     posE - (posE - posS) / 2,
+    //     stageHeight - levelYmin - (levelYmax - levelYmin) / 4 - 1
+    //   ],
+    //   stroke: emuWebappTheme.secondaryFontColor,
+    //   strokeWidth: 1,
+    //   lineCap: 'round',
+    //   lineJoin: 'round',
+    //   opacity : 0.2
+    // });
+
+    const rect = new Konva.Rect({
+      id: item.id,
+      x: posS,
+      y: stageHeight - levelYmax,
+      width: posE - posS,
+      height: levelYmax - levelYmin,
+      stroke: emuWebappTheme.primaryLineColor,
       strokeWidth: 1,
       lineCap: 'round',
       lineJoin: 'round',
       opacity : 0.2
     });
 
+    rect.on('mousedown', function(event) {
+      event.target.setFill('red');
+      // this.select_items.emit([]);
+      event.target.parent.draw();
+    }.bind(this));
 
-    this.timelines_layer.add(startLine);
+    rect.on('mouseup', function(event) {
+      event.target.setFill('');
+      event.target.parent.draw();
+      if(event.evt.altKey){
+        console.log("remausing segment");
+        this.item_to_maus.emit([this._idItemMap.get(event.target.id())]);
+      }
+    }.bind(this));
+
+
+
+    // this.timelines_layer.add(startLine);
     this.hierarchy_layer.add(label);
     this.hierarchy_layer.add(id);
-    this.timelines_layer.add(endLine);
+    // this.timelines_layer.add(endLine);
+    this.hierarchy_layer.add(rect);
+    // this.timelines_layer.alpha(0.1);
 
-    this.timelines_layer.alpha(0.1);
+    // // draw child -> parent lines
+    // const parentIds = this._linkMap.get(item.id);
+    // if (parentIds) {
+    //   parentIds.forEach((parentId) => {
+    //     const parent = this._idItemMap.get(parentId);
+    //     if (parent && parent.labels[0].name === parentLevelName) {
+    //       const pos_parent = getCanvasCoordinateOfSample(
+    //         parent.renderHierVals.sampleStart + (parent.renderHierVals.sampleEnd - parent.renderHierVals.sampleStart) / 2,
+    //         this._viewport_sample_start,
+    //         this._viewport_sample_end,
+    //         stageWidth
+    //       ).start;
 
-    // draw child -> parent lines
-    const parentIds = this._linkMap.get(item.id);
-    if (parentIds) {
-      parentIds.forEach((parentId) => {
-        const parent = this._idItemMap.get(parentId);
-        if (parent && parent.labels[0].name === parentLevelName) {
-          const pos_parent = getCanvasCoordinateOfSample(
-            parent.renderHierVals.sampleStart + (parent.renderHierVals.sampleEnd - parent.renderHierVals.sampleStart) / 2,
-            this._viewport_sample_start,
-            this._viewport_sample_end,
-            stageWidth
-          ).start;
+    //       const childParentLine = new Konva.Line({
+    //         points: [
+    //           posS + ((posE - posS) / 2),
+    //           stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
+    //           pos_parent,
+    //           stageHeight - levelYmax - (levelYmax - levelYmin) / 2
+    //         ],
+    //         stroke: emuWebappTheme.primaryFontColor,
+    //         //dash: [5, 5],
+    //         strokeWidth: 5,
+    //         lineCap: 'round',
+    //         //lineJoin: 'round',
+    //         opacity : 0.2
+    //       });
 
-          const childParentLine = new Konva.Line({
-            points: [
-              posS + ((posE - posS) / 2),
-              stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
-              pos_parent,
-              stageHeight - levelYmax - (levelYmax - levelYmin) / 2
-            ],
-            stroke: emuWebappTheme.primaryFontColor,
-            //dash: [5, 5],
-            strokeWidth: 5,
-            lineCap: 'round',
-            //lineJoin: 'round',
-            opacity : 0.2
-          });
-
-          childParentLine.on('mouseover', function(event) {
-            event.target.setStroke("blue");
-            event.target.parent.draw();
-          });
+    //       childParentLine.on('mouseover', function(event) {
+    //         event.target.setStroke('blue');
+    //         event.target.parent.draw();
+    //       });
 
 
-          childParentLine.on('mouseout', function(event) {
-            console.log(event);
-            event.target.setStroke(emuWebappTheme.primaryFontColor);
-            event.target.parent.draw();
-          });
+    //       childParentLine.on('mouseout', function(event) {
+    //         event.target.setStroke(emuWebappTheme.primaryFontColor);
+    //         event.target.parent.draw();
+    //       });
 
-          this.hierarchy_layer.add(childParentLine);
+    //       this.hierarchy_layer.add(childParentLine);
 
-        }
-      });
-    }
+    //     }
+    //   });
+    // }
 
   }
 

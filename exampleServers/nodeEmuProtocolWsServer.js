@@ -24,7 +24,7 @@ if (process.argv.length === 2) {
   var host = 'localhost';
   // var pathToDbRoot = '/Users/raphaelwinkelmann/Desktop/gersC/';
   // var configName = 'gersC_DBconfig.json';
-  var pathToDbRoot = '../app/testData/newFormat/ae/';
+  var pathToDbRoot = '../testData/newFormat/ae_emuDB/';
   var configName = 'ae_DBconfig.json';
   console.log(' usage: node nodeEmuProtocolServer.js [port] [path] [config]');
   console.log(' where:');
@@ -65,7 +65,7 @@ var WebSocketServer = require('ws').Server,
     host: host,
     port: portNr
   });
-  
+
 console.log('########################################################');
 console.log('local server now running @: ws://' + host + ':' + portNr);
 console.log('########################################################');
@@ -160,7 +160,7 @@ wss.on('connection', function (ws) {
         } else {
           dbConfig = JSON.parse(data);
 
-          // figure out which SSFF files should be sent with each bundle 
+          // figure out which SSFF files should be sent with each bundle
           // (could further reduce the files being sent by looking at the perspectives)
           for (var i = 0; i < dbConfig.ssffTrackDefinitions.length; i++) {
             if (ssffFilesMap[dbConfig.ssffTrackDefinitions[i].fileExtension] !== undefined) {
@@ -357,9 +357,9 @@ wss.on('connection', function (ws) {
         		}
         	});
         }
-      });      
+      });
       break;
-      
+
       // DISCONNECTING method
     case 'DISCONNECTWARNING':
       console.log('preparing to disconnect...');
@@ -372,7 +372,7 @@ wss.on('connection', function (ws) {
         }
       }), undefined, 0);
       break;
-      
+
     default:
       ws.send(JSON.stringify({
         'callbackID': mJSO.callbackID,
