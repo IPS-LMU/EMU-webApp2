@@ -50,7 +50,7 @@ export class IohandlerService {
     // console.log('in ioh getProtocol');
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       // console.error('CORS version of getProtocol not implemented');
     } else if (this.cps.vals.main.comMode === 'WS') {
       getSubj = this.wsh.getProtocol();
@@ -66,7 +66,7 @@ export class IohandlerService {
     // console.log('in ioh getDoUserManagement');
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       // console.error('CORS version of getDoUserManagement not implemented');
     } else if (this.cps.vals.main.comMode === 'WS') {
       getSubj = this.wsh.getDoUserManagement();
@@ -81,7 +81,7 @@ export class IohandlerService {
   logOnUser(name, pwd) {
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       // console.error('CORS version of logOnUser not implemented');
     } else if (this.cps.vals.main.comMode === 'WS') {
       getSubj = this.wsh.logOnUser(name, pwd);
@@ -96,7 +96,7 @@ export class IohandlerService {
   getDBconfigFile(nameOfDB) {
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       // console.error('CORS version of getDBconfigFile not implemented');
     } else if (this.cps.vals.main.comMode === 'WS') {
       getSubj = this.wsh.getDBconfigFile();
@@ -113,7 +113,7 @@ export class IohandlerService {
   getBundleList() {
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       // console.error('CORS version of getBundleList not implemented');
     } else if (this.cps.vals.main.comMode === 'WS') {
       getSubj = this.wsh.getBundleList();
@@ -130,7 +130,7 @@ export class IohandlerService {
   getBundle(name, session, nameOfDB) {
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       // console.error('CORS version of getBundle not implemented');
     } else if (this.cps.vals.main.comMode === 'EMBEDDED') {
       // getSubj = DragnDropDataService.getBundle(name, session);
@@ -151,7 +151,7 @@ export class IohandlerService {
   saveBundle(bundleData) {
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       // console.error('CORS version of saveBundle not implemented');
     } else if (this.cps.vals.main.comMode === 'WS') {
       getSubj = this.wsh.saveBundle(bundleData);
@@ -171,7 +171,7 @@ export class IohandlerService {
   saveConfiguration(configData) {
     let getSubj;
 
-    if (this.cps.vals.main.comMode === 'CORS') {
+    if (this.cps.vals.main.comMode === 'HTTP') {
       console.error('CORS version of saveBundle not implemented');
     } else if (this.cps.vals.main.comMode === 'WS') {
       getSubj = this.wsh.saveConfiguration(configData);
