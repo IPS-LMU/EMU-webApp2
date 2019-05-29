@@ -80,11 +80,18 @@
                 *ngIf="false">
           search
         </button>
+        <!-- TODO instead of using path maybe use tabed view arround hierarchy? -->
         <button mat-raised-button
                 color="primary"
                 [disabled]="!view_state_service.getPermission('clearBtnClick')"
-                (click)="clearBtnClick()">
-          clear
+                (click)="console.log('jsdkfsd')">
+          path
+        </button>
+        <button mat-raised-button
+        color="primary"
+        [disabled]="!view_state_service.getPermission('clearBtnClick')"
+        (click)="clearBtnClick()">
+        clear/disconnect
         </button>
         <span class="fill-remaining-space"></span>
 

@@ -404,6 +404,12 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
       draggable: true
     });
 
+    label.on('mouseover', function(event) {
+      event.target.setStroke("blue");
+      event.target.parent.draw();
+    });
+
+
     const id = new Konva.Text({
       text: item.id, // SIC hard coded
       x: posS + 10, //+ ((posE - posS) / 2),
@@ -467,11 +473,10 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
               stageHeight - levelYmax - (levelYmax - levelYmin) / 2
             ],
             stroke: emuWebappTheme.primaryFontColor,
-            // strokeWidth: 10,
-            dash: [5, 5],
-            strokeWidth: 2,
+            //dash: [5, 5],
+            strokeWidth: 5,
             lineCap: 'round',
-            lineJoin: 'round',
+            //lineJoin: 'round',
             opacity : 0.2
           });
 
