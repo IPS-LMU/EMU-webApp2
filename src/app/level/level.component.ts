@@ -245,7 +245,7 @@ export class LevelComponent extends CanvasBase {
             mouseButton = event.buttons;
         }
 
-	const doNormalMove = false;
+	let doNormalMove = false;
 
 	if (this._move_with_mouse) {
 		if (mouseButton === 1 && this._move_with_mouse) {
