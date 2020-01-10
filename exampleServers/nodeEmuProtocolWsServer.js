@@ -24,8 +24,8 @@ if (process.argv.length === 2) {
   var host = 'localhost';
   // var pathToDbRoot = '/Users/raphaelwinkelmann/Desktop/gersC/';
   // var configName = 'gersC_DBconfig.json';
-  var pathToDbRoot = '../testData/newFormat/ae_emuDB/';
-  var configName = 'ae_DBconfig.json';
+  var pathToDbRoot = '../emuDBs/please_call_stella_emuDB/';
+  var configName = 'please_call_stella_DBconfig.json';
   console.log(' usage: node nodeEmuProtocolServer.js [port] [path] [config]');
   console.log(' where:');
   console.log('    [port]: The port number to listen on (optional, default: 17890)');
@@ -38,8 +38,8 @@ if (process.argv.length === 2) {
 } else if (process.argv.length === 3) {
 
   var portNr = process.argv[2];
-  var pathToDbRoot = '../app/testData/newFormat/ae/';
-  var configName = 'ae_DBconfig.json';
+  var pathToDbRoot = '../emuDBs/please_call_stella_emuDB/';
+  var configName = 'please_call_stella_DBconfig.json';
 
 } else if (process.argv.length === 5) {
 

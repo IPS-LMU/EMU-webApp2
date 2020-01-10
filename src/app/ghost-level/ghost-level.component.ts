@@ -484,50 +484,50 @@ export class GhostLevelComponent implements OnInit, AfterViewInit {
     this.hierarchy_layer.add(rect);
     // this.timelines_layer.alpha(0.1);
 
-    // // draw child -> parent lines
-    // const parentIds = this._linkMap.get(item.id);
-    // if (parentIds) {
-    //   parentIds.forEach((parentId) => {
-    //     const parent = this._idItemMap.get(parentId);
-    //     if (parent && parent.labels[0].name === parentLevelName) {
-    //       const pos_parent = getCanvasCoordinateOfSample(
-    //         parent.renderHierVals.sampleStart + (parent.renderHierVals.sampleEnd - parent.renderHierVals.sampleStart) / 2,
-    //         this._viewport_sample_start,
-    //         this._viewport_sample_end,
-    //         stageWidth
-    //       ).start;
+    // draw child -> parent lines
+    const parentIds = this._linkMap.get(item.id);
+    if (parentIds) {
+      parentIds.forEach((parentId) => {
+        const parent = this._idItemMap.get(parentId);
+        if (parent && parent.labels[0].name === parentLevelName) {
+          const pos_parent = getCanvasCoordinateOfSample(
+            parent.renderHierVals.sampleStart + (parent.renderHierVals.sampleEnd - parent.renderHierVals.sampleStart) / 2,
+            this._viewport_sample_start,
+            this._viewport_sample_end,
+            stageWidth
+          ).start;
 
-    //       const childParentLine = new Konva.Line({
-    //         points: [
-    //           posS + ((posE - posS) / 2),
-    //           stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
-    //           pos_parent,
-    //           stageHeight - levelYmax - (levelYmax - levelYmin) / 2
-    //         ],
-    //         stroke: emuWebappTheme.primaryFontColor,
-    //         //dash: [5, 5],
-    //         strokeWidth: 5,
-    //         lineCap: 'round',
-    //         //lineJoin: 'round',
-    //         opacity : 0.2
-    //       });
+          const childParentLine = new Konva.Line({
+            points: [
+              posS + ((posE - posS) / 2),
+              stageHeight - levelYmin - (levelYmax - levelYmin) / 2,
+              pos_parent,
+              stageHeight - levelYmax - (levelYmax - levelYmin) / 2
+            ],
+            stroke: emuWebappTheme.primaryFontColor,
+            //dash: [5, 5],
+            strokeWidth: 5,
+            lineCap: 'round',
+            //lineJoin: 'round',
+            opacity : 0.2
+          });
 
-    //       childParentLine.on('mouseover', function(event) {
-    //         event.target.setStroke('blue');
-    //         event.target.parent.draw();
-    //       });
+          childParentLine.on('mouseover', function(event) {
+            event.target.setStroke('blue');
+            event.target.parent.draw();
+          });
 
 
-    //       childParentLine.on('mouseout', function(event) {
-    //         event.target.setStroke(emuWebappTheme.primaryFontColor);
-    //         event.target.parent.draw();
-    //       });
+          childParentLine.on('mouseout', function(event) {
+            event.target.setStroke(emuWebappTheme.primaryFontColor);
+            event.target.parent.draw();
+          });
 
-    //       this.hierarchy_layer.add(childParentLine);
+          this.hierarchy_layer.add(childParentLine);
 
-    //     }
-    //   });
-    // }
+        }
+      });
+    }
 
   }
 

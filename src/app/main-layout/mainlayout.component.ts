@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
 import { MatIconRegistry } from "@angular/material/icon";
 import { MatDialog } from '@angular/material';
 import { DomSanitizer } from "@angular/platform-browser";
@@ -23,7 +23,7 @@ import { AppComponent } from '../app.component'; // probably a bad idea!
   styleUrls: ['./main-layout.component.scss']
 })
 
-export class MainlayoutComponent implements OnInit, OnDestroy {
+export class MainlayoutComponent implements OnInit, OnDestroy, AfterViewInit {
 
   hotkey_q: Hotkey | Hotkey[];
   hotkey_e: Hotkey | Hotkey[];
@@ -1205,6 +1205,50 @@ export class MainlayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
+  }
+
+  ngAfterViewInit(): void {
+    // console.log('view inited');
+    // const audio = document.querySelector('audio');
+    // const stream = audio.captureStream();
+    // stream.onaddtrack = function(evt){
+    //   console.log('track added');
+    // }.bind(this);
+    //
+    // // const tracks = stream.getAudioTracks();
+    // // tracks[0].applyConstraints({sampleRate: 16000});
+    // console.log('sup');
+    //
+    // audio.onplay = function(){
+    //   const stream = audio.captureStream();
+    //   const audioCtx = new AudioContext();
+    //   const source = audioCtx.createMediaStreamSource(stream);
+    //
+    //   // Create a biquadfilter
+    //   var biquadFilter = audioCtx.createBiquadFilter();
+    //   biquadFilter.type = "lowshelf";
+    //   biquadFilter.frequency.value = 1000;
+    //   biquadFilter.gain.value = 1;
+    //
+    //   // connect the AudioBufferSourceNode to the gainNode
+    //   // and the gainNode to the destination, so we can play the
+    //   // music and adjust the volume using the mouse cursor
+    //   source.connect(biquadFilter);
+    //   biquadFilter.connect(audioCtx.destination);
+    //
+    //
+    //
+    // }.bind(this);
+    //
+    // audio.onpause = function(){
+    //   const stream = audio.captureStream();
+    //   const tracks = stream.getAudioTracks();
+    //   console.log(tracks[0].getConstraints);
+    //
+    // }.bind(this);
+
+
   }
 
   ngOnDestroy() {

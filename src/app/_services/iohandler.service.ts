@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { WebsocketHandlerService } from './websocket-handler.service';
 import { ConfigProviderService } from './config-provider.service';
