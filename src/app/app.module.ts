@@ -49,6 +49,7 @@ import { ViewportInfoComponent } from './viewport-info/viewport-info.component';
 import { LabelEditorComponent } from './label-editor/label-editor.component';
 import { OsciOverviewComponent } from './osci-overview/osci-overview.component';
 import { MessagesSnackbarComponent } from './_dialogs/messages-snackbar/messages-snackbar.component';
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -72,6 +73,7 @@ import { MessagesSnackbarComponent } from './_dialogs/messages-snackbar/messages
     BrowserModule,
     BrowserAnimationsModule,
     routing,
+    FormsModule,
     HttpClientModule,
     MatButtonModule,
     MatCardModule,

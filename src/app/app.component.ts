@@ -34,7 +34,25 @@ export class AppComponent implements OnInit {
 
   }
 
-  ngOnInit(){
+  ngOnInit() {
+    window.addEventListener('load', (event) => {
+      const allowedTargetOrigins = [
+          'http://localhost:4200',
+          'https://ips-lmu.github.io',
+          'http://ips-lmu.github.io'
+      ];
+
+      if (window.opener && window.location.hash) {
+        for (const targetOrigin of allowedTargetOrigins) {
+            window.opener.postMessage({
+                messageType: 'openIdConnectHash',
+                hash: window.location.hash
+            }, targetOrigin);
+        }
+
+        window.close();
+      }
+    });
     this.loadDefaultConfig();
   }
 

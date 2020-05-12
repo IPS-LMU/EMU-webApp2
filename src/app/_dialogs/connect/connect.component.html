@@ -1,12 +1,35 @@
 <div mat-dialog-title>Connect to server</div>
 <div mat-dialog-content>
-    Please enter URL: <br />
-    &nbsp;<br />
+    <mat-form-field>
+      <input matInput placeholder="Server URL" type="text" [(ngModel)]="connectionData.url" (change)="urlChange()" (focus)="cursorInTextField();" (blur)="cursorOutOfTextField();">
+    </mat-form-field>
+
+    <br>
+    Server type:
+    <select [(ngModel)]="connectionData.serverType" (change)="serverTypeChange($event)">
+        <option>EMU-webApp-WebSocket</option>
+        <option>EMU-SDMS REST</option>
+        <option>GitLab</option>
+        <option>Plain HTTP</option>
+    </select>
+
+    <br>
 
     <mat-form-field>
-      <input matInput type="text" [value]="curURL" (focus)="cursorInTextField();" (blur)="cursorOutOfTextField();">
+      <input matInput placeholder="Database name" type="text" [(ngModel)]="connectionData.database" (focus)="cursorInTextField();" (blur)="cursorOutOfTextField();">
     </mat-form-field>
-      <!--ng-model="modal.dataOut"-->
+
+    <div *ngIf="connectionData.serverType === 'GitLab' || connectionData.serverType === 'Plain HTTP'">
+        <mat-form-field>
+            <input matInput placeholder="OAuth Client ID" type="text" [(ngModel)]="oauthClientIds[connectionData.url]" (focus)="cursorInTextField();" (blur)="cursorOutOfTextField();">
+        </mat-form-field>
+
+        <br>
+        <button mat-button (click)="loginViaOpenIdConnect()">Log in via OpenID Connect</button>
+    </div>
+
+
+    <!--ng-model="modal.dataOut"-->
       <!--ng-init="modal.dataOut=cps.vals.main.serverUrl"-->
       <!--(focus)="cursorInTextField()"-->
       <!--(blur)="cursorOutOfTextField()">-->
@@ -30,5 +53,5 @@
 
 <div mat-dialog-actions>
   <button mat-button mat-dialog-close="cancel">cancel</button>
-  <button mat-button mat-dialog-close="{{curURL}}">connect</button>
+  <button mat-button [mat-dialog-close]="connectionData">connect</button>
 </div>

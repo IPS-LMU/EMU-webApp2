@@ -147,16 +147,38 @@ export class WebsocketHandlerService {
 
   ///////////////////////////////////////////
   // public api
-  initConnect(url) {
+  initConnect(connectionData) {
     // console.log(url);
     this.subject = new Subject();
 
-    try{
+    try {
+        (async function() {
+          console.log('starting connection', connectionData);
+
+          let url;
+          if (connectionData.serverType === 'GitLab') {
+            url = 'https://' + connectionData.url + '/api/v4/projects/' +
+                encodeURIComponent(connectionData.database) + '_emuDB' +
+                '/repository/files/' +
+                connectionData.database.substring(connectionData.database.indexOf('/') + 1) +
+                '_DBconfig.json' +
+                '/raw?ref=master';
+          } else {
+            url = 'https://' + connectionData.url + '/' + connectionData.database + '_emuDB/' + connectionData.database + 'DBconfig.json';
+          }
+            const result = await fetch(url, {headers: {
+              authorization: 'Bearer ' + connectionData.accessToken
+            }});
+            console.log(result);
+            console.log(await result.text());
+        })();
+      /*
       this.ws = new WebSocket(url);
       this.ws.onopen = this.wsonopen.bind(this);
       this.ws.onmessage = this.wsonmessage.bind(this);
       this.ws.onerror = this.wsonerror.bind(this);
       this.ws.onclose = this.wsonclose.bind(this);
+      */
     }catch (err){
       // console.log('askldfjöaskdjfklafjökdas');
       // return $q.reject('A malformed websocket URL that does not start with ws:// or wss:// was provided.');
