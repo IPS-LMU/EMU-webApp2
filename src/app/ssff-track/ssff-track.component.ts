@@ -96,6 +96,7 @@ export class SsffTrackComponent extends SignalCanvasBase {
       );
 
       if (this.mouseY !== null) {
+          // @todo sometimes (race condition), col is not defined when the ssff track is drawn on initial load
           let valueAtMousePosition = col._maxVal - (this.mouseY / this.markupContext.canvas.height * (col._maxVal - col._minVal));
           valueAtMousePosition = MathHelperService.roundToNdigitsAfterDecPoint(valueAtMousePosition, 2);
 
