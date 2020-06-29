@@ -30,6 +30,7 @@ export const emuWebappTheme: EmuWebappTheme = {
     crossHairColor: 'red',
     selectedItemsColor: 'rgba(255, 255, 22, 0.35)',
     selectedLevelColor: 'rgba(22, 22, 22, 0.1)';
+    itemBackgroundColor: null,
 
     primaryFontFamily: 'HelveticaNeue',
     primaryFontSize: 12,

@@ -21,6 +21,12 @@ export function drawEvent(context: CanvasRenderingContext2D,
         context.canvas.width
     ).center;
 
+    // draw event fill
+    if (emuWebappTheme.itemBackgroundColor) {
+        context.fillStyle = emuWebappTheme.itemBackgroundColor;
+        context.fillRect(position - 5, 0, 11, context.canvas.height);
+    }
+
     context.fillStyle = emuWebappTheme.primaryLineColor;
     context.fillRect(position, 0, 1, context.canvas.height / 2 - context.canvas.height / 5);
     context.fillRect(position, context.canvas.height / 2 + context.canvas.height / 5, 1, context.canvas.height / 2 - context.canvas.height / 5);

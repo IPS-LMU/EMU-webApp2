@@ -11,6 +11,7 @@ export interface EmuWebappTheme {
     crossHairColor: string;
     selectedItemsColor: string;
     selectedLevelColor: string;
+    itemBackgroundColor: string;
 
     primaryFontFamily: string;
     primaryFontSize: number;

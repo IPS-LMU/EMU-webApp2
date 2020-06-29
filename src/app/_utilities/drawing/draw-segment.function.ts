@@ -31,6 +31,12 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
     ctx.fillStyle = emuWebappTheme.secondaryLineColor;
     ctx.fillRect(posE, ctx.canvas.height / 2, 2, ctx.canvas.height);
 
+    // draw segment fill
+    if (emuWebappTheme.itemBackgroundColor) {
+        ctx.fillStyle = emuWebappTheme.itemBackgroundColor;
+        ctx.fillRect(posS, 0, posE - posS, ctx.canvas.height);
+    }
+
     // check for enough space to stroke text
     if ((labelValue !== undefined) && posE - posS > (widthOfAnM * labelValue.length)) {
         if (drawSmallVersion) {
