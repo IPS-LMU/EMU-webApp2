@@ -28,6 +28,7 @@ export const emuWebappTheme: EmuWebappTheme = {
     selectionOverlayColor: 'rgba(255, 255, 255, 0.4)',
     movingBoundaryLineColor: 'blue',
     crossHairColor: 'red',
+    selectedItemsColor: 'rgba(255, 255, 22, 0.35)',
 
     primaryFontFamily: 'HelveticaNeue',
     primaryFontSize: 12,

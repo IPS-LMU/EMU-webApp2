@@ -78,7 +78,7 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                         itemStartPosition = itemStartPosition - 5;
                         itemEndPosition = itemStartPosition + 11;
                     }
-                    ctx.fillStyle = 'rgba(255, 255, 22, 0.35)';
+                    ctx.fillStyle = emuWebappTheme.selectedItemsColor;
                     ctx.fillRect(itemStartPosition, 0, itemEndPosition - itemStartPosition, ctx.canvas.height);
                     ctx.fillStyle = 'black';
                 }

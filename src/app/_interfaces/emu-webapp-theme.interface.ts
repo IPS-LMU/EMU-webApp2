@@ -9,6 +9,7 @@ export interface EmuWebappTheme {
     selectionOverlayColor: string;
     movingBoundaryLineColor: string;
     crossHairColor: string;
+    selectedItemsColor: string;
 
     primaryFontFamily: string;
     primaryFontSize: number;
