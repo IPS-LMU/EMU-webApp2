@@ -25,6 +25,7 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
     const widthOfAnM = context.measureText('m').width * FontScaleService.getScaleX(context);
     const widthOfAZero = context.measureText('0').width * FontScaleService.getScaleX(context);
 
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     context.fillStyle = emuWebappTheme.canvasBackgroundColor;
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
