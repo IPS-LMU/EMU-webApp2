@@ -21,8 +21,8 @@ export function drawLevelMarkup(ctx: CanvasRenderingContext2D,
                                 audioBuffer: AudioBuffer,
                                 emuWebappTheme: EmuWebappTheme) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (selected) {
-        ctx.fillStyle = 'rgba(22, 22, 22, 0.1)';
+    if (selected && emuWebappTheme.selectedLevelColor) {
+        ctx.fillStyle = emuWebappTheme.selectedLevelColor;
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
