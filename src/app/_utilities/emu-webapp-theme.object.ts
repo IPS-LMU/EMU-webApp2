@@ -18,19 +18,19 @@ export const emuWebappTheme: EmuWebappTheme = {
 
 */
 export const emuWebappTheme: EmuWebappTheme = {
-    primaryFontColor: 'white',
-    secondaryFontColor: 'grey',
-    primaryLineColor: 'white',
+    primaryFontColor: 'black',
+    secondaryFontColor: 'black',
+    primaryLineColor: '#e8dede',
     secondaryLineColor: 'grey',
 
-    canvasBackgroundColor: 'black',
-    osciZeroLineColor: '#4fc3f7',
-    selectionOverlayColor: 'rgba(255, 255, 255, 0.4)',
+    canvasBackgroundColor: 'rgba(0,0,0,0)',
+    osciZeroLineColor: '#e8dede',
+    selectionOverlayColor: 'rgba(255, 255, 255, 0.8)',
     movingBoundaryLineColor: 'blue',
     crossHairColor: 'red',
-    selectedItemsColor: 'rgba(255, 255, 22, 0.35)',
-    selectedLevelColor: 'rgba(22, 22, 22, 0.1)';
-    itemBackgroundColor: null,
+    selectedItemsColor: 'rgba(210, 185, 169, 0.5)',
+    selectedLevelColor: null,
+    itemBackgroundColor: 'rgba(232, 222, 222, 1)',
 
     primaryFontFamily: 'HelveticaNeue',
     primaryFontSize: 12,
