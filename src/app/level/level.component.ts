@@ -16,6 +16,7 @@ import {CanvasBase} from '../canvas-base.class';
     styleUrls: ['./level.component.scss']
 })
 export class LevelComponent extends CanvasBase {
+    private _contiguous_mode: boolean = false; // FIXME make changeable
     private _database_configuration: { restrictions: {editItemSize: boolean} };
     private _preselected_item: PreselectedItemInfo;
     private _selected_items: IItem[];
@@ -302,33 +303,53 @@ export class LevelComponent extends CanvasBase {
                 this._audio_buffer.length
             );
             if (itemNearCursor.current && itemNearCursor.nearest) {
+                let selectedItem: IItem;
                 let selectedBoundary: Boundary;
 
                 if (this._level_annotation.type === 'EVENT') {
+                    selectedItem = itemNearCursor.current;
                     selectedBoundary = {
-                        sample: itemNearCursor.nearest.samplePoint,
+                        sample: selectedItem.samplePoint,
                         positionInSample: 'center'
                     };
                 } else {
-                    if (itemNearCursor.isLast) {
-                        selectedBoundary = {
-                            sample: itemNearCursor.nearest.sampleStart + itemNearCursor.nearest.sampleDur,
-                            positionInSample: 'end'
-                        };
+                    if (this._contiguous_mode) {
+                        selectedItem = itemNearCursor.nearest;
+
+                        if (itemNearCursor.isLast) {
+                            selectedBoundary = {
+                                sample: selectedItem.sampleStart + selectedItem.sampleDur,
+                                positionInSample: 'end'
+                            };
+                        } else {
+                            selectedBoundary = {
+                                sample: selectedItem.sampleStart,
+                                positionInSample: 'start'
+                            };
+                        }
                     } else {
-                        selectedBoundary = {
-                            sample: itemNearCursor.nearest.sampleStart,
-                            positionInSample: 'start'
-                        };
+                        selectedItem = itemNearCursor.current;
+
+                        if (itemNearCursor.rightBoundarySelected) {
+                            selectedBoundary = {
+                                sample: selectedItem.sampleStart + selectedItem.sampleDur,
+                                positionInSample: 'end'
+                            };
+                        } else {
+                            selectedBoundary = {
+                                sample: selectedItem.sampleStart,
+                                positionInSample: 'start'
+                            }
+                        }
                     }
                 }
 
                 this.preselect_item.emit({
-                    item: itemNearCursor.nearest,
+                    item: selectedItem,
                     neighbours: LevelService.getItemNeighboursFromLevel(
                         this._level_annotation,
-                        itemNearCursor.nearest.id,
-                        itemNearCursor.nearest.id
+                        selectedItem.id,
+                        selectedItem.id
                     ),
                     isFirst: itemNearCursor.isFirst,
                     isLast: itemNearCursor.isLast,
@@ -426,14 +447,32 @@ export class LevelComponent extends CanvasBase {
     }
 
     private moveSegmentBoundary(segment: IItem, moveBy: number) {
-        LevelService.moveBoundary(
-            this._level_annotation,
-            segment.id,
-            moveBy,
-            this._preselected_item.isFirst,
-            this._preselected_item.isLast,
-            this._audio_buffer.length
-        );
+        if (this._contiguous_mode) {
+            LevelService.moveBoundary(
+                this._level_annotation,
+                segment.id,
+                moveBy,
+                this._preselected_item.isFirst,
+                this._preselected_item.isLast,
+                this._audio_buffer.length
+            );
+        } else {
+            if (this._preselected_item.selectedBoundary.positionInSample === "start") {
+                LevelService.moveSegmentStartWithoutNeighborAndAllowOverlap(
+                    this._level_annotation,
+                    segment.id,
+                    moveBy,
+                    this._audio_buffer.length
+                );
+            } else {
+                LevelService.moveSegmentEndWithoutNeighborAndAllowOverlap(
+                    this._level_annotation,
+                    segment.id,
+                    moveBy,
+                    this._audio_buffer.length
+                );
+            }
+        }
 
         this.moving_boundary_move.emit([{
             sample: this._preselected_item.selectedBoundary.sample + moveBy,
