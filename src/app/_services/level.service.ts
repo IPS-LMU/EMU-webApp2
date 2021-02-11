@@ -249,6 +249,7 @@ export class LevelService {
    * - nearest is the item next to the current one depending on where the mouse is (ie if over 50% right element, under 50% left element)
    * - isFirst is true if the mouse is before the first item
    * - isLast is true if the mouse is after the last item
+   * - rightBoundarySelected is true if the mouse is in the right half of the `current` item (this exists only for segments, not for events)
    *
    */
   public static getClosestItem (sampleNr: number, level: ILevel, maximum: number) {
@@ -314,7 +315,8 @@ export class LevelService {
               current: clickedSegment,
               nearest: segmentWithPreselectedBoundary,
               isFirst: (clickedSegment === level.items[0] && !rightBoundarySelected),
-              isLast: (clickedSegment === level.items[level.items.length - 1] && rightBoundarySelected)
+              isLast: (clickedSegment === level.items[level.items.length - 1] && rightBoundarySelected),
+              rightBoundarySelected: rightBoundarySelected,
           };
       }
   }
@@ -775,6 +777,48 @@ export class LevelService {
         }
       }
     }
+  }
+
+  public static moveSegmentStartWithoutNeighborAndAllowOverlap (level: ILevel, itemId: number, amountOfChange: number, audioBufferLength: number) {
+      let item = LevelService.getItemFromLevelById(level, itemId);
+      let newSampleStart = item.sampleStart + amountOfChange;
+      let newSampleDur = item.sampleDur - amountOfChange;
+
+      if (newSampleDur < 0) {
+          newSampleStart = item.sampleStart + item.sampleDur;
+          newSampleDur *= -1;
+      }
+
+      if (newSampleStart < 0) {
+          return;
+      }
+
+      if (newSampleStart + newSampleDur >= audioBufferLength) {
+          return;
+      }
+
+      LevelService.updateSegment(level, itemId, undefined, undefined, newSampleStart, newSampleDur);
+  }
+
+  public static moveSegmentEndWithoutNeighborAndAllowOverlap (level: ILevel, itemId: number, amountOfChange: number, audioBufferLength: number) {
+      let item = LevelService.getItemFromLevelById(level, itemId);
+      let newSampleStart = item.sampleStart;
+      let newSampleDur = item.sampleDur + amountOfChange;
+
+      if (newSampleDur < 0) {
+          newSampleStart = item.sampleStart + item.sampleDur + amountOfChange;
+          newSampleDur *= -1;
+      }
+
+      if (newSampleStart < 0) {
+          return;
+      }
+
+      if (newSampleStart + newSampleDur >= audioBufferLength) {
+          return;
+      }
+
+      LevelService.updateSegment(level, itemId, undefined, undefined, newSampleStart, newSampleDur);
   }
 
   /**
