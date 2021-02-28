@@ -9,7 +9,7 @@ export function drawEvent(context: CanvasRenderingContext2D,
                           attribute: string,
                           viewportStartSample: number,
                           viewportEndSample: number,
-                          drawSmallVersion: boolean,
+                          drawEventTime: boolean,
                           emuWebappTheme: EmuWebappTheme) {
 
     const labelValue = LevelService.getLabelByAttribute(item, attribute);
@@ -43,7 +43,7 @@ export function drawEvent(context: CanvasRenderingContext2D,
         'middle'
     );
 
-    if (!drawSmallVersion) {
+    if (drawEventTime) {
         FontScaleService.drawUndistortedText(
             context,
             item.samplePoint.toString(),

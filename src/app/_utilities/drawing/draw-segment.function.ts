@@ -10,6 +10,7 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
                             viewportStartSample: number,
                             viewportEndSample: number,
                             drawSmallVersion: boolean,
+                            drawSegmentTimes: boolean,
                             widthOfAnM: number,
                             widthOfAZero: number,
                             emuWebappTheme: EmuWebappTheme) {
@@ -69,7 +70,7 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
         ctx.stroke();
     }
 
-    if (!drawSmallVersion) {
+    if (drawSegmentTimes) {
         // draw sampleStart numbers
         // check for enough space to stroke text
         if (posE - posS > widthOfAZero * item.sampleStart.toString().length) {

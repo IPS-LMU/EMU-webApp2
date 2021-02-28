@@ -549,6 +549,8 @@ export class LevelComponent extends CanvasBase {
             this._viewport_sample_start,
             this._viewport_sample_end,
             false,
+            false,
+            false,
             emuWebappTheme
         );
     }

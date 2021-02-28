@@ -9,7 +9,9 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
                                  attribute: string,
                                  viewportStartSample: number,
                                  viewportEndSample: number,
+                                 drawLeveNameAndType: boolean,
                                  drawSmallVersion: boolean,
+                                 drawItemTimes: boolean,
                                  emuWebappTheme: EmuWebappTheme) {
     let fontSize = emuWebappTheme.primaryFontSize;
 
@@ -29,44 +31,45 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
     context.fillStyle = emuWebappTheme.canvasBackgroundColor;
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
-    // draw name and type of level
-    let levelLabel;
+    if (drawLeveNameAndType) {
+        let levelLabel;
 
-    if (level.name === attribute) {
-        levelLabel = level.name;
-    } else {
-        levelLabel = level.name + ':' + attribute;
-    }
+        if (level.name === attribute) {
+            levelLabel = level.name;
+        } else {
+            levelLabel = level.name + ':' + attribute;
+        }
 
-    const typeLabel = '(' + level.type + ')';
-    const x = 10;
-    const y = context.canvas.height / 2;
+        const typeLabel = '(' + level.type + ')';
+        const x = 10;
+        const y = context.canvas.height / 2;
 
-    if (drawSmallVersion) {
-        FontScaleService.drawUndistortedText(
-            context,
-            levelLabel,
-            fontSize,
-            emuWebappTheme.primaryFontFamily,
-            x,
-            y,
-            emuWebappTheme.primaryFontColor,
-            'left',
-            'middle'
-        );
-    } else {
-        FontScaleService.drawUndistortedTextTwoLines(
-            context,
-            levelLabel,
-            typeLabel,
-            fontSize,
-            emuWebappTheme.primaryFontFamily,
-            x,
-            y,
-            emuWebappTheme.primaryFontColor,
-            'left',
-            'middle'
-        );
+        if (drawSmallVersion) {
+            FontScaleService.drawUndistortedText(
+                context,
+                levelLabel,
+                fontSize,
+                emuWebappTheme.primaryFontFamily,
+                x,
+                y,
+                emuWebappTheme.primaryFontColor,
+                'left',
+                'middle'
+            );
+        } else {
+            FontScaleService.drawUndistortedTextTwoLines(
+                context,
+                levelLabel,
+                typeLabel,
+                fontSize,
+                emuWebappTheme.primaryFontFamily,
+                x,
+                y,
+                emuWebappTheme.primaryFontColor,
+                'left',
+                'middle'
+            );
+        }
     }
 
     if (level.type === 'SEGMENT') {
@@ -80,7 +83,7 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
             ) {
                 drawSegment(
                     context, item, attribute, viewportStartSample, viewportEndSample,
-                    drawSmallVersion, widthOfAnM, widthOfAZero, emuWebappTheme
+                    drawSmallVersion, drawItemTimes, widthOfAnM, widthOfAZero, emuWebappTheme
                 );
             }
         }
@@ -89,7 +92,7 @@ export function drawLevelDetails(context: CanvasRenderingContext2D,
             if (item.samplePoint > viewportStartSample && item.samplePoint < viewportEndSample) {
                 drawEvent(
                     context, item, attribute, viewportStartSample, viewportEndSample,
-                    drawSmallVersion, emuWebappTheme
+                    drawItemTimes, emuWebappTheme
                 );
             }
         }
