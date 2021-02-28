@@ -53,7 +53,7 @@ export function drawSegment(ctx: CanvasRenderingContext2D,
 
         let hlY = ctx.canvas.height / 4;
         // start helper line
-        ctx.strokeStyle = emuWebappTheme.primaryLineColor;
+        ctx.strokeStyle = emuWebappTheme.secondaryLineColor;
         ctx.beginPath();
         ctx.moveTo(posS, hlY);
         ctx.lineTo(labelCenter, hlY);
