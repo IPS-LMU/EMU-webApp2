@@ -59,12 +59,12 @@ export function getSamplesPerCssPixel(viewportStartSample: number,
 
 export function getMousePositionInCanvasX(event: MouseEvent) {
     const target: HTMLCanvasElement = event.target as HTMLCanvasElement;
-    return (event.offsetX || event.layerX) * (target.width / target.clientWidth);
+    return (event.offsetX || (event as any).layerX) * (target.width / target.clientWidth);
 }
 
 export function getMousePositionInCanvasY(event: MouseEvent) {
     const target: HTMLCanvasElement = event.target as HTMLCanvasElement;
-    return (event.offsetY || event.layerY) * (target.height / target.clientHeight);
+    return (event.offsetY || (event as any).layerY) * (target.height / target.clientHeight);
 }
 
 
