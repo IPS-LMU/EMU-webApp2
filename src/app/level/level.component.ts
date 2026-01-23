@@ -13,7 +13,8 @@ import {CanvasBase} from '../canvas-base.class';
 @Component({
     selector: 'app-level',
     templateUrl: './level.component.html',
-    styleUrls: ['./level.component.scss']
+    styleUrls: ['./level.component.scss'],
+    standalone: false
 })
 export class LevelComponent extends CanvasBase {
     private _contiguous_mode: boolean = false; // FIXME make changeable

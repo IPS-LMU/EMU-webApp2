@@ -8,7 +8,8 @@ import {SignalCanvasBase} from '../signal-canvas-base.class';
 @Component({
     selector: 'app-osci',
     templateUrl: './osci.component.html',
-    styleUrls: ['./osci.component.scss']
+    styleUrls: ['./osci.component.scss'],
+    standalone: false
 })
 export class OsciComponent extends SignalCanvasBase implements OnInit {
     private _play_head_info;
