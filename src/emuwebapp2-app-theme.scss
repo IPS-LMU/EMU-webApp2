@@ -19,14 +19,14 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://www.google.com/design/spec/style/color.html
-$emuwebapp-app-primary: mat.define-palette(mat.$light-blue-palette, 300);
-$emuwebapp-app-accent:  mat.define-palette(mat.$grey-palette, 300);
+$emuwebapp-app-primary: mat.m2-define-palette(mat.$m2-light-blue-palette, 300);
+$emuwebapp-app-accent:  mat.m2-define-palette(mat.$m2-grey-palette, 300);
 
 // The warn palette is optional (defaults to red).
-$emuwebapp-app-warn:    mat.define-palette(mat.$red-palette);
+$emuwebapp-app-warn:    mat.m2-define-palette(mat.$m2-red-palette);
 
 // Create the theme object (a Sass map containing all of the palettes).
-$emuwebapp-app-theme: mat.define-dark-theme($emuwebapp-app-primary, $emuwebapp-app-accent, $emuwebapp-app-warn);
+$emuwebapp-app-theme: mat.m2-define-dark-theme($emuwebapp-app-primary, $emuwebapp-app-accent, $emuwebapp-app-warn);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
