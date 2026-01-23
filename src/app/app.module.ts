@@ -96,10 +96,6 @@ import { MessagesSnackbarComponent } from './_dialogs/messages-snackbar/messages
   providers: [
     MatIconRegistry
   ],
-  entryComponents: [
-    ConfirmDialogComponent,
-    ConnectComponent
-  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
